@@ -46,21 +46,147 @@ Screenshot contract: `docs/screenshots.json`.
 
 ## Technical Shape
 
-- Service providers: `Capell\ContentSections\Providers\ContentSectionsServiceProvider`.
-- Config files: `packages/content-sections/config/capell-content-sections.php`.
-- Migrations: `packages/content-sections/database/migrations/2026_05_10_190844_01_create_sections_table.php`, `packages/content-sections/database/migrations/2026_08_28_000003_change_section_visibility_to_datetime.php`.
-- Models: `ComposhipsJsonRelationshipsTrait`, `Section`.
-- Filament classes: `CreateContentAction`, `ActionsRepeater`, `AssetsRepeater`, `BlueprintSelect`, `DetailsSchema`, `RelatedRepeater`, `SettingsSchema`, `TranslationsRepeater`, `ContentSelect`, `CustomColorInput`, `ContentNameColumn`, `HasAssetsRelationManager`, `and 28 more`.
-- Livewire components: `AbstractAssets`, `SectionAssets`, `ModalTableSelect`.
-- Route files: `packages/content-sections/routes/web.php`.
-- Policies: `SectionPolicy`.
-- Extension contracts: `SectionDefinitionProvider`.
-- Actions: `BuildSectionAssetRenderDataAction`, `BuildSectionCreateFormDataAction`, `BuildSectionDemoDataAction`, `BuildSectionUsageSummaryAction`, `CancelScheduledSectionUnpublishAction`, `CloneSectionIntoWorkspaceAction`, `CreateHeroContentBlueprintAction`, `CreateSectionContentAction`, `EnsureSectionBlueprintForKeyAction`, `FinalizeSectionPublishAction`, `GetDefaultLanguageIdAction`, `ModifyContentSelectCreateAction`, `and 8 more`.
-- Data objects: `SectionAssetRenderData`, `SectionDefinitionData`, `SectionPublicRenderData`, `SectionUsageDestinationData`, `SectionUsageSummaryData`, `SectionVisibilityActionResultData`.
-- Manifest contributions: `admin-resource: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `asset: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `configurator: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `frontend-component: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `model: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `page-type: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `route: Capell\ContentSections\Manifest\ContentSectionsRoutesContribution`, `schema-extender: Capell\ContentSections\Manifest\ContentSectionsSchemaExtendersContribution`.
-- Health checks: `Capell\ContentSections\Health\ContentSectionsHealthCheck`.
-- Blade views: `packages/content-sections/resources/views/components/section/asset.blade.php`, `packages/content-sections/resources/views/components/section/team-member.blade.php`, `packages/content-sections/resources/views/components/section/widget.blade.php`, `packages/content-sections/resources/views/filament/sections/usage-breakdown.blade.php`, `packages/content-sections/resources/views/livewire/filament/widgets-table-select.blade.php`, `packages/content-sections/resources/views/screenshots/section-selector-modal.blade.php`, `packages/content-sections/resources/views/screenshots/section-widget-gallery.blade.php`, `packages/content-sections/resources/views/section/demo.blade.php`.
-- Cache tags: `content-sections`.
+### Service providers
+
+- `Capell\ContentSections\Providers\ContentSectionsServiceProvider`
+
+### Config files
+
+- `packages/content-sections/config/capell-content-sections.php`
+
+### Migrations
+
+- `packages/content-sections/database/migrations/2026_05_10_190844_01_create_sections_table.php`
+- `packages/content-sections/database/migrations/2026_08_28_000003_change_section_visibility_to_datetime.php`
+
+### Models
+
+- `ComposhipsJsonRelationshipsTrait`
+- `Section`
+
+### Filament classes
+
+- `CreateContentAction`
+- `ActionsRepeater`
+- `AssetsRepeater`
+- `BlueprintSelect`
+- `DetailsSchema`
+- `RelatedRepeater`
+- `SettingsSchema`
+- `TranslationsRepeater`
+- `ContentSelect`
+- `CustomColorInput`
+- `ContentNameColumn`
+- `HasAssetsRelationManager`
+- `ContentBlueprintConfigurator`
+- `AccordionSectionConfigurator`
+- `CallToActionSectionConfigurator`
+- `ComparisonSectionConfigurator`
+- `CounterSectionConfigurator`
+- `DefaultSectionConfigurator`
+- `DividerSectionConfigurator`
+- `FaqSectionConfigurator`
+- `FeaturesSectionConfigurator`
+- `HeroSectionConfigurator`
+- `LogosSectionConfigurator`
+- `PricingSectionConfigurator`
+- `RichSectionConfigurator`
+- `StatsSectionConfigurator`
+- `TableSectionConfigurator`
+- `TabsSectionConfigurator`
+- `TeamSectionConfigurator`
+- `TestimonialSectionConfigurator`
+- `TimelineSectionConfigurator`
+- `CreateSection`
+- `EditSection`
+- `ListSections`
+- `SectionAssetsRelationManager`
+- `SectionForm`
+- `SectionResource`
+- `SectionSelectionTable`
+- `SectionsTable`
+- `SectionAlertsWidget`
+
+### Livewire components
+
+- `AbstractAssets`
+- `SectionAssets`
+- `ModalTableSelect`
+
+### Route files
+
+- `packages/content-sections/routes/web.php`
+
+### Policies
+
+- `SectionPolicy`
+
+### Extension contracts
+
+- `SectionDefinitionProvider`
+
+### Actions
+
+- `BuildSectionAssetRenderDataAction`
+- `BuildSectionCreateFormDataAction`
+- `BuildSectionDemoDataAction`
+- `BuildSectionUsageSummaryAction`
+- `CancelScheduledSectionUnpublishAction`
+- `CloneSectionIntoWorkspaceAction`
+- `CreateHeroContentBlueprintAction`
+- `CreateSectionContentAction`
+- `EnsureSectionBlueprintForKeyAction`
+- `FinalizeSectionPublishAction`
+- `GetDefaultLanguageIdAction`
+- `ModifyContentSelectCreateAction`
+- `NormalizeSectionIconAction`
+- `RegisterDefaultSectionsAction`
+- `RegisterSectionDefinitionProviderAction`
+- `ReplicateContentAction`
+- `ResolveRequestedSectionBlueprintAction`
+- `ResolveSectionComponentAction`
+- `SanitizeSectionHtmlAction`
+- `UnpublishSectionAction`
+
+### Data objects
+
+- `SectionAssetRenderData`
+- `SectionDefinitionData`
+- `SectionPublicRenderData`
+- `SectionUsageDestinationData`
+- `SectionUsageSummaryData`
+- `SectionVisibilityActionResultData`
+
+### Manifest contributions
+
+- `admin-resource: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`
+- `asset: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`
+- `configurator: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`
+- `frontend-component: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`
+- `model: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`
+- `page-type: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`
+- `route: Capell\ContentSections\Manifest\ContentSectionsRoutesContribution`
+- `schema-extender: Capell\ContentSections\Manifest\ContentSectionsSchemaExtendersContribution`
+
+### Health checks
+
+- `Capell\ContentSections\Health\ContentSectionsHealthCheck`
+
+### Blade views
+
+- `packages/content-sections/resources/views/components/section/asset.blade.php`
+- `packages/content-sections/resources/views/components/section/team-member.blade.php`
+- `packages/content-sections/resources/views/components/section/widget.blade.php`
+- `packages/content-sections/resources/views/filament/sections/usage-breakdown.blade.php`
+- `packages/content-sections/resources/views/livewire/filament/widgets-table-select.blade.php`
+- `packages/content-sections/resources/views/screenshots/section-selector-modal.blade.php`
+- `packages/content-sections/resources/views/screenshots/section-widget-gallery.blade.php`
+- `packages/content-sections/resources/views/section/demo.blade.php`
+
+### Cache tags
+
+- `content-sections`
+
 
 ## Data Model
 
@@ -76,7 +202,7 @@ Screenshot contract: `docs/screenshots.json`.
 - Required packages: `capell-app/admin`, `capell-app/block-library`, `capell-app/core`, `capell-app/frontend`, `capell-app/layout-builder`.
 - Admin navigation: declares `admin-resource: ContentSectionsPackageContribution`; each Filament page or resource controls its own navigation visibility.
 - Admin/editor extensions: `configurator: ContentSectionsPackageContribution`, `schema-extender: ContentSectionsSchemaExtendersContribution`.
-- Permissions: `ViewAny:Section`, `View:Section`, `Create:Section`, `Update:Section`, `Delete:Section`, `DeleteAny:Section`, `Restore:Section`, `RestoreAny:Section`, `ForceDelete:Section`, `ForceDeleteAny:Section`, `Replicate:Section`, `Reorder:Section`.
+- Permissions: `ViewAny:Section`, `View:Section`, `Create:Section`, `Update:Section`, `Delete:Section`, `DeleteAny:Section`, `Restore:Section`, `RestoreAny:Section`, `ForceDelete:Section`, `ForceDeleteAny:Section`, `Replicate:Section`, `Reorder:Section`; access also governed by package policies: `SectionPolicy`.
 - Public routes: loads `routes/web.php`; registers `ContentSectionsRoutesContribution`.
 - Database changes: package migrations are declared.
 - Config: `config/capell-content-sections.php`.
@@ -106,8 +232,7 @@ Screenshot contract: `docs/screenshots.json`.
 ## Quick Start
 
 1. Install the package: `composer require capell-app/content-sections`.
-2. Run the required setup: `php artisan migrate`.
-3. Open the package admin surface at `/content-sections/sections` and confirm Content Sections is available.
+2. Open the package admin surface at `/content-sections/sections` and confirm Content Sections is available.
 
 ## Next Steps
 
