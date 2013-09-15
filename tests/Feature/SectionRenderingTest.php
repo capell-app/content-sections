@@ -56,11 +56,20 @@ beforeEach(function (): void {
     app()->instance(SectionRegistry::class, $registry);
 });
 
+/**
+ * @return TestResponse<Response>
+ */
 function renderSectionForDomAssertions(string $key): TestResponse
 {
     $data = BuildSectionDemoDataAction::run($key);
     $data['meta'] = removeSectionIconValues($data['meta']);
-    $html = view()->make($data['definition']->component, [
+    $view = $data['definition']->component;
+
+    if (! view()->exists($view)) {
+        throw new RuntimeException("The section fixture view [{$view}] does not exist.");
+    }
+
+    $html = view()->make($view, [
         ...$data,
         'attributes' => new ComponentAttributeBag,
     ])->render();
@@ -70,11 +79,19 @@ function renderSectionForDomAssertions(string $key): TestResponse
     );
 }
 
+/**
+ * @template TResponse of \Symfony\Component\HttpFoundation\Response
+ *
+ * @param  TestResponse<TResponse>  $response
+ * @return TestResponse<TResponse>
+ */
 function assertSectionDomWidgetCount(TestResponse $response, string $selector, int $count): TestResponse
 {
-    return $response->assertElementExists('body', static function (AssertElement $body) use ($selector, $count): void {
+    $response->assertElementExists('body', static function (AssertElement $body) use ($selector, $count): void {
         $body->contains($selector, $count);
     });
+
+    return $response;
 }
 
 /**
@@ -112,7 +129,7 @@ it('renders call to action headings copy and actions', function (): void {
     renderSectionForDomAssertions('call_to_action')
         ->assertContainsElement('section.section-call-to-action.text-center', ['text' => 'Call-to-action section'])
         ->assertContainsElement('section.section-call-to-action a', ['href' => '#', 'text' => 'Start a project'])
-        ->assertContainsElement('section.section-call-to-action a', ['href' => '#', 'text' => 'View examples'], 1);
+        ->assertContainsElement('section.section-call-to-action a', ['href' => '#', 'text' => 'View examples']);
 });
 
 it('renders public action buttons through the public actions component when available', function (): void {
@@ -131,7 +148,13 @@ it('renders public action buttons through the public actions component when avai
         ],
     ];
 
-    $html = view()->make($data['definition']->component, [
+    $view = $data['definition']->component;
+
+    if (! view()->exists($view)) {
+        throw new RuntimeException("The section fixture view [{$view}] does not exist.");
+    }
+
+    $html = view()->make($view, [
         ...$data,
         'attributes' => new ComponentAttributeBag,
     ])->render();
@@ -169,7 +192,13 @@ it('renders counter cards with formatted values and labels', function (): void {
 
 it('renders configured section icons through blade icons', function (): void {
     $data = BuildSectionDemoDataAction::run('counter');
-    $html = view()->make($data['definition']->component, [
+    $view = $data['definition']->component;
+
+    if (! view()->exists($view)) {
+        throw new RuntimeException("The section fixture view [{$view}] does not exist.");
+    }
+
+    $html = view()->make($view, [
         ...$data,
         'attributes' => new ComponentAttributeBag,
     ])->render();
