@@ -1,0 +1,15 @@
+{
+    "name": "capell-app/content-sections",
+    "kind": "package",
+    "capell-version": "^4.0",
+    "productGroup": "Capell Foundation",
+    "tier": "free",
+    "bundle": "foundation",
+    "contexts": ["admin", "frontend"],
+    "requires": ["capell-app/core", "capell-app/admin", "capell-app/frontend"],
+    "providers": {
+        "shared": [
+            "Capell\\ContentSections\\Providers\\ContentSectionsServiceProvider"
+        ]
+    }
+}
