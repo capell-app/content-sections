@@ -81,4 +81,4 @@ it('can delete', function (): void {
     assertSoftDeleted($content, ['id' => $content->id]);
 });
 
-todo('test create action');
+test('create action')->skip('TODO: cover the create action.');

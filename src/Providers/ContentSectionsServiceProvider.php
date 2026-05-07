@@ -30,7 +30,6 @@ use Capell\Frontend\Contracts\AssetsRegistryInterface;
 use Capell\Frontend\Data\FrontendAssetData;
 use Capell\PublishingStudio\WorkspaceRegistry;
 use Composer\InstalledVersions;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Blade;
 use Livewire\Livewire;
@@ -198,12 +197,12 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
 
     private function registerEvents(): self
     {
-        Section::registerModelEvent('created', function (Model $model): void {
-            CreatedModelAction::run($model);
+        Section::created(function (Section $section): void {
+            CreatedModelAction::run($section);
         });
 
-        Section::registerModelEvent('deleted', function (Model $model): void {
-            DeletedModelAction::run($model);
+        Section::deleted(function (Section $section): void {
+            DeletedModelAction::run($section);
         });
 
         return $this;
