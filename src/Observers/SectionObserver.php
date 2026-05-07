@@ -15,9 +15,9 @@ class SectionObserver
 {
     public function creating(Section $section): void
     {
-        if (! $section->type_id) {
+        if ($section->type_id === null) {
             $section->type_id = Type::query()->where('type', LayoutTypeEnum::Section)->default()->value('id');
-            throw_unless($section->type_id, InvalidArgumentException::class, 'Unable to create content without a type.');
+            throw_if($section->type_id === null, InvalidArgumentException::class, 'Unable to create content without a type.');
         }
 
         // Normalize parent_id from loaded relation if needed (nested set).

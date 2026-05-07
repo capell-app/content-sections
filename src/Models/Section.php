@@ -69,7 +69,7 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
  * @property-read int|null $languages_count
  * @property-read Pageable|null $page
  * @property-read Section|null $parent
- * @property-write mixed $parent_id
+ * @property int|null $parent_id
  * @property-read Site|null $site
  * @property-read Translation|null $translation
  * @property-read EloquentCollection<int, Translation> $translations

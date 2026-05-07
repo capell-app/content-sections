@@ -24,7 +24,6 @@ class ReplicateContentAction
             unset($data['translations']);
         }
 
-        /** @var class-string<Section> $className */
         $className = $content::class;
 
         $model = $className::query()->find($content->getKey());

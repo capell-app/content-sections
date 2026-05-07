@@ -64,7 +64,7 @@ class EditSection extends EditRecord
     {
         $type = $this->record->type;
 
-        if (! $type) {
+        if ($type === null) {
             return null;
         }
 

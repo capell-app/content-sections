@@ -126,7 +126,7 @@ class ContentSelect extends Select
                     ->modalHeading(
                         fn (self $component): string => __(
                             'capell-content-sections::heading.edit_content_record',
-                            ['name' => $component->getSelectedRecord()->name],
+                            ['name' => $component->getSelectedRecord()?->getAttribute('name')],
                         ),
                     )
                     ->modalWidth(Width::ScreenExtraLarge)
@@ -157,7 +157,7 @@ class ContentSelect extends Select
     {
         $label = '';
 
-        if (($siteId === null || $siteId === 0) && $record->site) {
+        if (($siteId === null || $siteId === 0) && $record->site !== null) {
             $label .= $record->site->name . ' &raquo; ';
         }
 
@@ -187,7 +187,6 @@ class ContentSelect extends Select
         /** @var class-string<Section> $model */
         $model = Section::class;
 
-        /** @var Section $content */
         $contents = $model::query()->select('sections.*')
             ->with($relations)
             ->join('types', 'sections.type_id', '=', 'types.id')

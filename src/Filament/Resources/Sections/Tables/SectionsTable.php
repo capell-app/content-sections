@@ -31,7 +31,6 @@ use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Forms\Components\Select;
 use Filament\Resources\Pages\ListRecords;
-use Filament\Resources\Resource;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Contracts\HasTable;
@@ -149,7 +148,7 @@ class SectionsTable implements TableConfigurator
                         return null;
                     }
 
-                    /** @var resource $resource */
+                    /** @var class-string<\Filament\Resources\Resource> $resource */
                     $resource = AdminSurfaceLookup::resource(ResourceEnum::Page);
 
                     return $resource::getUrl(
@@ -167,7 +166,7 @@ class SectionsTable implements TableConfigurator
                 ->formatStateUsing(fn (Section $record): int => $record->assets_count),
             SiteColumn::make('site.name')
                 ->hidden(
-                    fn (HasTable $livewire): bool => ($livewire instanceof ListRecords && $livewire->activeTab)
+                    fn (HasTable $livewire): bool => ($livewire instanceof ListRecords && $livewire->activeTab !== null && $livewire->activeTab !== '')
                         || ($livewire->getTableFilterState('filter')['site_id'] ?? null) !== null && $livewire->getTableFilterState('filter')['site_id'] !== '',
                 ),
             DateColumn::make('visible_from')
@@ -272,7 +271,7 @@ class SectionsTable implements TableConfigurator
                             return $sections->mapWithKeys(function (Section $section) use ($siteId): array {
                                 $label = '';
 
-                                if (! $siteId && $section->site) {
+                                if (($siteId === null || $siteId === 0) && $section->site !== null) {
                                     $label .= $section->site->name . ' &raquo; ';
                                 }
 

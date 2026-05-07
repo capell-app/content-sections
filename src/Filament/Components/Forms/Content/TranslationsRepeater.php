@@ -8,11 +8,13 @@ use Capell\Admin\Filament\Components\Forms\ContentEditor;
 use Capell\Admin\Filament\Components\Forms\RepeaterTabs;
 use Capell\Admin\Filament\Components\Forms\TranslationLanguageSelect;
 use Capell\Admin\Filament\Components\Forms\TranslationsRepeater as BaseTranslationsRepeater;
+use Capell\Core\Models\Type;
 use Capell\Core\Support\CapellCoreHelper;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Model;
 
 class TranslationsRepeater
 {
@@ -27,7 +29,7 @@ class TranslationsRepeater
         return BaseTranslationsRepeater::make('translations')
             ->when(
                 $operation === 'replicate',
-                fn (TranslationsRepeater $repeater): TranslationsRepeater => $repeater->withoutRelationship(),
+                fn (BaseTranslationsRepeater $repeater): BaseTranslationsRepeater => $repeater->withoutRelationship(),
             )
             ->schema([
                 ...($hasTitle ? self::getTitleSchema() : []),
@@ -40,8 +42,9 @@ class TranslationsRepeater
     {
         $record = $configurator->getRecord();
 
-        if ($record && $record->relationLoaded('type')) {
-            $type = $record->type;
+        if ($record instanceof Model && $record->relationLoaded('type')) {
+            $loadedType = $record->getRelationValue('type');
+            $type = $loadedType instanceof Type ? $loadedType : null;
         } else {
             $type = CapellCoreHelper::getType(
                 typeId: $configurator->getRawState()['type_id'] ?? null,

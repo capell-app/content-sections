@@ -56,7 +56,7 @@ class CustomColorInput
                             $options = $options->toArray();
                         }
 
-                        if ($state && ! isset($options[$state])) {
+                        if ($state !== null && $state !== '' && ! isset($options[$state])) {
                             $set($name, 'custom');
                             $set($name . '_custom', $state);
                         }

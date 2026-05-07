@@ -6,6 +6,7 @@ namespace Capell\ContentSections\Filament\Concerns;
 
 use Aimeos\Nestedset\NestedSet;
 use Capell\Admin\Facades\CapellAdmin;
+use Capell\ContentSections\Models\Section;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Data\AssetData;
 use Capell\Core\Enums\TypeGroupEnum;
@@ -38,15 +39,17 @@ trait HasAssetsRelationManager
             ->successNotificationTitle(__('capell-content-sections::message.asset_added'))
             ->using(function (array $data, self $livewire): Model {
                 throw_if(! isset($data['asset_id']), RuntimeException::class, 'No asset selected');
+                throw_if(! $livewire->ownerRecord instanceof Section, RuntimeException::class, 'Owner record is not a section');
 
                 $asset = null;
+                $ownerRecord = $livewire->ownerRecord;
 
                 foreach ($data['asset_id'] as $uuid) {
-                    $asset = $livewire->ownerRecord->assets()->create([
+                    $asset = $ownerRecord->assets()->create([
                         'asset_id' => $uuid,
                         'asset_type' => $data['asset_type'],
-                        'related_type' => $livewire->ownerRecord->getMorphClass(),
-                        'related_id' => $livewire->ownerRecord->getKey(),
+                        'related_type' => $ownerRecord->getMorphClass(),
+                        'related_id' => $ownerRecord->getKey(),
                     ]);
                 }
 
@@ -74,7 +77,7 @@ trait HasAssetsRelationManager
             ->modifyOptionsQueryUsing(
                 fn (Builder $query) => $query->when(
                     $record instanceof $asset->model,
-                    fn (Builder $query) => $query->whereKeyNot($record->id),
+                    fn (Builder $query) => $query->whereKeyNot($record->getKey()),
                 )
                     ->whereDoesntHave(
                         'assetRelations',
@@ -126,7 +129,7 @@ trait HasAssetsRelationManager
                         ),
                     )
                         ->createOptionUsing(function (Select $component, array $data) use ($asset, $adminAsset, $createOptionUsing): int|string {
-                            $page = $adminAsset->createAction
+                            $page = $adminAsset->createAction !== null
                                 ? $adminAsset->createAction::run($data)
                                 : $component->evaluate($createOptionUsing);
 

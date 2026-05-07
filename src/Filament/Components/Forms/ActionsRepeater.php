@@ -65,7 +65,9 @@ class ActionsRepeater extends Repeater
                             return null;
                         }
 
-                        return $modelClass::query()->find($pageableId, ['name'])?->name;
+                        $name = $modelClass::query()->whereKey($pageableId)->value('name');
+
+                        return is_string($name) ? $name : null;
                     })(),
                     ActionLinkEnum::Link => $state['url'],
                 };

@@ -88,13 +88,13 @@ class SectionFactory extends Factory
                 $languages = collect([$languages]);
             } elseif (is_array($languages)) {
                 $languages = collect($languages);
-            } elseif ($section->site) {
+            } elseif ($section->site !== null) {
                 $languages = $section->site->languages;
             } else {
                 $languages = Language::all();
             }
 
-            if ($section->site && $languages->doesntContain('id', $section->site->language->id)) {
+            if ($section->site !== null && $languages->doesntContain('id', $section->site->language->id)) {
                 $languages = $languages->prepend($section->site->language);
             }
 

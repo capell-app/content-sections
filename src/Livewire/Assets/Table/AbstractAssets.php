@@ -30,9 +30,11 @@ abstract class AbstractAssets extends ModalTableSelect
 
     public function getTableRecordKey(Model|array $record): string
     {
-        return $record->id instanceof UuidInterface
-            ? $record->id->toString()
-            : (string) $record->id;
+        $id = $record instanceof Model ? $record->getKey() : ($record['id'] ?? null);
+
+        return $id instanceof UuidInterface
+            ? $id->toString()
+            : (string) $id;
     }
 
     public function selectRecords(): void
