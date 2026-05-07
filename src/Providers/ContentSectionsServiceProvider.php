@@ -13,6 +13,7 @@ use Capell\Admin\Enums\ConfiguratorTypeEnum as AdminConfiguratorTypeEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\ContentSections\Enums\AssetEnum;
 use Capell\ContentSections\Enums\ConfiguratorTypeEnum;
+use Capell\ContentSections\Enums\FrontendComponentKeyEnum;
 use Capell\ContentSections\Enums\LayoutTypeEnum;
 use Capell\ContentSections\Enums\LivewireComponentsEnum;
 use Capell\ContentSections\Enums\ResourceEnum;
@@ -27,6 +28,7 @@ use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Contracts\AssetsRegistryInterface;
+use Capell\Frontend\Contracts\FrontendComponentRegistryInterface;
 use Capell\Frontend\Data\FrontendAssetData;
 use Capell\PublishingStudio\WorkspaceRegistry;
 use Composer\InstalledVersions;
@@ -85,6 +87,7 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
             ->registerConfigurators()
             ->registerTypes()
             ->registerAssets()
+            ->registerFrontendComponents()
             ->registerEvents()
             ->registerBladeComponents()
             ->registerBlazeComponents()
@@ -190,6 +193,54 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
                     component: $sectionAsset->getComponent(),
                 ),
             );
+        });
+
+        return $this;
+    }
+
+    private function registerFrontendComponents(): self
+    {
+        $this->callAfterResolving(FrontendComponentRegistryInterface::class, function (FrontendComponentRegistryInterface $registry): void {
+            $registry
+                ->register(
+                    key: FrontendComponentKeyEnum::SectionBlock->value,
+                    component: 'capell-content-sections::section.block',
+                    aliases: ['capell-content-sections::section.block'],
+                    props: [
+                        'asset',
+                        'class',
+                        'color',
+                        'icon',
+                        'image',
+                        'linkText',
+                        'loop',
+                        'meta',
+                        'size',
+                        'summary',
+                        'tags',
+                        'title',
+                        'url',
+                    ],
+                )
+                ->register(
+                    key: FrontendComponentKeyEnum::SectionTeamMember->value,
+                    component: 'capell-content-sections::section.team-member',
+                    aliases: ['capell-content-sections::section.team-member'],
+                    props: [
+                        'asset',
+                        'class',
+                        'color',
+                        'icon',
+                        'image',
+                        'linkText',
+                        'loop',
+                        'meta',
+                        'size',
+                        'summary',
+                        'title',
+                        'url',
+                    ],
+                );
         });
 
         return $this;

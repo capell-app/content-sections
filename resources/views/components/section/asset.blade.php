@@ -1,4 +1,5 @@
 @php
+    use Capell\Frontend\Contracts\FrontendComponentRegistryInterface;
     use Capell\Frontend\Facades\Frontend;
 
     $language = Frontend::language();
@@ -20,10 +21,16 @@
     if ($withImage) {
         $image = $asset->relationLoaded('image') ? $asset->image : $asset->media->first();
     }
+
+    $sectionClass = trim('section-asset ' . \Illuminate\Support\Arr::toCssClasses(\Illuminate\Support\Arr::wrap($attributes->get('class'))));
+    $attributes = $attributes->except('class');
+    $resolvedComponentItem = interface_exists(FrontendComponentRegistryInterface::class) && app()->bound(FrontendComponentRegistryInterface::class)
+        ? app(FrontendComponentRegistryInterface::class)->resolve($componentItem)
+        : $componentItem;
 @endphp
 {{-- format-ignore-end --}}
 <x-dynamic-component
-    :component="$componentItem"
+    :component="$resolvedComponentItem"
     :$asset
     :$loop
     :$size
@@ -35,5 +42,5 @@
     :summary="$withSummary && $asset->translation ? $asset->translation->summary : null"
     :title="$asset->translation?->label"
     :url="$withUrl && $asset->linkedPage ? $asset->linkedPage->pageUrl?->full_url : null"
-    :attributes="$attributes->merge(['class' => 'section-asset'])"
+    class="{{ $sectionClass }}"
 />
