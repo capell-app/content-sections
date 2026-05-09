@@ -7,10 +7,7 @@
     "tier": "free",
     "bundle": "foundation",
     "description": "Content Sections provides reusable content sections for Capell admin and frontend surfaces.",
-    "surfaces": [
-        "admin",
-        "frontend"
-    ],
+    "surfaces": ["admin", "frontend"],
     "dependencies": {
         "requires": [
             "capell-app/core",
