@@ -13,7 +13,6 @@ use Capell\ContentSections\Models\Concerns\ComposhipsJsonRelationshipsTrait;
 use Capell\ContentSections\Observers\SectionObserver;
 use Capell\Core\Concerns\HasCapellMedia;
 use Capell\Core\Contracts\Pageable;
-use Capell\Core\Contracts\PageCacheable;
 use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Enums\PublishStatusEnum;
 use Capell\Core\Models\AssetRelation;
@@ -108,7 +107,7 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
  * @mixin QueryBuilder
  */
 #[ObservedBy(SectionObserver::class)]
-class Section extends Model implements HasMedia, PageCacheable, Publishable, Typeable, Userstampable
+class Section extends Model implements HasMedia, Publishable, Typeable, Userstampable
 {
     use Cloneable;
     use ComposhipsJsonRelationshipsTrait;

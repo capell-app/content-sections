@@ -7,7 +7,6 @@ namespace Capell\ContentSections\Filament\Resources\Sections\Pages;
 use Capell\Admin\Filament\Actions\DeleteAction;
 use Capell\Admin\Filament\Actions\ReplicateAction;
 use Capell\Admin\Filament\Concerns\HasAncestorBreadcrumbs;
-use Capell\Admin\Filament\Concerns\HasPageCacheNotification;
 use Capell\Admin\Filament\Concerns\HasTypeRelationManagers;
 use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\ContentSections\Actions\ReplicateContentAction;
@@ -34,7 +33,6 @@ use Override;
 class EditSection extends EditRecord
 {
     use HasAncestorBreadcrumbs;
-    use HasPageCacheNotification;
     use HasRecordSwitcher {
         afterSave as recordSwitcherAfterSave;
     }
