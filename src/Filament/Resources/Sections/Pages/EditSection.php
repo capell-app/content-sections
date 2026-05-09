@@ -95,8 +95,6 @@ class EditSection extends EditRecord
 
     protected function afterSave(): void
     {
-        $this->notifyPageCached($this->record);
-
         $this->dispatch('refresh-alerts')->to(LivewireComponentsEnum::ContentAssetsTable->value);
 
         $this->recordSwitcherAfterSave();

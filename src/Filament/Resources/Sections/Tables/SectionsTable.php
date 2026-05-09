@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Capell\ContentSections\Filament\Resources\Sections\Tables;
 
-use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Filament\Components\Tables\Actions\EditAction;
 use Capell\Admin\Filament\Components\Tables\Actions\ReplicateAction;
 use Capell\Admin\Filament\Components\Tables\Columns\BadgeableColumn;
@@ -19,6 +18,7 @@ use Capell\Admin\Filament\Contracts\TableConfigurator;
 use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\ContentSections\Actions\ReplicateContentAction;
 use Capell\ContentSections\Enums\LayoutTypeEnum;
+use Capell\ContentSections\Enums\ResourceEnum;
 use Capell\ContentSections\Filament\Components\Tables\Columns\Content\ContentNameColumn;
 use Capell\ContentSections\Models\Section;
 use Capell\Core\Models\Language;
@@ -150,7 +150,7 @@ class SectionsTable implements TableConfigurator
                     }
 
                     /** @var class-string<resource> $resource */
-                    $resource = AdminSurfaceLookup::resource(ResourceEnum::Page);
+                    $resource = AdminSurfaceLookup::resource(ResourceEnum::Section);
 
                     return $resource::getUrl(
                         'index',
@@ -245,52 +245,21 @@ class SectionsTable implements TableConfigurator
                     Select::make('parent_id')
                         ->label(__('capell-admin::form.parent'))
                         ->allowHtml()
-                        ->options(function (HasTable $livewire, Get $get): array {
-                            $siteId = static::getSiteId($livewire);
-
-                            /** @var class-string<Section> $model */
-                            $model = Section::class;
-
-                            $sections = $model::with([
-                                'site',
-                                'ancestors',
-                            ])
-                                ->whereHas('children')
-                                ->whereHas('type', fn (BuilderContract $query): BuilderContract => $query->enabled())
-                                ->when($siteId, fn (Builder $query): Builder => $query->where('site_id', $siteId))
-                                ->when(
-                                    $get('language_id'),
-                                    fn (Builder $query, int $languageId): Builder => $query->whereHas(
-                                        'translations',
-                                        fn (BuilderContract $query): BuilderContract => $query->where('translations.language_id', $languageId),
-                                    ),
-                                )
-                                ->orderBy('site_id')
-                                ->orderBy('_lft')
-                                ->get();
-
-                            return $sections->mapWithKeys(function (Section $section) use ($siteId): array {
-                                $label = '';
-
-                                if (($siteId === null || $siteId === 0) && $section->site !== null) {
-                                    $label .= $section->site->name . ' &raquo; ';
-                                }
-
-                                $ancestors = $section->ancestors()->get();
-
-                                if ($ancestors->isNotEmpty()) {
-                                    $label .= $ancestors->pluck('name')
-                                        ->map(fn (string $item): string => Str::limit($item, 30))
-                                        ->implode(' &raquo; ')
-                                        . ' &raquo; ';
-                                }
-
-                                $label .= Str::limit($section->name, 40);
-
-                                return [$section->id => $label];
-                            })
-                                ->all();
-                        }),
+                        ->searchable()
+                        ->options(fn (HasTable $livewire, Get $get): array => static::parentSectionOptions(
+                            siteId: static::getSiteId($livewire),
+                            languageId: $get('language_id') ? (int) $get('language_id') : null,
+                        ))
+                        ->getSearchResultsUsing(fn (string $search, HasTable $livewire, Get $get): array => static::parentSectionOptions(
+                            siteId: static::getSiteId($livewire),
+                            languageId: $get('language_id') ? (int) $get('language_id') : null,
+                            search: $search,
+                        ))
+                        ->getOptionLabelUsing(fn (mixed $value, HasTable $livewire, Get $get): ?string => static::parentSectionOptions(
+                            siteId: static::getSiteId($livewire),
+                            languageId: $get('language_id') ? (int) $get('language_id') : null,
+                            selectedId: filled($value) ? (int) $value : null,
+                        )[(int) $value] ?? null),
                 ])
                 ->query(function (Builder $query, array $data): void {
                     $query
@@ -358,5 +327,71 @@ class SectionsTable implements TableConfigurator
 
             TrashedFilter::make(),
         ];
+    }
+
+    protected static function parentSectionOptions(
+        null|int|string $siteId,
+        ?int $languageId,
+        ?string $search = null,
+        ?int $selectedId = null,
+    ): array {
+        /** @var class-string<Section> $model */
+        $model = Section::class;
+
+        $sections = $model::query()
+            ->with([
+                'site',
+                'ancestors',
+            ])
+            ->whereHas('children')
+            ->whereHas('type', fn (BuilderContract $query): BuilderContract => $query->enabled())
+            ->when($siteId, fn (Builder $query): Builder => $query->where('site_id', (int) $siteId))
+            ->when(
+                $languageId,
+                fn (Builder $query): Builder => $query->whereHas(
+                    'translations',
+                    fn (BuilderContract $query): BuilderContract => $query->where('translations.language_id', $languageId),
+                ),
+            )
+            ->when(
+                $search !== null && $search !== '',
+                fn (Builder $query): Builder => $query->where(
+                    fn (Builder $query): Builder => $query
+                        ->where('name', 'like', '%' . $search . '%')
+                        ->orWhereHas(
+                            'translations',
+                            fn (BuilderContract $query): BuilderContract => $query->where('title', 'like', '%' . $search . '%'),
+                        ),
+                ),
+            )
+            ->when($selectedId !== null, fn (Builder $query): Builder => $query->whereKey($selectedId))
+            ->orderBy('site_id')
+            ->orderBy('_lft')
+            ->limit($selectedId === null ? 50 : 1)
+            ->get();
+
+        return $sections
+            ->mapWithKeys(fn (Section $section): array => [
+                $section->id => static::formatParentSectionOption($section, $siteId),
+            ])
+            ->all();
+    }
+
+    protected static function formatParentSectionOption(Section $section, null|int|string $siteId): string
+    {
+        $label = '';
+
+        if (($siteId === null || (int) $siteId === 0) && $section->site !== null) {
+            $label .= $section->site->name . ' &raquo; ';
+        }
+
+        if ($section->ancestors->isNotEmpty()) {
+            $label .= $section->ancestors->pluck('name')
+                ->map(fn (string $item): string => Str::limit($item, 30))
+                ->implode(' &raquo; ')
+                . ' &raquo; ';
+        }
+
+        return $label . Str::limit($section->name, 40);
     }
 }

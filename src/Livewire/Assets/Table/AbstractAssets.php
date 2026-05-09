@@ -39,6 +39,10 @@ abstract class AbstractAssets extends ModalTableSelect
 
     public function selectRecords(): void
     {
+        if (! $this->canSubmitSelectedRecords()) {
+            return;
+        }
+
         $this->dispatch(
             'sync-selected-assets',
             arguments: $this->tableArguments,

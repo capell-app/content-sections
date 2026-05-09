@@ -11,6 +11,7 @@ use Filament\Actions\Contracts\HasActions;
 use Filament\Facades\Filament;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Notifications\Notification;
 use Filament\Schemas\Schema;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -134,6 +135,7 @@ class ModalTableSelect extends Component implements HasActions, HasForms, HasTab
             ->label($this->getSelectRecordsLabel())
             ->button()
             ->color('primary')
+            ->disabled(fn (): bool => $this->isDisabled)
             ->action(fn () => $this->selectRecords());
     }
 
@@ -160,5 +162,23 @@ class ModalTableSelect extends Component implements HasActions, HasForms, HasTab
         }
 
         throw new LogicException('No table query configured. Set $tableQuery to a Builder or a callable returning a Builder, or override getTableQuery().');
+    }
+
+    protected function canSubmitSelectedRecords(): bool
+    {
+        if ($this->isDisabled) {
+            return false;
+        }
+
+        if ($this->selectedTableRecords === []) {
+            Notification::make('no-assets-selected')
+                ->body(__('capell-content-sections::message.no_assets_selected'))
+                ->warning()
+                ->send();
+
+            return false;
+        }
+
+        return true;
     }
 }

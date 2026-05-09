@@ -6,7 +6,7 @@ namespace Capell\ContentSections\Livewire\Assets\Table;
 
 use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\ContentSections\Enums\ResourceEnum;
-use Capell\ContentSections\Filament\Resources\Sections\Tables\SectionsTable;
+use Capell\ContentSections\Filament\Resources\Sections\Tables\SectionSelectionTable;
 use Capell\ContentSections\Models\Section;
 use Capell\Core\Models\Language;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
@@ -18,7 +18,7 @@ class SectionAssets extends AbstractAssets
     public string $type = 'section';
 
     #[Locked]
-    public string $tableConfiguration = SectionsTable::class;
+    public string $tableConfiguration = SectionSelectionTable::class;
 
     public static function getResource(): string
     {
@@ -51,11 +51,6 @@ class SectionAssets extends AbstractAssets
         $model = Section::class;
 
         return $model::with([
-            'ancestors.type',
-            'creator',
-            'editor',
-            'image',
-            'media',
             'site',
             'translations.language',
             'type',
