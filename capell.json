@@ -1,4 +1,5 @@
 {
+    "manifest-version": 2,
     "name": "capell-app/content-sections",
     "kind": "package",
     "capell-version": "^4.0",
@@ -6,11 +7,49 @@
     "tier": "free",
     "bundle": "foundation",
     "description": "Content Sections provides reusable content sections for Capell admin and frontend surfaces.",
-    "contexts": ["admin", "frontend"],
-    "requires": ["capell-app/core", "capell-app/admin", "capell-app/frontend"],
+    "surfaces": [
+        "admin",
+        "frontend"
+    ],
+    "dependencies": {
+        "requires": [
+            "capell-app/core",
+            "capell-app/admin",
+            "capell-app/frontend"
+        ],
+        "optional": [],
+        "conflicts": []
+    },
+    "lifecycle": {
+        "activation": "manual",
+        "defaultStatus": "available",
+        "requiresInstallCommand": false
+    },
     "providers": {
-        "shared": [
+        "metadata": [],
+        "install": [],
+        "runtime": [
             "Capell\\ContentSections\\Providers\\ContentSectionsServiceProvider"
-        ]
-    }
+        ],
+        "admin": [],
+        "frontend": []
+    },
+    "database": {
+        "migrations": true,
+        "settings": false,
+        "requiredTables": []
+    },
+    "commands": {
+        "install": null,
+        "setup": null,
+        "setupParams": [],
+        "demo": null,
+        "demoParams": [],
+        "health": null
+    },
+    "settings": [],
+    "permissions": [],
+    "capabilities": [],
+    "assets": [],
+    "healthChecks": []
 }
