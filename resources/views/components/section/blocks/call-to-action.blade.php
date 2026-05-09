@@ -29,6 +29,27 @@
             class="@if ($alignment === 'center') justify-center @elseif ($alignment === 'end') justify-end @endif mt-6 flex flex-wrap gap-3"
         >
             @foreach ($actions as $action)
+                @if (($action['type'] ?? '') === 'public_action' && Route::has('capell-public-actions.submit'))
+                    <x-capell-public-actions::action-button
+                        :action-key="$action['public_action_key'] ?? null"
+                        :label="$action['label'] ?? ''"
+                        :payload="
+                            array_filter([
+                                'area' => $action['access_gate_area'] ?? null,
+                                'requested_url' => url()->current(),
+                                'redirect' => $action['redirect'] ?? null,
+                                'source_type' => 'section_action',
+                            ], static fn (mixed $payloadValue): bool => $payloadValue !== null && $payloadValue !== '')
+                        "
+                        class="inline-flex rounded bg-slate-950 px-5 py-3 font-semibold text-white"
+                    />
+                    @continue
+                @endif
+
+                @if (($action['type'] ?? '') === 'public_action')
+                    @continue
+                @endif
+
                 <a
                     href="{{ $action['url'] ?? '#' }}"
                     class="inline-flex rounded bg-slate-950 px-5 py-3 font-semibold text-white"

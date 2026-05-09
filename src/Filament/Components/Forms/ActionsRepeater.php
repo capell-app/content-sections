@@ -51,6 +51,7 @@ class ActionsRepeater extends Repeater
                 }
 
                 $itemLabel = match ($type) {
+                    ActionLinkEnum::PublicAction => $state['public_action_key'] ?? null,
                     ActionLinkEnum::Page => (function () use ($state): ?string {
                         $pageableType = $state['pageable_type'] ?? null;
                         $pageableId = $state['pageable_id'] ?? null;
@@ -95,6 +96,12 @@ class ActionsRepeater extends Repeater
 
                         if ($state === ActionLinkEnum::Link) {
                             $set('pageable_id', null);
+                            $set('public_action_key', null);
+                        }
+
+                        if ($state === ActionLinkEnum::PublicAction) {
+                            $set('url', null);
+                            $set('pageable_id', null);
                         }
                     }),
                 Grid::make(['md' => 2, 'lg' => 3])
@@ -117,6 +124,24 @@ class ActionsRepeater extends Repeater
                     ->validationAttribute(__('capell-admin::form.url'))
                     ->required()
                     ->lazy(),
+
+                Grid::make(['md' => 2])
+                    ->visible(fn (Get $get): bool => $get('type') === ActionLinkEnum::PublicAction)
+                    ->columnSpanFull()
+                    ->schema([
+                        Select::make('public_action_key')
+                            ->label(__('capell-content-sections::form.public_action_key'))
+                            ->options(fn (): array => $this->publicActionOptions())
+                            ->searchable()
+                            ->required(),
+                        TextInput::make('access_gate_area')
+                            ->label(__('capell-content-sections::form.public_action_payload_area'))
+                            ->helperText(__('capell-content-sections::form.public_action_payload_area_help')),
+                        TextInput::make('redirect')
+                            ->label(__('capell-content-sections::form.public_action_redirect_url'))
+                            ->url()
+                            ->columnSpanFull(),
+                    ]),
 
                 Grid::make()
                     ->columnSpanFull()
@@ -153,5 +178,24 @@ class ActionsRepeater extends Repeater
         }
 
         return ActionLinkEnum::from($type);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function publicActionOptions(): array
+    {
+        $modelClass = 'Capell\\PublicActions\\Models\\PublicAction';
+
+        if (! class_exists($modelClass)) {
+            return [];
+        }
+
+        return $modelClass::query()
+            ->where('status', 'active')
+            ->orderBy('name')
+            ->get(['key', 'name'])
+            ->mapWithKeys(fn (object $action): array => [(string) $action->key => (string) $action->name])
+            ->all();
     }
 }

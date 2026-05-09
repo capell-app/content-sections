@@ -13,11 +13,14 @@ enum ActionLinkEnum: string implements HasIcon, HasLabel
 
     case Page = 'page';
 
+    case PublicAction = 'public_action';
+
     public function getLabel(): string
     {
         return match ($this) {
             self::Link => __('capell-admin::generic.link'),
             self::Page => __('capell-admin::generic.page'),
+            self::PublicAction => __('capell-content-sections::generic.public_action'),
         };
     }
 
@@ -26,6 +29,7 @@ enum ActionLinkEnum: string implements HasIcon, HasLabel
         return match ($this) {
             self::Link => 'heroicon-o-link',
             self::Page => 'heroicon-o-document-text',
+            self::PublicAction => 'heroicon-o-bolt',
         };
     }
 }

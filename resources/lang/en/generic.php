@@ -15,6 +15,7 @@ return [
     'four_columns' => '4 columns',
     'hero' => 'Hero',
     'line_separated_helper' => 'Enter one item per line.',
+    'public_action' => 'Public action',
     'section' => 'Section',
     'sections' => 'Sections',
     'sections_info' => 'Manage reusable content sections.',
