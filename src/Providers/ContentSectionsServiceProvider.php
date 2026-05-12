@@ -58,15 +58,6 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
 
     public function registeringPackage(): void
     {
-        CapellCore::registerPackage(
-            static::$packageName,
-            type: static::getType(),
-            serviceProviderClass: static::class,
-            path: realpath(__DIR__ . '/../..'),
-            version: $this->getVersion(),
-            description: fn (): string => __('capell-content-sections::package.description'),
-        );
-
         $this->app->booting(function (): void {
             if ($this->isPackageInstalled()) {
                 $this->registerResources();
