@@ -13,10 +13,7 @@
         "bundle": "foundation"
     },
     "namespace": "Capell\\ContentSections",
-    "surfaces": [
-        "admin",
-        "frontend"
-    ],
+    "surfaces": ["admin", "frontend"],
     "dependencies": {
         "requires": [
             "capell-app/admin",
@@ -53,15 +50,10 @@
     "performance": {
         "frontendRenderBudgetMs": 20,
         "adminQueryBudget": 40,
-        "cacheTags": [
-            "content-sections"
-        ],
+        "cacheTags": ["content-sections"],
         "cacheSafety": {
             "cacheable": false,
-            "variesBy": [
-                "site",
-                "locale"
-            ],
+            "variesBy": ["site", "locale"],
             "sensitiveOutput": false,
             "invalidationSources": [],
             "queueInvalidation": true
@@ -77,11 +69,7 @@
     "marketplace": {
         "summary": "Content Sections provides reusable content sections for Capell admin and frontend surfaces.",
         "screenshots": [],
-        "categories": [
-            "admin",
-            "foundation",
-            "frontend"
-        ]
+        "categories": ["admin", "foundation", "frontend"]
     },
     "contributionTraceability": {
         "deferredContributions": [
