@@ -26,6 +26,7 @@ it('contributes section assets to public layout widget payloads', function (): v
         ->create([
             'name' => 'Hero section',
             'meta' => ['alignment' => 'center'],
+            'visible_until' => now()->addDay(),
         ]);
 
     $widget = Widget::factory()->create(['key' => 'hero-widget']);
@@ -60,4 +61,50 @@ it('contributes section assets to public layout widget payloads', function (): v
         ->and($widgetData->html)->toContain('section-hero')
         ->and($widgetData->html)->toContain('Hero Copy')
         ->and($widgetData->html)->toContain('Hero summary');
+});
+
+it('does not expose pending or expired section assets in public layout widget payloads', function (): void {
+    $language = Language::factory()->create();
+    $site = Site::factory()->create(['language_id' => $language->id]);
+    $type = EnsureSectionTypeForKeyAction::run('hero');
+    $pendingSection = Section::factory()
+        ->site($site)
+        ->type($type)
+        ->withTranslations($language, [
+            'title' => 'Pending Copy',
+            'content' => '<p>Pending summary</p>',
+        ])
+        ->create([
+            'name' => 'Pending section',
+            'visible_from' => now()->addDay(),
+        ]);
+    $expiredSection = Section::factory()
+        ->site($site)
+        ->type($type)
+        ->withTranslations($language, [
+            'title' => 'Expired Copy',
+            'content' => '<p>Expired summary</p>',
+        ])
+        ->create([
+            'name' => 'Expired section',
+            'visible_until' => now()->subDay(),
+        ]);
+
+    $widget = Widget::factory()->create(['key' => 'hero-widget']);
+    $layout = Layout::factory()->site($site)->create([
+        'widgets' => [$widget->key],
+        'containers' => [
+            'main' => ['widgets' => [['widget_key' => $widget->key, 'occurrence' => 1]]],
+        ],
+    ]);
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
+
+    WidgetAsset::factory()->widget($widget)->asset($pendingSection)->create(['order' => 1]);
+    WidgetAsset::factory()->widget($widget)->asset($expiredSection)->create(['order' => 2]);
+
+    $graph = BuildPublicLayoutGraphAction::run($layout, $page, $language, includeHtml: true);
+    $widgetData = $graph->containers[0]->widgets[0];
+
+    expect($widgetData->data)->not->toHaveKey('sections')
+        ->and($widgetData->html)->toBeNull();
 });

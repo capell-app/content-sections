@@ -45,7 +45,7 @@ final class SectionPublicWidgetPayloadContributor implements PublicWidgetPayload
     public function html(Widget $widget, Page $page, Language $language, string $containerKey, int $occurrence): ?string
     {
         $html = $this->sectionAssets($widget)
-            ->map(fn (WidgetAsset $widgetAsset): string => $this->renderSection($widgetAsset))
+            ->map(fn (WidgetAsset $widgetAsset): string => $this->renderSection($widgetAsset, $this->sectionData($widgetAsset)))
             ->filter(fn (string $html): bool => trim($html) !== '')
             ->implode("\n");
 
@@ -64,7 +64,10 @@ final class SectionPublicWidgetPayloadContributor implements PublicWidgetPayload
         }
 
         return $assets
-            ->filter(fn (mixed $widgetAsset): bool => $widgetAsset instanceof WidgetAsset && $widgetAsset->asset instanceof Section)
+            ->filter(fn (mixed $widgetAsset): bool => $widgetAsset instanceof WidgetAsset
+                && $widgetAsset->asset instanceof Section
+                && ! $widgetAsset->asset->isPending()
+                && ! $widgetAsset->asset->isExpired())
             ->values();
     }
 
@@ -91,14 +94,24 @@ final class SectionPublicWidgetPayloadContributor implements PublicWidgetPayload
                 'id' => $widgetAsset->getKey(),
                 'meta' => $widgetAsset->meta ?? [],
             ],
+            'html' => $this->renderSection($widgetAsset, [
+                'component' => $component,
+                'meta' => $this->metaFor($section, $widgetAsset),
+                'summary' => $this->summaryFor($translation),
+                'title' => $translation?->label ?? $section->name,
+                'linkText' => $translation?->link_text,
+                'url' => $section->linkedPage?->pageUrl?->full_url,
+            ]),
         ];
     }
 
-    private function renderSection(WidgetAsset $widgetAsset): string
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    private function renderSection(WidgetAsset $widgetAsset, array $data): string
     {
         /** @var Section $section */
         $section = $widgetAsset->asset;
-        $data = $this->sectionData($widgetAsset);
 
         return Blade::render(
             '<x-dynamic-component :component="$component" :asset="$asset" :meta="$meta" :summary="$summary" :title="$title" :link-text="$linkText" :url="$url" />',

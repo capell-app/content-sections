@@ -16,6 +16,7 @@ use Capell\ContentSections\Filament\Actions\CreateContentAction;
 use Capell\ContentSections\Filament\Resources\Sections\SectionResource;
 use Capell\ContentSections\Filament\Resources\Sections\Widgets\SectionAlertsWidget;
 use Capell\ContentSections\Models\Section;
+use Capell\PublishingStudio\Filament\Actions\PublishingRevisionsHeaderAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
@@ -103,7 +104,7 @@ class EditSection extends EditRecord
 
     private function publishingRevisionsAction(): ?object
     {
-        $actionClass = 'Capell\\PublishingStudio\\Filament\\Actions\\PublishingRevisionsHeaderAction';
+        $actionClass = PublishingRevisionsHeaderAction::class;
 
         if (! class_exists($actionClass)) {
             return null;

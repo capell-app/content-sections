@@ -17,7 +17,7 @@ it('only depends on the layout-builder package through public contracts', functi
             $contentSectionsPath . '/database',
         ])
         ->name(['*.php', '*.blade.php', '*.md', '*.json'])
-        ->contains('Capell\\' . 'LayoutBuilder');
+        ->contains('Capell\LayoutBuilder');
 
     foreach ($files as $file) {
         $violations[] = str_replace($rootPath . '/', '', $file->getPathname());
