@@ -12,6 +12,7 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Media;
 use Capell\FoundationTheme\Providers\FoundationThemeServiceProvider;
 use Capell\Frontend\Providers\FrontendServiceProvider;
+use Capell\LayoutBuilder\LayoutBuilderServiceProvider;
 use Capell\Tests\AbstractTestCase;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Foundation\Application;
@@ -58,6 +59,7 @@ class ContentSectionsTestCase extends AbstractTestCase
         return [
             ...parent::getPackageProviders($app),
             ContentSectionsServiceProvider::class,
+            LayoutBuilderServiceProvider::class,
             AdminPanelProvider::class,
             AdminServiceProvider::class,
             FrontendServiceProvider::class,
@@ -76,6 +78,7 @@ class ContentSectionsTestCase extends AbstractTestCase
 
         CapellCore::forcePackageInstalled(AdminServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(LayoutBuilderServiceProvider::$packageName);
         CapellCore::forcePackageInstalled('capell-app/foundation-theme');
         CapellCore::forcePackageInstalled(ContentSectionsServiceProvider::$packageName);
 

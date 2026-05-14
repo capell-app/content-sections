@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 use Capell\ContentSections\Actions\EnsureSectionTypeForKeyAction;
 use Capell\ContentSections\Models\Section;
-use Capell\Core\LayoutBuilder\Actions\BuildPublicLayoutGraphAction;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Widget;
 use Capell\Core\Models\WidgetAsset;
+use Capell\LayoutBuilder\Actions\BuildPublicLayoutGraphAction;
 
 it('contributes section assets to public layout widget payloads', function (): void {
     $language = Language::factory()->create();

@@ -21,7 +21,8 @@
         "php": "^8.2",
         "capell-app/admin": "*",
         "capell-app/core": "*",
-        "capell-app/frontend": "*"
+        "capell-app/frontend": "*",
+        "capell-app/layout-builder": "*"
     },
     "suggest": {
         "capell-app/public-actions": "Enables CMS action buttons that submit reusable public actions.",

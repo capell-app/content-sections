@@ -18,7 +18,8 @@
         "requires": [
             "capell-app/admin",
             "capell-app/core",
-            "capell-app/frontend"
+            "capell-app/frontend",
+            "capell-app/layout-builder"
         ],
         "optional": [],
         "conflicts": []
