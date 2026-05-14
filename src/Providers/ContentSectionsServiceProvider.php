@@ -22,6 +22,7 @@ use Capell\ContentSections\Filament\Configurators\Types\ContentTypeConfigurator;
 use Capell\ContentSections\Models\Section;
 use Capell\ContentSections\Support\ContentSectionsBlockDefinitionProvider;
 use Capell\ContentSections\Support\ContentSectionsModelRegistrar;
+use Capell\ContentSections\Support\SectionPublicWidgetPayloadContributor;
 use Capell\ContentSections\Support\SectionRegistry;
 use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
 use Capell\Core\Data\AssetData;
@@ -33,6 +34,7 @@ use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Contracts\AssetsRegistryInterface;
 use Capell\Frontend\Contracts\FrontendComponentRegistryInterface;
 use Capell\Frontend\Data\FrontendAssetData;
+use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
 use Capell\PublishingStudio\WorkspaceRegistry;
 use Composer\InstalledVersions;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -100,6 +102,7 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
             ->registerConfigurators()
             ->registerTypes()
             ->registerAssets()
+            ->registerPublicWidgetPayloadContributor()
             ->registerFrontendComponents()
             ->registerEvents()
             ->registerBladeComponents()
@@ -224,6 +227,13 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
                 ),
             );
         });
+
+        return $this;
+    }
+
+    private function registerPublicWidgetPayloadContributor(): self
+    {
+        $this->app->tag([SectionPublicWidgetPayloadContributor::class], PublicWidgetPayloadContributor::TAG);
 
         return $this;
     }
