@@ -19,7 +19,7 @@
 @php
     $image = null;
     if ($withImage) {
-        $image = $asset->relationLoaded('image') ? $asset->image : $asset->media->first();
+        $image = $asset->relationLoaded('image') ? $asset->image : ($asset->relationLoaded('media') ? $asset->media->first() : null);
     }
 
     $sectionClass = trim('section-asset ' . \Illuminate\Support\Arr::toCssClasses(\Illuminate\Support\Arr::wrap($attributes->get('class'))));
