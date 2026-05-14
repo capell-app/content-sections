@@ -6,12 +6,12 @@ namespace Capell\ContentSections\Support;
 
 use Capell\ContentSections\Actions\ResolveSectionComponentAction;
 use Capell\ContentSections\Models\Section;
-use Capell\Core\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Translation;
 use Capell\Core\Models\Widget;
 use Capell\Core\Models\WidgetAsset;
+use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
