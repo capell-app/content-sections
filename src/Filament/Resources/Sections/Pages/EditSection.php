@@ -73,7 +73,8 @@ class EditSection extends EditRecord
 
     protected function getHeaderActions(): array
     {
-        return [
+        return array_values(array_filter([
+            $this->publishingRevisionsAction(),
             RestoreAction::make('restore'),
             DeleteAction::make('delete'),
             ForceDeleteAction::make('forceDelete'),
@@ -82,7 +83,7 @@ class EditSection extends EditRecord
             ReplicateAction::make('replicate')
                 ->replicaModelAction(ReplicateContentAction::class)
                 ->hidden($this->record->trashed()),
-        ];
+        ]));
     }
 
     #[Override]
@@ -98,5 +99,16 @@ class EditSection extends EditRecord
         $this->dispatch('refresh-alerts')->to(LivewireComponentsEnum::ContentAssetsTable->value);
 
         $this->recordSwitcherAfterSave();
+    }
+
+    private function publishingRevisionsAction(): ?object
+    {
+        $actionClass = 'Capell\\PublishingStudio\\Filament\\Actions\\PublishingRevisionsHeaderAction';
+
+        if (! class_exists($actionClass)) {
+            return null;
+        }
+
+        return $actionClass::make();
     }
 }
