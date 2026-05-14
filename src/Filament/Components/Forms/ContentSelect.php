@@ -189,7 +189,7 @@ class ContentSelect extends Select
 
         $contents = $model::query()->select('sections.*')
             ->with($relations)
-            ->join('types', 'sections.type_id', '=', 'types.id')
+            ->join('blueprints', 'sections.blueprint_id', '=', 'blueprints.id')
             ->when(
                 $this->modifySelectOptionsQueryUsing instanceof Closure,
                 fn (Builder $query): mixed => $this->evaluate($this->modifySelectOptionsQueryUsing, [

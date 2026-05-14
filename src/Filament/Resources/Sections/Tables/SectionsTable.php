@@ -208,7 +208,7 @@ class SectionsTable implements TableConfigurator
                         ),
                 ),
 
-            SelectFilter::make('type_id')
+            SelectFilter::make('blueprint_id')
                 ->label(__('capell-admin::form.type'))
                 ->relationship(
                     name: 'type',

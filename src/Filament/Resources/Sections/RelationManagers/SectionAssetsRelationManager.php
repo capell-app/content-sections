@@ -86,7 +86,7 @@ class SectionAssetsRelationManager extends RelationManager
                             )
                             ->all(),
                     ),
-                SelectFilter::make('type_id')
+                SelectFilter::make('blueprint_id')
                     ->label(__('capell-admin::form.type'))
                     ->options(fn (): array => Section::getTypes()),
             ])

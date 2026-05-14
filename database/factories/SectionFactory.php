@@ -34,7 +34,7 @@ class SectionFactory extends Factory
         return [
             'name' => 'Section ' . Str::uuid()->toString(),
             'parent_id' => null,
-            'type_id' => (new ContentTypeFactory),
+            'blueprint_id' => (new ContentTypeFactory),
             'site_id' => null,
             'meta' => [
                 'label' => null,
@@ -61,7 +61,7 @@ class SectionFactory extends Factory
 
     public function type(Type $type): self
     {
-        return $this->set('type_id', $type->getKey());
+        return $this->set('blueprint_id', $type->getKey());
     }
 
     public function linkedPage(): self

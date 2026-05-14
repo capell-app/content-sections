@@ -47,7 +47,7 @@ class TranslationsRepeater
             $type = $loadedType instanceof Type ? $loadedType : null;
         } else {
             $type = CapellCoreHelper::getType(
-                typeId: $configurator->getRawState()['type_id'] ?? null,
+                typeId: $configurator->getRawState()['blueprint_id'] ?? null,
             );
         }
 

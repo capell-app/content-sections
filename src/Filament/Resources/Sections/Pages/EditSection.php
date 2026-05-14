@@ -7,7 +7,7 @@ namespace Capell\ContentSections\Filament\Resources\Sections\Pages;
 use Capell\Admin\Filament\Actions\DeleteAction;
 use Capell\Admin\Filament\Actions\ReplicateAction;
 use Capell\Admin\Filament\Concerns\HasAncestorBreadcrumbs;
-use Capell\Admin\Filament\Concerns\HasTypeRelationManagers;
+use Capell\Admin\Filament\Concerns\HasBlueprintRelationManagers;
 use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\ContentSections\Actions\ReplicateContentAction;
 use Capell\ContentSections\Enums\LivewireComponentsEnum;
@@ -34,10 +34,10 @@ use Override;
 class EditSection extends EditRecord
 {
     use HasAncestorBreadcrumbs;
+    use HasBlueprintRelationManagers;
     use HasRecordSwitcher {
         afterSave as recordSwitcherAfterSave;
     }
-    use HasTypeRelationManagers;
 
     /** @return class-string<SectionResource> */
     public static function getResource(): string

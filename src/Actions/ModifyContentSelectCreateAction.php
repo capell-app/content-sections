@@ -36,7 +36,7 @@ class ModifyContentSelectCreateAction
                         $model = Type::class;
 
                         return [
-                            'type_id' => $model::query()
+                            'blueprint_id' => $model::query()
                                 ->where('type', LayoutTypeEnum::Section)
                                 ->default()
                                 ->value('id'),

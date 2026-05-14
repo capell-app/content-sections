@@ -145,7 +145,7 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
 
         Type::resolveRelationUsing(
             'sections',
-            fn (Type $model): HasMany => $model->hasMany(Section::class, 'type_id'),
+            fn (Type $model): HasMany => $model->hasMany(Section::class, 'blueprint_id'),
         );
 
         return $this;
@@ -175,7 +175,7 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
 
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::configurator(
             class: ContentTypeConfigurator::class,
-            group: AdminConfiguratorTypeEnum::Type->value,
+            group: AdminConfiguratorTypeEnum::Blueprint->value,
             name: ContentTypeConfigurator::getKey(),
         ));
 

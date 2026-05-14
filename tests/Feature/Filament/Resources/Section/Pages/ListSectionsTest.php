@@ -126,7 +126,7 @@ test('can create section', function (): void {
 
     Section::query()->create([
         'name' => $newData->name,
-        'type_id' => Type::query()->where('type', LayoutTypeEnum::Section)->value('id'),
+        'blueprint_id' => Type::query()->where('type', LayoutTypeEnum::Section)->value('id'),
     ]);
 
     assertDatabaseHas(Section::class, [
@@ -153,7 +153,7 @@ test('can filter by type', function (): void {
     livewire(ListSections::class)
         ->assertSuccessful()
         ->assertCountTableRecords(3)
-        ->filterTable('type_id', $type->id)
+        ->filterTable('blueprint_id', $type->id)
         ->assertCountTableRecords(3)
         ->assertCanSeeTableRecords($sections);
 });

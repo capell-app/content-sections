@@ -30,7 +30,7 @@ it('can save', function (): void {
         ->assertSuccessful()
         ->assertSchemaStateSet([
             'name' => $content->name,
-            'type_id' => $content->type->getKey(),
+            'blueprint_id' => $content->type->getKey(),
             'parent_id' => $content->parent?->id,
             'site_id' => $content->site?->getKey(),
         ])
@@ -49,7 +49,7 @@ it('can save', function (): void {
 
     expect($content->refresh())
         ->name->toBe($newData->name)
-        ->type_id->toBe($content->type->getKey())
+        ->blueprint_id->toBe($content->type->getKey())
         ->parent_id->toBe($newData->parent->id)
         ->site_id->toBe($newData->site->getKey());
 });

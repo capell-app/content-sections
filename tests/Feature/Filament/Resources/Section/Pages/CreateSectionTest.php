@@ -45,12 +45,12 @@ it('can create', function (string $type): void {
     livewire(CreateSection::class)
         ->assertSuccessful()
         ->fillForm([
-            'type_id' => $newData->type->getKey(),
+            'blueprint_id' => $newData->type->getKey(),
             'name' => $newData->name,
         ])
         ->assertSchemaStateSet([
             'name' => $newData->name,
-            'type_id' => $newData->type->getKey(),
+            'blueprint_id' => $newData->type->getKey(),
         ])
         ->call('create')
         ->assertHasNoFormErrors();
@@ -80,7 +80,7 @@ test('create with translations', function (string $mode): void {
         ->assertSuccessful()
         ->set('data.translations', [])
         ->fillForm([
-            'type_id' => $type->getKey(),
+            'blueprint_id' => $type->getKey(),
             'name' => $newData->name,
             'parent_id' => $newData->parent?->id,
             'translations' => $site->languages
@@ -97,7 +97,7 @@ test('create with translations', function (string $mode): void {
         ])
         ->assertSchemaStateSet([
             'name' => $newData->name,
-            'type_id' => $type->getKey(),
+            'blueprint_id' => $type->getKey(),
             'parent_id' => $newData->parent?->id,
         ])
         ->call('create')
@@ -106,7 +106,7 @@ test('create with translations', function (string $mode): void {
     assertDatabaseHas(Section::class, [
         'name' => $newData->name,
         'parent_id' => $newData->parent?->id,
-        'type_id' => $type->getKey(),
+        'blueprint_id' => $type->getKey(),
     ]);
 
     $site->languages->each(

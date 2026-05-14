@@ -27,7 +27,7 @@ class SectionForm implements FormConfigurator
             $type = $loadedType instanceof Type ? $loadedType : null;
         }
 
-        $typeId = $configurator->getRawState()['type_id'] ?? ($record instanceof Model ? $record->getAttribute('type_id') : null);
+        $typeId = $configurator->getRawState()['blueprint_id'] ?? ($record instanceof Model ? $record->getAttribute('blueprint_id') : null);
 
         if (! $type instanceof Type && $typeId !== null) {
             /** @var class-string<Type> $model */

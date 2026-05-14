@@ -20,7 +20,7 @@ class MutateContentDataBeforeFillAction
     {
         $site = Site::getDefault();
 
-        $data['type_id'] = ResolveRequestedSectionTypeAction::run($data)?->getKey()
+        $data['blueprint_id'] = ResolveRequestedSectionTypeAction::run($data)?->getKey()
             ?? ResolveRequestedSectionTypeAction::make()->defaultType()->getKey();
 
         $data['translations'] = $site?->translations->mapWithKeys(fn (Translation $translation): array => [

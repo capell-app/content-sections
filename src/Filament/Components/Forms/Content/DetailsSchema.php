@@ -14,7 +14,7 @@ class DetailsSchema
         return [
             NameInput::make('name')
                 ->withTitleUpdater(),
-            TypeSelect::make('type_id')
+            TypeSelect::make('blueprint_id')
                 ->withRelation()
                 ->when(
                     $configurator->isCreating(),

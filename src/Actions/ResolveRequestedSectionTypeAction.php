@@ -17,7 +17,7 @@ class ResolveRequestedSectionTypeAction
 
     public function handle(array $state = []): ?Type
     {
-        $typeId = $state['type_id'] ?? null;
+        $typeId = $state['blueprint_id'] ?? null;
 
         if ($typeId !== null && $typeId !== '') {
             /** @var Type|null $type */

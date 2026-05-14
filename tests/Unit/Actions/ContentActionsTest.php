@@ -14,7 +14,7 @@ it('creates section content with translated title fallback for the section name'
     ]);
 
     $section = CreateContentAction::run([
-        'type_id' => $sectionData->type_id,
+        'blueprint_id' => $sectionData->blueprint_id,
         'site_id' => $sectionData->site_id,
         'meta' => ['label' => 'Homepage hero'],
         'order' => 3,

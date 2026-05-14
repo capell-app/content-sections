@@ -64,7 +64,7 @@ class SectionSelectionTable implements TableConfigurator
                                 fn (Builder $query): Builder => $query->whereNull('site_id'),
                             ),
                     ),
-                SelectFilter::make('type_id')
+                SelectFilter::make('blueprint_id')
                     ->label(__('capell-admin::form.type'))
                     ->relationship(
                         name: 'type',
