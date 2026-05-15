@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace Capell\ContentSections\Tests\Feature\Filament\Resources\Section;
 
-use Capell\ContentSections\Actions\CreateHeroContentTypeAction;
+use Capell\ContentSections\Actions\CreateHeroContentBlueprintAction;
 use Capell\ContentSections\Enums\SectionConfiguratorEnum;
 use Capell\ContentSections\Filament\Resources\Sections\Pages\EditSection;
 use Capell\ContentSections\Models\Section;
-use Capell\Core\Models\Type;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
-use Pest\Expectation;
-use Pest\Expectations\HigherOrderExpectation;
 
 use function Pest\Livewire\livewire;
 
@@ -23,8 +20,8 @@ beforeEach(function (): void {
 });
 
 it('edits the hero content via Filament', function (): void {
-    $type = CreateHeroContentTypeAction::run();
-    $section = Section::factory()->type($type)
+    $blueprint = CreateHeroContentBlueprintAction::run();
+    $section = Section::factory()->blueprint($blueprint)
         ->state([
             'name' => 'Hero Content',
         ])
@@ -44,17 +41,20 @@ it('edits the hero content via Filament', function (): void {
 
     expect($section)
         ->toBeInstanceOf(Section::class)
-        ->name->toBe('Updated Hero Content')
-        ->type->scoped(
-            fn (Expectation $type): HigherOrderExpectation => $type->toBeInstanceOf(Type::class)
-                ->key->toBe('hero')
-                ->admin->scoped(fn (Expectation $admin): HigherOrderExpectation => $admin->configurator->toBe(SectionConfiguratorEnum::Hero->name)),
-        );
+        ->name->toBe('Updated Hero Content');
+
+    $blueprint = $section->blueprint;
+
+    expect($blueprint->key)
+        ->toBe('hero');
+
+    expect($blueprint->admin['configurator'] ?? null)
+        ->toBe(SectionConfiguratorEnum::Hero->name);
 });
 
 it('validates edit hero content', function (): void {
-    $type = CreateHeroContentTypeAction::run();
-    $section = Section::factory()->type($type)
+    $blueprint = CreateHeroContentBlueprintAction::run();
+    $section = Section::factory()->blueprint($blueprint)
         ->state([
             'name' => 'Hero Content',
         ])

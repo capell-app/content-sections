@@ -7,6 +7,7 @@ namespace Capell\ContentSections\Filament\Components\Forms\Content;
 use Capell\Admin\Filament\Components\Forms\SiteSelect;
 use Capell\ContentSections\Filament\Components\Forms\ContentSelect;
 use Capell\ContentSections\Models\Section;
+use Filament\Forms\Components\Select;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -25,8 +26,8 @@ class SettingsSchema
                 })
                 ->when(
                     $configurator->isCreating(),
-                    fn (ContentSelect $component): ContentSelect => $component->withCreateForm(),
-                    fn (ContentSelect $component): ContentSelect => $component->withEditForm(),
+                    fn (ContentSelect $component): Select => $component->withCreateForm(),
+                    fn (ContentSelect $component): Select => $component->withEditForm(),
                 ),
 
             SiteSelect::make('site_id')

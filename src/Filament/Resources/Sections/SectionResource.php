@@ -23,6 +23,7 @@ use Capell\Core\Facades\CapellCore;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Filament\Widgets\Widget;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -79,25 +80,26 @@ class SectionResource extends Resource
         return parent::getGlobalSearchEloquentQuery()
             ->with([
                 'site:id,name,default',
-                'type:id,name',
+                'blueprint:id,name',
                 'ancestors',
             ]);
     }
 
-    /**
-     * @param  Section  $record
-     * @return array|string[]
-     */
+    /** @return array<string, string> */
     public static function getGlobalSearchResultDetails(Model $record): array
     {
+        if (! $record instanceof Section) {
+            return [];
+        }
+
         $details = [];
 
         if ($record->title !== $record->name) {
-            $details[] = $record->title;
+            $details[(string) __('capell-admin::generic.title')] = (string) $record->title;
         }
 
         if (($breadcrumb = self::buildGlobalSearchBreadcrumbs($record)) instanceof HtmlString) {
-            $details[] = $breadcrumb;
+            $details[(string) __('capell-admin::generic.breadcrumbs')] = $breadcrumb->toHtml();
         }
 
         return $details;
@@ -162,6 +164,7 @@ class SectionResource extends Resource
         ];
     }
 
+    /** @return array<class-string<Widget>> */
     public static function getWidgets(): array
     {
         return [

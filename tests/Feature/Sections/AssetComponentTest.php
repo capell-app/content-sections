@@ -40,11 +40,11 @@ it('spreads attributes onto dynamic section components', function (): void {
         BLADE,
         [
             'asset' => $asset,
-            'class' => ['widget-block-item'],
+            'class' => ['element-block-item'],
             'loop' => (object) ['index' => 0],
         ],
     )
         ->assertSee('Alice Johnson')
         ->assertSee('section-asset')
-        ->assertSee('widget-block-item');
+        ->assertSee('element-block-item');
 });

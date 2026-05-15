@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\ContentSections\Database\Factories\ContentTypeFactory;
+use Capell\ContentSections\Database\Factories\ContentBlueprintFactory;
 use Capell\ContentSections\Filament\Resources\Sections\SectionResource;
 use Capell\ContentSections\Models\Section;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
@@ -29,7 +29,7 @@ test('user cannot see contents', function (): void {
 test('admin can see create content', function (): void {
     test()->actingAsAdmin();
 
-    (new ContentTypeFactory)->default()->create();
+    (new ContentBlueprintFactory)->default()->create();
 
     get(SectionResource::getUrl('create'))->assertOk();
 });

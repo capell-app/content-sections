@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('workspace_id')->default(0)->index();
             $table->unsignedBigInteger('shadowed_by_workspace_id')->default(0)->index();
             $table->string('name');
-            $table->foreignId('blueprint_id')->constrained();
+            $table->foreignId('blueprint_id')->constrained('blueprints');
             $table->foreignId('site_id')->nullable()->constrained()->cascadeOnDelete();
             $table->json('meta')->nullable();
             $table->unsignedInteger('order')->default(0)->index();

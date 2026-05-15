@@ -18,23 +18,23 @@ use Capell\ContentSections\Enums\FrontendComponentKeyEnum;
 use Capell\ContentSections\Enums\LayoutTypeEnum;
 use Capell\ContentSections\Enums\LivewireComponentsEnum;
 use Capell\ContentSections\Enums\ResourceEnum;
-use Capell\ContentSections\Filament\Configurators\Types\ContentTypeConfigurator;
+use Capell\ContentSections\Filament\Configurators\Blueprints\ContentBlueprintConfigurator;
 use Capell\ContentSections\Models\Section;
 use Capell\ContentSections\Support\ContentSectionsBlockDefinitionProvider;
 use Capell\ContentSections\Support\ContentSectionsModelRegistrar;
-use Capell\ContentSections\Support\SectionPublicWidgetPayloadContributor;
+use Capell\ContentSections\Support\SectionPublicElementPayloadContributor;
 use Capell\ContentSections\Support\SectionRegistry;
 use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
 use Capell\Core\Data\AssetData;
 use Capell\Core\Data\PageTypeData;
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Site;
-use Capell\Core\Models\Type;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Contracts\AssetsRegistryInterface;
 use Capell\Frontend\Contracts\FrontendComponentRegistryInterface;
 use Capell\Frontend\Data\FrontendAssetData;
-use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
+use Capell\LayoutBuilder\Contracts\PublicElementPayloadContributor;
 use Capell\PublishingStudio\WorkspaceRegistry;
 use Composer\InstalledVersions;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -100,9 +100,9 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
             ->registerRelationships()
             ->registerResources()
             ->registerConfigurators()
-            ->registerTypes()
+            ->registerPageTypes()
             ->registerAssets()
-            ->registerPublicWidgetPayloadContributor()
+            ->registerPublicElementPayloadContributor()
             ->registerFrontendComponents()
             ->registerEvents()
             ->registerBladeComponents()
@@ -143,9 +143,9 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
             fn (Site $model): HasMany => $model->hasMany(Section::class, 'site_id'),
         );
 
-        Type::resolveRelationUsing(
+        Blueprint::resolveRelationUsing(
             'sections',
-            fn (Type $model): HasMany => $model->hasMany(Section::class, 'blueprint_id'),
+            fn (Blueprint $model): HasMany => $model->hasMany(Section::class, 'blueprint_id'),
         );
 
         return $this;
@@ -174,22 +174,22 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
         }
 
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::configurator(
-            class: ContentTypeConfigurator::class,
+            class: ContentBlueprintConfigurator::class,
             group: AdminConfiguratorTypeEnum::Blueprint->value,
-            name: ContentTypeConfigurator::getKey(),
+            name: ContentBlueprintConfigurator::getKey(),
         ));
 
         return $this;
     }
 
-    private function registerTypes(): self
+    private function registerPageTypes(): self
     {
-        foreach (LayoutTypeEnum::cases() as $type) {
+        foreach (LayoutTypeEnum::cases() as $layoutType) {
             CapellCore::registerPageType(
                 new PageTypeData(
-                    name: $type->value,
-                    model: $type->getModel(),
-                    label: $type->getLabel(),
+                    name: $layoutType->value,
+                    model: $layoutType->getModel(),
+                    label: $layoutType->getLabel(),
                 ),
             );
         }
@@ -231,9 +231,9 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
         return $this;
     }
 
-    private function registerPublicWidgetPayloadContributor(): self
+    private function registerPublicElementPayloadContributor(): self
     {
-        $this->app->tag([SectionPublicWidgetPayloadContributor::class], PublicWidgetPayloadContributor::TAG);
+        $this->app->tag([SectionPublicElementPayloadContributor::class], PublicElementPayloadContributor::TAG);
 
         return $this;
     }

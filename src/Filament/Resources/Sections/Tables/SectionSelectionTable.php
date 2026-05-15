@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\ContentSections\Filament\Resources\Sections\Tables;
 
+use Capell\Admin\Filament\Components\Tables\Columns\BlueprintColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\IdentifierColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\SiteColumn;
-use Capell\Admin\Filament\Components\Tables\Columns\TypeColumn;
 use Capell\Admin\Filament\Contracts\TableConfigurator;
 use Capell\ContentSections\Enums\LayoutTypeEnum;
 use Capell\ContentSections\Filament\Components\Tables\Columns\Content\ContentNameColumn;
@@ -28,17 +28,17 @@ class SectionSelectionTable implements TableConfigurator
 
                 return $model::query()
                     ->with([
+                        'blueprint',
                         'site',
                         'translation.language',
                         'translations.language',
-                        'type',
                     ]);
             })
             ->defaultSort('updated_at', 'desc')
             ->columns([
                 IdentifierColumn::make('id'),
                 ContentNameColumn::make('name'),
-                TypeColumn::make('type.name'),
+                BlueprintColumn::make('blueprint.name'),
                 SiteColumn::make('site.name'),
             ])
             ->filters([
@@ -65,9 +65,9 @@ class SectionSelectionTable implements TableConfigurator
                             ),
                     ),
                 SelectFilter::make('blueprint_id')
-                    ->label(__('capell-admin::form.type'))
+                    ->label(__('capell-content-sections::form.blueprint'))
                     ->relationship(
-                        name: 'type',
+                        name: 'blueprint',
                         titleAttribute: 'name',
                         modifyQueryUsing: fn (Builder $query): Builder => $query->where(
                             'type',

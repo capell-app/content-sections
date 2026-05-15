@@ -7,7 +7,7 @@ namespace Capell\ContentSections\Observers;
 use Capell\ContentSections\Enums\LayoutTypeEnum;
 use Capell\ContentSections\Models\Section;
 use Capell\Core\Enums\CacheEnum;
-use Capell\Core\Models\Type;
+use Capell\Core\Models\Blueprint;
 use Capell\Core\Support\CapellCoreHelper;
 use InvalidArgumentException;
 
@@ -16,8 +16,8 @@ class SectionObserver
     public function creating(Section $section): void
     {
         if ($section->blueprint_id === null) {
-            $section->blueprint_id = Type::query()->where('type', LayoutTypeEnum::Section)->default()->value('id');
-            throw_if($section->blueprint_id === null, InvalidArgumentException::class, 'Unable to create content without a type.');
+            $section->blueprint_id = Blueprint::query()->where('type', LayoutTypeEnum::Section)->default()->value('id');
+            throw_if($section->blueprint_id === null, InvalidArgumentException::class, 'Unable to create content without a blueprint.');
         }
 
         // Normalize parent_id from loaded relation if needed (nested set).

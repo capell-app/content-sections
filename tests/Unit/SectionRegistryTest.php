@@ -6,17 +6,17 @@ use Capell\ContentBlocks\Support\BlockRegistry;
 use Capell\ContentSections\Actions\BuildSectionDemoDataAction;
 use Capell\ContentSections\Actions\RegisterDefaultSectionsAction;
 use Capell\ContentSections\Actions\RegisterSectionDefinitionProviderAction;
-use Capell\ContentSections\Actions\ResolveRequestedSectionTypeAction;
+use Capell\ContentSections\Actions\ResolveRequestedSectionBlueprintAction;
 use Capell\ContentSections\Actions\ResolveSectionComponentAction;
 use Capell\ContentSections\Contracts\SectionDefinitionProvider;
 use Capell\ContentSections\Data\SectionDefinitionData;
 use Capell\ContentSections\Enums\LayoutTypeEnum;
 use Capell\ContentSections\Enums\SectionConfiguratorEnum;
+use Capell\ContentSections\Filament\Components\Forms\Content\BlueprintSelect;
 use Capell\ContentSections\Filament\Components\Forms\Content\DetailsSchema;
-use Capell\ContentSections\Filament\Components\Forms\Content\TypeSelect;
 use Capell\ContentSections\Filament\Configurators\Sections\AccordionSectionConfigurator;
 use Capell\ContentSections\Support\SectionRegistry;
-use Capell\Core\Models\Type;
+use Capell\Core\Models\Blueprint;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Blade;
@@ -126,43 +126,43 @@ it('resolves the frontend component without string matching configurator names',
     ))->toBe('vendor-package::section.package-accordion');
 });
 
-it('resolves requested screenshot section types from query parameters', function (): void {
+it('resolves requested screenshot section blueprints from query parameters', function (): void {
     $registry = new SectionRegistry;
 
     RegisterDefaultSectionsAction::run($registry);
     app()->instance(SectionRegistry::class, $registry);
     request()->query->set('section', 'accordion');
 
-    $type = ResolveRequestedSectionTypeAction::run();
+    $blueprint = ResolveRequestedSectionBlueprintAction::run();
 
-    expect($type)->toBeInstanceOf(Type::class)
-        ->and($type?->key)->toBe('accordion')
-        ->and($type?->admin['configurator'])->toBe(AccordionSectionConfigurator::getKey());
+    expect($blueprint)->toBeInstanceOf(Blueprint::class)
+        ->and($blueprint?->key)->toBe('accordion')
+        ->and($blueprint?->admin['configurator'])->toBe(AccordionSectionConfigurator::getKey());
 });
 
-it('creates the default section type for generic create routes', function (): void {
+it('creates the default section blueprint for generic create routes', function (): void {
     $registry = new SectionRegistry;
 
     RegisterDefaultSectionsAction::run($registry);
     app()->instance(SectionRegistry::class, $registry);
 
-    expect(Type::query()->where('type', LayoutTypeEnum::Section->value)->exists())->toBeFalse();
+    expect(Blueprint::query()->where('type', LayoutTypeEnum::Section->value)->exists())->toBeFalse();
 
-    $type = ResolveRequestedSectionTypeAction::make()->defaultType();
+    $blueprint = ResolveRequestedSectionBlueprintAction::make()->defaultBlueprint();
 
-    expect($type->key)->toBe('content')
-        ->and($type->default)->toBeTrue()
-        ->and(Type::query()->where('type', LayoutTypeEnum::Section->value)->count())->toBe(1);
+    expect($blueprint->key)->toBe('content')
+        ->and($blueprint->default)->toBeTrue()
+        ->and(Blueprint::query()->where('type', LayoutTypeEnum::Section->value)->count())->toBe(1);
 });
 
-it('exposes inline type creation from the section details schema', function (): void {
+it('exposes inline blueprint creation from the section details schema', function (): void {
     $configurator = Schema::make()->operation('create');
 
-    $typeSelect = collect(DetailsSchema::make($configurator))
-        ->first(fn (mixed $component): bool => $component instanceof TypeSelect);
+    $blueprintSelect = collect(DetailsSchema::make($configurator))
+        ->first(fn (mixed $component): bool => $component instanceof BlueprintSelect);
 
-    expect($typeSelect)->toBeInstanceOf(TypeSelect::class)
-        ->and($typeSelect->hasCreateOptionActionFormSchema())->toBeTrue();
+    expect($blueprintSelect)->toBeInstanceOf(BlueprintSelect::class)
+        ->and($blueprintSelect->hasCreateOptionActionFormSchema())->toBeTrue();
 });
 
 it('renders every registered section demo component', function (): void {

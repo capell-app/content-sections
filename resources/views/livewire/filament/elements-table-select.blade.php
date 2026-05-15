@@ -1,4 +1,4 @@
-<div class="fi-widgets-table-select-modal">
+<div class="fi-elements-table-select-modal">
     <div class="px-4">
         {{ $this->table }}
     </div>

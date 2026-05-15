@@ -7,10 +7,10 @@ namespace Capell\ContentSections\Filament\Resources\Sections\Schemas;
 use Capell\Admin\Data\Configurators\ConfiguratorContextData;
 use Capell\Admin\Filament\Contracts\FormConfigurator;
 use Capell\Admin\Support\Configurators\ConfiguratorResolver;
-use Capell\ContentSections\Actions\ResolveRequestedSectionTypeAction;
+use Capell\ContentSections\Actions\ResolveRequestedSectionBlueprintAction;
 use Capell\ContentSections\Enums\ConfiguratorTypeEnum;
 use Capell\ContentSections\Filament\Configurators\Sections\DefaultSectionConfigurator;
-use Capell\Core\Models\Type;
+use Capell\Core\Models\Blueprint;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
 
@@ -20,26 +20,26 @@ class SectionForm implements FormConfigurator
     {
         $resolver = resolve(ConfiguratorResolver::class);
         $record = $configurator->getRecord();
-        $type = null;
+        $blueprint = null;
 
-        if ($record instanceof Model && $record->relationLoaded('type')) {
-            $loadedType = $record->getRelationValue('type');
-            $type = $loadedType instanceof Type ? $loadedType : null;
+        if ($record instanceof Model && $record->relationLoaded('blueprint')) {
+            $loadedBlueprint = $record->getRelationValue('blueprint');
+            $blueprint = $loadedBlueprint instanceof Blueprint ? $loadedBlueprint : null;
         }
 
-        $typeId = $configurator->getRawState()['blueprint_id'] ?? ($record instanceof Model ? $record->getAttribute('blueprint_id') : null);
+        $blueprintId = $configurator->getRawState()['blueprint_id'] ?? ($record instanceof Model ? $record->getAttribute('blueprint_id') : null);
 
-        if (! $type instanceof Type && $typeId !== null) {
-            /** @var class-string<Type> $model */
-            $model = Type::class;
+        if (! $blueprint instanceof Blueprint && $blueprintId !== null) {
+            /** @var class-string<Blueprint> $model */
+            $model = Blueprint::class;
 
-            $type = $model::query()->find($typeId);
+            $blueprint = $model::query()->find($blueprintId);
         }
 
-        $type ??= ResolveRequestedSectionTypeAction::run($configurator->getRawState());
+        $blueprint ??= ResolveRequestedSectionBlueprintAction::run($configurator->getRawState());
 
-        $adminType = $type instanceof Type
-            ? $resolver->resolveForType($type, ConfiguratorTypeEnum::Section, DefaultSectionConfigurator::getKey())
+        $adminType = $blueprint instanceof Blueprint
+            ? $resolver->resolveForType($blueprint, ConfiguratorTypeEnum::Section, DefaultSectionConfigurator::getKey())
             : DefaultSectionConfigurator::class;
 
         return $adminType::configure($configurator->columns());

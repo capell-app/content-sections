@@ -16,22 +16,20 @@ use Capell\Core\Contracts\Pageable;
 use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Enums\PublishStatusEnum;
 use Capell\Core\Models\AssetRelation;
+use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Concerns\HasAssets;
 use Capell\Core\Models\Concerns\HasMetaData;
 use Capell\Core\Models\Concerns\HasMorphModelRelations;
 use Capell\Core\Models\Concerns\HasPublishDates;
 use Capell\Core\Models\Concerns\HasTranslations;
-use Capell\Core\Models\Concerns\HasType;
-use Capell\Core\Models\Concerns\HasTypes;
 use Capell\Core\Models\Concerns\HasUserstamps;
+use Capell\Core\Models\Contracts\Blueprintable;
 use Capell\Core\Models\Contracts\Publishable;
-use Capell\Core\Models\Contracts\Typeable;
 use Capell\Core\Models\Contracts\Userstampable;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
-use Capell\Core\Models\Type;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -73,7 +71,7 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
  * @property-read Translation|null $translation
  * @property-read EloquentCollection<int, Translation> $translations
  * @property-read int|null $translations_count
- * @property-read Type|null $type
+ * @property-read Blueprint|null $blueprint
  * @property-read EloquentCollection|Media[] $media
  * @property-read int|null $media_count
  * @property-read EloquentCollection|Section[] $related
@@ -107,7 +105,7 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
  * @mixin QueryBuilder
  */
 #[ObservedBy(SectionObserver::class)]
-class Section extends Model implements HasMedia, Publishable, Typeable, Userstampable
+class Section extends Model implements Blueprintable, HasMedia, Publishable, Userstampable
 {
     use Cloneable;
     use ComposhipsJsonRelationshipsTrait;
@@ -118,8 +116,6 @@ class Section extends Model implements HasMedia, Publishable, Typeable, Userstam
     use HasMorphModelRelations;
     use HasPublishDates;
     use HasTranslations;
-    use HasType;
-    use HasTypes;
     use HasUserstamps;
     use LogsActivity;
     use NodeTrait;
@@ -130,7 +126,7 @@ class Section extends Model implements HasMedia, Publishable, Typeable, Userstam
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<string>
+     * @var list<string>
      */
     protected $fillable = [
         'meta',
@@ -157,7 +153,7 @@ class Section extends Model implements HasMedia, Publishable, Typeable, Userstam
     public static function getMorphRelations(?Language $language = null, bool $normalizeKey = false): array
     {
         $base = [
-            'ancestors.type',
+            'ancestors.blueprint',
             'image',
             'media',
             'linkedPage' => function (BuilderContract $query) use ($language): void {
@@ -198,10 +194,25 @@ class Section extends Model implements HasMedia, Publishable, Typeable, Userstam
             },
             'translation' => fn (BuilderContract $query): BuilderContract => $query->with('language')
                 ->when($language, fn (BuilderContract $query): BuilderContract => $query->where('language_id', $language->id)),
-            'type',
+            'blueprint',
         ];
 
         return static::mergeMorphRelationDefinitions($base, self::class, $language, $normalizeKey);
+    }
+
+    /** @return array<int, string> */
+    public static function getTypes(): array
+    {
+        return self::query()
+            ->select('blueprint_id')
+            ->withWhereHas('blueprint')
+            ->groupBy('blueprint_id')
+            ->get()
+            ->mapWithKeys(fn (self $section): array => [
+                $section->blueprint_id => (string) $section->blueprint?->name,
+            ])
+            ->filter(fn (string $label): bool => $label !== '')
+            ->all();
     }
 
     public function getActivitylogOptions(): LogOptions
@@ -228,6 +239,20 @@ class Section extends Model implements HasMedia, Publishable, Typeable, Userstam
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection(MediaCollectionEnum::Image->value)->singleFile();
+    }
+
+    /** @return BelongsTo<Blueprint, $this> */
+    public function blueprint(): BelongsTo
+    {
+        return $this->belongsTo(Blueprint::class, 'blueprint_id');
+    }
+
+    public function getBlueprint(): Blueprint
+    {
+        /** @var Blueprint $blueprint */
+        $blueprint = $this->getRelationValue('blueprint') ?? $this->blueprint;
+
+        return $blueprint;
     }
 
     public function loadParent(Language $language): void

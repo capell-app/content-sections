@@ -3,8 +3,10 @@
 declare(strict_types=1);
 
 use Capell\ContentSections\Actions\CreateContentAction;
+use Capell\ContentSections\Actions\CreateHeroContentBlueprintAction;
 use Capell\ContentSections\Actions\ReplicateContentAction;
 use Capell\ContentSections\Models\Section;
+use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 
 it('creates section content with translated title fallback for the section name', function (): void {
@@ -68,4 +70,12 @@ it('replicates section content with replacement data and replacement translation
         ->and($replica->translations->first()->title)->toBe('Replicated title')
         ->and($replica->translations->first()->content)->toBe('Replicated copy')
         ->and($section->fresh()->name)->toBe('Original section');
+});
+
+it('creates the hero section blueprint with an editor-facing description', function (): void {
+    $blueprint = CreateHeroContentBlueprintAction::run();
+
+    expect($blueprint)->toBeInstanceOf(Blueprint::class)
+        ->and($blueprint->name)->toBe('Hero')
+        ->and($blueprint->admin['notes'])->toBe('A page-opening section for headline, supporting copy, artwork, and primary action.');
 });

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\ContentSections\Actions;
 
 use Capell\ContentSections\Models\Section;
+use Carbon\CarbonImmutable;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -32,8 +33,8 @@ class ReplicateContentAction
 
         $replica = $model->replicate();
 
-        $replica->created_at = now();
-        $replica->updated_at = now();
+        $replica->created_at = CarbonImmutable::now();
+        $replica->updated_at = CarbonImmutable::now();
 
         $replica->save();
 

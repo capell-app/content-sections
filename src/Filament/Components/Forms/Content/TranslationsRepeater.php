@@ -8,8 +8,7 @@ use Capell\Admin\Filament\Components\Forms\ContentEditor;
 use Capell\Admin\Filament\Components\Forms\RepeaterTabs;
 use Capell\Admin\Filament\Components\Forms\TranslationLanguageSelect;
 use Capell\Admin\Filament\Components\Forms\TranslationsRepeater as BaseTranslationsRepeater;
-use Capell\Core\Models\Type;
-use Capell\Core\Support\CapellCoreHelper;
+use Capell\Core\Models\Blueprint;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Get;
@@ -42,17 +41,16 @@ class TranslationsRepeater
     {
         $record = $configurator->getRecord();
 
-        if ($record instanceof Model && $record->relationLoaded('type')) {
-            $loadedType = $record->getRelationValue('type');
-            $type = $loadedType instanceof Type ? $loadedType : null;
+        if ($record instanceof Model && $record->relationLoaded('blueprint')) {
+            $loadedBlueprint = $record->getRelationValue('blueprint');
+            $blueprint = $loadedBlueprint instanceof Blueprint ? $loadedBlueprint : null;
         } else {
-            $type = CapellCoreHelper::getType(
-                typeId: $configurator->getRawState()['blueprint_id'] ?? null,
-            );
+            $blueprintId = $configurator->getRawState()['blueprint_id'] ?? null;
+            $blueprint = is_numeric($blueprintId) ? Blueprint::query()->find((int) $blueprintId) : null;
         }
 
         return [
-            ContentEditor::make(structure: $type?->content_structure)
+            ContentEditor::make(structure: $blueprint?->content_structure)
                 ->requiredBasedOnType(),
         ];
     }

@@ -9,7 +9,7 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\ContentSections\Models\Section;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Data\AssetData;
-use Capell\Core\Enums\TypeGroupEnum;
+use Capell\Core\Enums\BlueprintGroupEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
 use Filament\Actions\Action;
@@ -99,7 +99,7 @@ trait HasAssetsRelationManager
                                     fn (Builder $query) => $query->where(
                                         'group',
                                         '!=',
-                                        TypeGroupEnum::System->value,
+                                        BlueprintGroupEnum::System->value,
                                     )
                                         ->orWhereNull('group'),
                                 ),

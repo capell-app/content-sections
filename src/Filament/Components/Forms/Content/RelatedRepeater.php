@@ -10,6 +10,7 @@ use Capell\ContentSections\Models\Section;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Filament\Schemas\Schema;
 
 class RelatedRepeater
@@ -33,7 +34,9 @@ class RelatedRepeater
 
                         $newData = $items[$arguments['item']];
 
-                        $existingContent = Section::query()->find($newData['content_id']);
+                        $existingContent = Section::query()
+                            ->with(['blueprint'])
+                            ->find($newData['content_id']);
 
                         throw_unless($existingContent, Exception::class, 'Content not found with ID: ' . $newData['content_id']);
 
@@ -61,8 +64,8 @@ class RelatedRepeater
                     ->preload(fn (string $operation): bool => in_array($operation, ['create', 'createOption'], true))
                     ->when(
                         $configurator->isCreating(),
-                        fn (ContentSelect $component): ContentSelect => $component->withCreateForm(),
-                        fn (ContentSelect $component): ContentSelect => $component->withEditForm(),
+                        fn (ContentSelect $component): Select => $component->withCreateForm(),
+                        fn (ContentSelect $component): Select => $component->withEditForm(),
                     ),
             );
     }

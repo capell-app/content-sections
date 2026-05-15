@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\ContentSections\Filament\Configurators\Types;
+namespace Capell\ContentSections\Filament\Configurators\Blueprints;
 
 use Capell\Admin\Filament\Components\Forms\ConfiguratorSelect;
 use Capell\Admin\Filament\Components\Forms\ContentStructureSelect;
@@ -18,7 +18,7 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Override;
 
-class ContentTypeConfigurator extends DefaultTypeConfigurator
+class ContentBlueprintConfigurator extends DefaultTypeConfigurator
 {
     #[Override]
     public function make(Schema $configurator): array

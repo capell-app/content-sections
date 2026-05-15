@@ -14,12 +14,12 @@ class DetailsSchema
         return [
             NameInput::make('name')
                 ->withTitleUpdater(),
-            TypeSelect::make('blueprint_id')
+            BlueprintSelect::make('blueprint_id')
                 ->withRelation()
                 ->when(
                     $configurator->isCreating(),
-                    fn (TypeSelect $component): TypeSelect => $component->withCreateForm(),
-                    fn (TypeSelect $component): TypeSelect => $component->withEditForm(),
+                    fn (BlueprintSelect $component): BlueprintSelect => $component->withCreateForm(),
+                    fn (BlueprintSelect $component): BlueprintSelect => $component->withEditForm(),
                 ),
         ];
     }

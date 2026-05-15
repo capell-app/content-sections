@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\ContentSections\Database\Factories\ContentTypeFactory;
+use Capell\ContentSections\Database\Factories\ContentBlueprintFactory;
 use Capell\ContentSections\Filament\Resources\Sections\Pages\CreateSection;
 use Capell\ContentSections\Models\Section;
 use Capell\Core\Models\Language;
@@ -22,7 +22,7 @@ beforeEach(function (): void {
 });
 
 test('required fields are required', function (): void {
-    (new ContentTypeFactory)->create();
+    (new ContentBlueprintFactory)->create();
 
     livewire(CreateSection::class)
         ->assertSuccessful()
@@ -37,6 +37,7 @@ test('required fields are required', function (): void {
 
 it('can create', function (string $type): void {
     $newData = Section::factory()->make();
+    $blueprint = $newData->getBlueprint();
 
     if ($type === 'with deleted site') {
         Site::factory()->deleted()->create();
@@ -45,12 +46,12 @@ it('can create', function (string $type): void {
     livewire(CreateSection::class)
         ->assertSuccessful()
         ->fillForm([
-            'blueprint_id' => $newData->type->getKey(),
+            'blueprint_id' => $blueprint->getKey(),
             'name' => $newData->name,
         ])
         ->assertSchemaStateSet([
             'name' => $newData->name,
-            'blueprint_id' => $newData->type->getKey(),
+            'blueprint_id' => $blueprint->getKey(),
         ])
         ->call('create')
         ->assertHasNoFormErrors();
@@ -65,10 +66,10 @@ test('create with translations', function (string $mode): void {
     $languages = Language::factory()->count(3)->create(['name' => "Cote d'Ivoire"]);
     $site = Site::factory()->state(['language_id' => $languages->first()->id])->withTranslations($languages)->create();
 
-    $type = (new ContentTypeFactory)->default()->create();
+    $blueprint = (new ContentBlueprintFactory)->default()->create();
 
     $newData = Section::factory()
-        ->type($type)
+        ->blueprint($blueprint)
         ->parent(Section::factory()->create())
         ->make();
 
@@ -80,7 +81,7 @@ test('create with translations', function (string $mode): void {
         ->assertSuccessful()
         ->set('data.translations', [])
         ->fillForm([
-            'blueprint_id' => $type->getKey(),
+            'blueprint_id' => $blueprint->getKey(),
             'name' => $newData->name,
             'parent_id' => $newData->parent?->id,
             'translations' => $site->languages
@@ -97,7 +98,7 @@ test('create with translations', function (string $mode): void {
         ])
         ->assertSchemaStateSet([
             'name' => $newData->name,
-            'blueprint_id' => $type->getKey(),
+            'blueprint_id' => $blueprint->getKey(),
             'parent_id' => $newData->parent?->id,
         ])
         ->call('create')
@@ -106,7 +107,7 @@ test('create with translations', function (string $mode): void {
     assertDatabaseHas(Section::class, [
         'name' => $newData->name,
         'parent_id' => $newData->parent?->id,
-        'blueprint_id' => $type->getKey(),
+        'blueprint_id' => $blueprint->getKey(),
     ]);
 
     $site->languages->each(

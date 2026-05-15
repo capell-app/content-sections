@@ -16,7 +16,10 @@ enum ConfiguratorTypeEnum: string implements ConfiguratorTypeEnumInterface
     public function getConfigurators(): array
     {
         return match ($this) {
-            self::Section => SectionConfiguratorEnum::cases(),
+            self::Section => array_map(
+                fn (SectionConfiguratorEnum $configurator): string => $configurator->value,
+                SectionConfiguratorEnum::cases(),
+            ),
         };
     }
 }

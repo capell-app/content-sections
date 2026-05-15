@@ -12,7 +12,7 @@ use Capell\ContentSections\Filament\Concerns\HasAssetsRelationManager;
 use Capell\ContentSections\Models\Section;
 use Capell\Core\Data\AssetData;
 use Capell\Core\Facades\CapellCore;
-use Capell\Core\Models\AssetRelation;
+use Capell\Core\Models\AssetAttachment;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -74,7 +74,7 @@ class SectionAssetsRelationManager extends RelationManager
                     ->badge(),
             ])
             ->recordUrl(
-                fn (AssetRelation $record): string => GetAssetResourceUrlAction::run($record->asset_type, $record->asset),
+                fn (AssetAttachment $record): string => GetAssetResourceUrlAction::run($record->asset_type, $record->asset),
             )
             ->filters([
                 SelectFilter::make('asset_type')
@@ -87,7 +87,7 @@ class SectionAssetsRelationManager extends RelationManager
                             ->all(),
                     ),
                 SelectFilter::make('blueprint_id')
-                    ->label(__('capell-admin::form.type'))
+                    ->label(__('capell-content-sections::form.blueprint'))
                     ->options(fn (): array => Section::getTypes()),
             ])
             ->headerActions([

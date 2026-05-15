@@ -9,7 +9,6 @@ use Capell\Admin\Filament\Concerns\HasSiteTableFilterTabs;
 use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\ContentSections\Enums\ResourceEnum;
 use Capell\ContentSections\Filament\Actions\CreateContentAction;
-use Capell\ContentSections\Filament\Resources\Sections\SectionResource;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Contracts\Support\Htmlable;
 
@@ -20,7 +19,6 @@ class ListSections extends ListRecords
 
     protected string $siteRelation = 'sections';
 
-    /** @return class-string<SectionResource> */
     public static function getResource(): string
     {
         return AdminSurfaceLookup::resource(ResourceEnum::Section);

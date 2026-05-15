@@ -13,13 +13,13 @@ use Capell\ContentSections\Actions\ReplicateContentAction;
 use Capell\ContentSections\Enums\LivewireComponentsEnum;
 use Capell\ContentSections\Enums\ResourceEnum;
 use Capell\ContentSections\Filament\Actions\CreateContentAction;
-use Capell\ContentSections\Filament\Resources\Sections\SectionResource;
 use Capell\ContentSections\Filament\Resources\Sections\Widgets\SectionAlertsWidget;
 use Capell\ContentSections\Models\Section;
 use Capell\PublishingStudio\Filament\Actions\PublishingRevisionsHeaderAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Widgets\Widget;
 use Howdu\FilamentRecordSwitcher\Filament\Concerns\HasRecordSwitcher;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\HtmlString;
@@ -39,7 +39,6 @@ class EditSection extends EditRecord
         afterSave as recordSwitcherAfterSave;
     }
 
-    /** @return class-string<SectionResource> */
     public static function getResource(): string
     {
         return AdminSurfaceLookup::resource(ResourceEnum::Section);
@@ -61,14 +60,14 @@ class EditSection extends EditRecord
 
     public function getSubheading(): string|Htmlable|null
     {
-        $type = $this->record->type;
+        $blueprint = $this->record->blueprint;
 
-        if ($type === null) {
+        if ($blueprint === null) {
             return null;
         }
 
-        return __('capell-content-sections::heading.content_type', [
-            'type' => $type->name,
+        return __('capell-content-sections::heading.content_blueprint', [
+            'type' => $blueprint->name,
         ]);
     }
 
@@ -87,6 +86,7 @@ class EditSection extends EditRecord
         ]));
     }
 
+    /** @return array<class-string<Widget>> */
     #[Override]
     protected function getHeaderWidgets(): array
     {

@@ -25,7 +25,7 @@ Reusable content sections for Capell.
 | Data      | `packages/content-sections/src/Data`      | Structured payloads, form state, view models, and integration data. |
 | Enums     | `packages/content-sections/src/Enums`     | Persisted states and Filament option values.                        |
 | Models    | `packages/content-sections/src/Models`    | Eloquent records owned by the package.                              |
-| Filament  | `packages/content-sections/src/Filament`  | Admin resources, pages, widgets, and settings UI.                   |
+| Filament  | `packages/content-sections/src/Filament`  | Admin resources, pages, elements, and settings UI.                  |
 | Livewire  | `packages/content-sections/src/Livewire`  | Interactive frontend or admin components.                           |
 | Providers | `packages/content-sections/src/Providers` | Registration, extension hooks, routes, migrations, and resources.   |
 | Resources | `packages/content-sections/resources`     | Views, translations, assets, and package resources.                 |
@@ -37,7 +37,7 @@ Reusable content sections for Capell.
 
 - Resources: `SectionResource`.
 - Pages: `CreateSection`, `EditSection`, `ListSections`.
-- Widgets: `SectionAlertsWidget`.
+- Elements: `SectionAlertsElement`.
 
 ## Runtime Surface
 

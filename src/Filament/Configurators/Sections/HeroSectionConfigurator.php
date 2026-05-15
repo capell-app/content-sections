@@ -206,9 +206,13 @@ class HeroSectionConfigurator extends DefaultSectionConfigurator
 
     protected function getAssetsComponent(Schema $configurator): AssetsRepeater
     {
-        return AssetsRepeater::make('assets')
+        $component = AssetsRepeater::make('assets');
+
+        $component
             ->compactRepeater()
             ->hiddenLabel()
-            ->hint(__('capell-content-sections::generic.widget_assets_repeater_hint'));
+            ->hint(__('capell-content-sections::generic.element_assets_repeater_hint'));
+
+        return $component;
     }
 }

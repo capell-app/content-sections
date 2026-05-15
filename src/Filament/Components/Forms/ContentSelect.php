@@ -48,7 +48,10 @@ class ContentSelect extends Select
                     search: $search,
                 );
             })
-            ->getOptionLabelUsing(fn (self $component, ?int $value): ?string => Section::query()->find($value, ['name'])?->name)
+            ->getOptionLabelUsing(fn (self $component, ?int $value): string => (string) Section::query()
+                ->with(['blueprint'])
+                ->find($value, ['id', 'name', 'blueprint_id'])
+                ?->name)
             ->options(fn (self $component): array => $component->getContentOptions());
     }
 
@@ -147,7 +150,9 @@ class ContentSelect extends Select
 
                 return $record?->attributesToArray() ?? [];
             })
-            ->getSelectedRecordUsing(static fn (?int $state): ?Section => Section::query()->find($state))
+            ->getSelectedRecordUsing(static fn (?int $state): ?Section => Section::query()
+                ->with(['blueprint'])
+                ->find($state))
             ->updateOptionUsing(static function (array $data, Schema $configurator): void {
                 $configurator->getRecord()->update($data);
             });
@@ -175,7 +180,10 @@ class ContentSelect extends Select
 
     private function getContentOptions(?int $site_id = null, ?string $search = null): array
     {
-        $relations = ['ancestors'];
+        $relations = [
+            'ancestors.blueprint',
+            'blueprint',
+        ];
         if ($site_id === null || $site_id === 0) {
             $relations[] = 'site';
         }
@@ -199,7 +207,7 @@ class ContentSelect extends Select
             )
             ->when(
                 $contentType,
-                fn (Builder $query) => $query->whereHas('type', fn (BuilderContract $query): BuilderContract => $query->where('key', $contentType)),
+                fn (Builder $query) => $query->whereHas('blueprint', fn (BuilderContract $query): BuilderContract => $query->where('key', $contentType)),
             )
             ->when(
                 $site_id,
@@ -208,7 +216,7 @@ class ContentSelect extends Select
             ->when(
                 $parentContentType,
                 fn (Builder $query) => $query->whereHas(
-                    'parent.type',
+                    'parent.blueprint',
                     fn (BuilderContract $query): BuilderContract => $query->where('key', $parentContentType),
                 ),
             )

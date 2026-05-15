@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Capell\ContentSections\Actions;
 
 use Capell\ContentSections\Models\Section;
+use Capell\Core\Contracts\Actionable;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
  * @method static Section run(array $data)
  */
-class CreateContentAction
+class CreateContentAction implements Actionable
 {
     use AsObject;
 

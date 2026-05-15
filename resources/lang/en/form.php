@@ -9,6 +9,7 @@ return [
     'animate' => 'Animate',
     'answer' => 'Answer',
     'bio' => 'Bio',
+    'blueprint' => 'Blueprint',
     'caption' => 'Caption',
     'cells' => 'Cells',
     'columns' => 'Columns',

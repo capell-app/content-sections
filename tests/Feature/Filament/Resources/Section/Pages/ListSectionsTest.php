@@ -5,9 +5,9 @@ declare(strict_types=1);
 use Capell\ContentSections\Enums\LayoutTypeEnum;
 use Capell\ContentSections\Filament\Resources\Sections\Pages\ListSections;
 use Capell\ContentSections\Models\Section;
+use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
-use Capell\Core\Models\Type;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 
@@ -116,7 +116,7 @@ test('can select all records', function (): void {
 });
 
 test('can create section', function (): void {
-    Type::factory()->type(LayoutTypeEnum::Section)->create();
+    Blueprint::factory()->type(LayoutTypeEnum::Section)->create();
 
     $newData = Section::factory()->make();
 
@@ -126,7 +126,7 @@ test('can create section', function (): void {
 
     Section::query()->create([
         'name' => $newData->name,
-        'blueprint_id' => Type::query()->where('type', LayoutTypeEnum::Section)->value('id'),
+        'blueprint_id' => Blueprint::query()->where('type', LayoutTypeEnum::Section)->value('id'),
     ]);
 
     assertDatabaseHas(Section::class, [
@@ -146,14 +146,14 @@ test('can filter by parent', function (): void {
         ->assertCanSeeTableRecords($children);
 });
 
-test('can filter by type', function (): void {
-    $type = Type::factory()->type(LayoutTypeEnum::Section)->create();
-    $sections = Section::factory()->count(3)->type($type)->create();
+test('can filter by blueprint', function (): void {
+    $blueprint = Blueprint::factory()->type(LayoutTypeEnum::Section)->create();
+    $sections = Section::factory()->count(3)->blueprint($blueprint)->create();
 
     livewire(ListSections::class)
         ->assertSuccessful()
         ->assertCountTableRecords(3)
-        ->filterTable('blueprint_id', $type->id)
+        ->filterTable('blueprint_id', $blueprint->id)
         ->assertCountTableRecords(3)
         ->assertCanSeeTableRecords($sections);
 });

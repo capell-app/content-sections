@@ -51,9 +51,9 @@ class SectionAssets extends AbstractAssets
         $model = Section::class;
 
         return $model::with([
+            'blueprint',
             'site',
             'translations.language',
-            'type',
         ])
             ->when(
                 $this->existingRecords,

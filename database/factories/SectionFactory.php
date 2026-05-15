@@ -6,11 +6,11 @@ namespace Capell\ContentSections\Database\Factories;
 
 use Capell\ContentSections\Models\Section;
 use Capell\Core\Database\Factories\Concerns\HasFactoryPublishDates;
+use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
-use Capell\Core\Models\Type;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Str;
@@ -34,7 +34,7 @@ class SectionFactory extends Factory
         return [
             'name' => 'Section ' . Str::uuid()->toString(),
             'parent_id' => null,
-            'blueprint_id' => (new ContentTypeFactory),
+            'blueprint_id' => (new ContentBlueprintFactory),
             'site_id' => null,
             'meta' => [
                 'label' => null,
@@ -59,9 +59,9 @@ class SectionFactory extends Factory
         ]);
     }
 
-    public function type(Type $type): self
+    public function blueprint(Blueprint $blueprint): self
     {
-        return $this->set('blueprint_id', $type->getKey());
+        return $this->set('blueprint_id', $blueprint->getKey());
     }
 
     public function linkedPage(): self

@@ -479,7 +479,7 @@ abstract class PopularSectionConfigurator extends DefaultSectionConfigurator
     }
 
     /**
-     * @return array<string, string>
+     * @return array<int|string, string>
      */
     private function alignmentOptions(): array
     {
@@ -491,14 +491,14 @@ abstract class PopularSectionConfigurator extends DefaultSectionConfigurator
     }
 
     /**
-     * @return array<string, string>
+     * @return array<int|string, string>
      */
     private function columnOptions(): array
     {
         return [
-            '2' => __('capell-content-sections::generic.two_columns'),
-            '3' => __('capell-content-sections::generic.three_columns'),
-            '4' => __('capell-content-sections::generic.four_columns'),
+            '2' => (string) __('capell-content-sections::generic.two_columns'),
+            '3' => (string) __('capell-content-sections::generic.three_columns'),
+            '4' => (string) __('capell-content-sections::generic.four_columns'),
         ];
     }
 }

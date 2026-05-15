@@ -6,9 +6,9 @@ namespace Capell\ContentSections\Actions;
 
 use Capell\ContentSections\Enums\LayoutTypeEnum;
 use Capell\ContentSections\Models\Section;
+use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
-use Capell\Core\Models\Type;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Support\Enums\Width;
@@ -28,12 +28,12 @@ class ModifyContentSelectCreateAction
             ->createOptionAction(
                 fn (Action $action): Action => $action
                     ->modal()
-                    ->modalHeading(__('capell-admin::generic.type'))
+                    ->modalHeading(__('capell-content-sections::form.blueprint'))
                     ->fillForm(function (): array {
                         $site = Site::getDefault();
 
-                        /** @var class-string<Type> $model */
-                        $model = Type::class;
+                        /** @var class-string<Blueprint> $model */
+                        $model = Blueprint::class;
 
                         return [
                             'blueprint_id' => $model::query()

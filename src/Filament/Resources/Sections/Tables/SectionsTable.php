@@ -7,13 +7,13 @@ namespace Capell\ContentSections\Filament\Resources\Sections\Tables;
 use Capell\Admin\Filament\Components\Tables\Actions\EditAction;
 use Capell\Admin\Filament\Components\Tables\Actions\ReplicateAction;
 use Capell\Admin\Filament\Components\Tables\Columns\BadgeableColumn;
+use Capell\Admin\Filament\Components\Tables\Columns\BlueprintColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\DateColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\IdentifierColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\LanguagesColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\MediaLibraryImageColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\Page\PageNameColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\SiteColumn;
-use Capell\Admin\Filament\Components\Tables\Columns\TypeColumn;
 use Capell\Admin\Filament\Contracts\TableConfigurator;
 use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\ContentSections\Actions\ReplicateContentAction;
@@ -21,9 +21,9 @@ use Capell\ContentSections\Enums\LayoutTypeEnum;
 use Capell\ContentSections\Enums\ResourceEnum;
 use Capell\ContentSections\Filament\Components\Tables\Columns\Content\ContentNameColumn;
 use Capell\ContentSections\Models\Section;
+use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
-use Capell\Core\Models\Type;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -52,16 +52,16 @@ class SectionsTable implements TableConfigurator
             ->modifyQueryUsing(
                 fn (Builder $query): Builder => $query
                     ->with([
-                        'ancestors.type',
+                        'ancestors.blueprint',
+                        'blueprint',
                         'creator',
                         'editor',
                         'image',
                         'linkedPage',
-                        'parent.type',
+                        'parent.blueprint',
                         'site',
                         'translation.language',
                         'translations.language',
-                        'type',
                     ])
                     ->withCount([
                         'children',
@@ -132,7 +132,7 @@ class SectionsTable implements TableConfigurator
                 ->searchable(false)
                 ->withParents()
                 ->toggleable(isToggledHiddenByDefault: true),
-            TypeColumn::make('type.name'),
+            BlueprintColumn::make('blueprint.name'),
             MediaLibraryImageColumn::make('image')
                 ->label(__('capell-admin::table.image'))
                 ->collection('image')
@@ -209,11 +209,11 @@ class SectionsTable implements TableConfigurator
                 ),
 
             SelectFilter::make('blueprint_id')
-                ->label(__('capell-admin::form.type'))
+                ->label(__('capell-content-sections::form.blueprint'))
                 ->relationship(
-                    name: 'type',
+                    name: 'blueprint',
                     titleAttribute: 'name',
-                    /** @param Builder<Type> $query */
+                    /** @param Builder<Blueprint> $query */
                     modifyQueryUsing: fn (Builder $query): Builder => $query->where(
                         'type',
                         LayoutTypeEnum::Section->value,
@@ -255,11 +255,11 @@ class SectionsTable implements TableConfigurator
                             languageId: filled($get('language_id')) ? (int) $get('language_id') : null,
                             search: $search,
                         ))
-                        ->getOptionLabelUsing(fn (mixed $value, HasTable $livewire, Get $get): ?string => static::parentSectionOptions(
+                        ->getOptionLabelUsing(fn (mixed $value, HasTable $livewire, Get $get): string => static::parentSectionOptions(
                             siteId: static::getSiteId($livewire),
                             languageId: filled($get('language_id')) ? (int) $get('language_id') : null,
                             selectedId: filled($value) ? (int) $value : null,
-                        )[(int) $value] ?? null),
+                        )[(int) $value] ?? ''),
                 ])
                 ->query(function (Builder $query, array $data): void {
                     $query
@@ -340,11 +340,13 @@ class SectionsTable implements TableConfigurator
 
         $sections = $model::query()
             ->with([
+                'ancestors.blueprint',
                 'site',
                 'ancestors',
+                'blueprint',
             ])
             ->whereHas('children')
-            ->whereHas('type', fn (BuilderContract $query): BuilderContract => $query->enabled())
+            ->whereHas('blueprint', fn (BuilderContract $query): BuilderContract => $query->enabled())
             ->when($siteId, fn (Builder $query): Builder => $query->where('site_id', (int) $siteId))
             ->when(
                 $languageId,

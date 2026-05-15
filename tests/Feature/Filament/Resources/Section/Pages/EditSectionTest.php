@@ -19,6 +19,7 @@ beforeEach(function (): void {
 
 it('can save', function (): void {
     $content = Section::factory()->create();
+    $blueprint = $content->getBlueprint();
     $newData = Section::factory()
         ->site(Site::factory()->create())
         ->parent(Section::factory()->create())
@@ -30,7 +31,7 @@ it('can save', function (): void {
         ->assertSuccessful()
         ->assertSchemaStateSet([
             'name' => $content->name,
-            'blueprint_id' => $content->type->getKey(),
+            'blueprint_id' => $blueprint->getKey(),
             'parent_id' => $content->parent?->id,
             'site_id' => $content->site?->getKey(),
         ])
@@ -49,7 +50,7 @@ it('can save', function (): void {
 
     expect($content->refresh())
         ->name->toBe($newData->name)
-        ->blueprint_id->toBe($content->type->getKey())
+        ->blueprint_id->toBe($blueprint->getKey())
         ->parent_id->toBe($newData->parent->id)
         ->site_id->toBe($newData->site->getKey());
 });
