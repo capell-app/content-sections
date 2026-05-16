@@ -47,7 +47,7 @@ final class BuildSectionAssetRenderDataAction
             return $componentItem;
         }
 
-        return app(FrontendComponentRegistryInterface::class)->resolve($componentItem);
+        return resolve(FrontendComponentRegistryInterface::class)->resolve($componentItem);
     }
 
     private function image(object $asset): mixed
