@@ -48,15 +48,23 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
 
     private const ADMIN_DELETED_MODEL_ACTION = 'Capell\\Admin\\Actions\\DeletedModelAction';
 
+    private const BLOCK_DEFINITION_PROVIDER = BlockDefinitionProvider::class;
+
+    private const PUBLIC_ELEMENT_PAYLOAD_CONTRIBUTOR = PublicElementPayloadContributor::class;
+
     public static string $name = 'capell-content-sections';
 
     public static string $packageName = 'capell-app/content-sections';
 
     public function packageRegistered(): void
     {
+        if (! interface_exists(self::BLOCK_DEFINITION_PROVIDER)) {
+            return;
+        }
+
         $this->app->tag(
             [ContentSectionsBlockDefinitionProvider::class],
-            BlockDefinitionProvider::TAG,
+            self::BLOCK_DEFINITION_PROVIDER::TAG,
         );
     }
 
@@ -233,7 +241,9 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
 
     private function registerPublicElementPayloadContributor(): self
     {
-        $this->app->tag([SectionPublicElementPayloadContributor::class], PublicElementPayloadContributor::TAG);
+        if (interface_exists(self::PUBLIC_ELEMENT_PAYLOAD_CONTRIBUTOR)) {
+            $this->app->tag([SectionPublicElementPayloadContributor::class], self::PUBLIC_ELEMENT_PAYLOAD_CONTRIBUTOR::TAG);
+        }
 
         return $this;
     }
