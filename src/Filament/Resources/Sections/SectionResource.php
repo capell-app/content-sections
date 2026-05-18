@@ -29,6 +29,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\HtmlString;
+use Override;
 
 class SectionResource extends Resource
 {
@@ -42,16 +43,19 @@ class SectionResource extends Resource
 
     protected static string $tableConfigurator = SectionsTable::class;
 
+    #[Override]
     public static function form(Schema $configurator): Schema
     {
         return static::getFormConfigurator()::configure($configurator);
     }
 
+    #[Override]
     public static function table(Table $table): Table
     {
         return static::getTableConfigurator()::configure($table);
     }
 
+    #[Override]
     public static function shouldRegisterNavigation(): bool
     {
         return CapellCore::getPackage(ContentSectionsServiceProvider::$packageName)->isInstalled();
@@ -62,6 +66,7 @@ class SectionResource extends Resource
         return ConfiguratorTypeEnum::Section;
     }
 
+    #[Override]
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
@@ -70,11 +75,13 @@ class SectionResource extends Resource
             ]);
     }
 
+    #[Override]
     public static function getGloballySearchableAttributes(): array
     {
         return ['name', 'translations.title'];
     }
 
+    #[Override]
     public static function getGlobalSearchEloquentQuery(): Builder
     {
         return parent::getGlobalSearchEloquentQuery()
@@ -86,6 +93,7 @@ class SectionResource extends Resource
     }
 
     /** @return array<string, string> */
+    #[Override]
     public static function getGlobalSearchResultDetails(Model $record): array
     {
         if (! $record instanceof Section) {
@@ -108,26 +116,31 @@ class SectionResource extends Resource
     /**
      * @return class-string<Section>
      */
+    #[Override]
     public static function getModel(): string
     {
         return Section::class;
     }
 
+    #[Override]
     public static function getNavigationGroup(): ?string
     {
         return (string) (__('capell-admin::navigation.group_content'));
     }
 
+    #[Override]
     public static function getNavigationParentItem(): ?string
     {
         return (string) __('capell-admin::navigation.pages');
     }
 
+    #[Override]
     public static function getNavigationLabel(): string
     {
         return (string) (__('capell-content-sections::navigation.sections'));
     }
 
+    #[Override]
     public static function getPages(): array
     {
         return [
@@ -137,26 +150,31 @@ class SectionResource extends Resource
         ];
     }
 
+    #[Override]
     public static function getNavigationIcon(): string|BackedEnum|Htmlable|null
     {
         return CapellCore::getAsset(LayoutTypeEnum::Section->name)->getIcon();
     }
 
+    #[Override]
     public static function getActiveNavigationIcon(): string|BackedEnum|Htmlable|null
     {
         return CapellCore::getAsset(LayoutTypeEnum::Section->name)->getActiveIcon();
     }
 
+    #[Override]
     public static function getModelLabel(): string
     {
         return __('capell-content-sections::generic.section');
     }
 
+    #[Override]
     public static function getPluralModelLabel(): string
     {
         return __('capell-content-sections::generic.sections');
     }
 
+    #[Override]
     public static function getRelations(): array
     {
         return [
@@ -165,6 +183,7 @@ class SectionResource extends Resource
     }
 
     /** @return array<class-string<Widget>> */
+    #[Override]
     public static function getWidgets(): array
     {
         return [

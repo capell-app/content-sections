@@ -22,6 +22,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Override;
 
 class SectionAssetsRelationManager extends RelationManager
 {
@@ -32,11 +33,13 @@ class SectionAssetsRelationManager extends RelationManager
 
     protected static string $relationship = 'assets';
 
+    #[Override]
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
         return __('capell-admin::tab.assets');
     }
 
+    #[Override]
     public function form(Schema $configurator): Schema
     {
         return $configurator->components(static::getAssetForm())->columns(1);

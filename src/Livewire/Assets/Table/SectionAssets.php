@@ -12,6 +12,7 @@ use Capell\Core\Models\Language;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Locked;
+use Override;
 
 class SectionAssets extends AbstractAssets
 {
@@ -45,6 +46,7 @@ class SectionAssets extends AbstractAssets
         return $query;
     }
 
+    #[Override]
     protected function getTableQuery(): Builder
     {
         /* @var class-string<\Capell\ContentSections\Models\Section> $model */

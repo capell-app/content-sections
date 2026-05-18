@@ -16,9 +16,11 @@ use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Override;
 
 class TestimonialSectionConfigurator extends DefaultSectionConfigurator
 {
+    #[Override]
     public function make(Schema $configurator): array
     {
         return match ($configurator->getOperation()) {
@@ -29,6 +31,7 @@ class TestimonialSectionConfigurator extends DefaultSectionConfigurator
         };
     }
 
+    #[Override]
     protected function getMetaSchema(): array
     {
         return [

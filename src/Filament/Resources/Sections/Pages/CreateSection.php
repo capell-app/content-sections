@@ -8,14 +8,17 @@ use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\ContentSections\Actions\MutateContentDataBeforeFillAction;
 use Capell\ContentSections\Enums\ResourceEnum;
 use Filament\Resources\Pages\CreateRecord;
+use Override;
 
 class CreateSection extends CreateRecord
 {
+    #[Override]
     public static function getResource(): string
     {
         return AdminSurfaceLookup::resource(ResourceEnum::Section);
     }
 
+    #[Override]
     protected function fillForm(): void
     {
         $this->callHook('beforeFill');

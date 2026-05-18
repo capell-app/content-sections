@@ -43,6 +43,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\DB;
+use Override;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -293,6 +294,7 @@ class Section extends Model implements Blueprintable, HasMedia, Publishable, Use
         return $this->meta['actions'] ?? [];
     }
 
+    #[Override]
     protected function casts(): array
     {
         return [

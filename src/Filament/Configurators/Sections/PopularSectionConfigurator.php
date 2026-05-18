@@ -24,11 +24,13 @@ use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Override;
 
 abstract class PopularSectionConfigurator extends DefaultSectionConfigurator
 {
     abstract protected function sectionKey(): string;
 
+    #[Override]
     protected function getOptionFormSchema(Schema $configurator): array
     {
         return [
@@ -40,6 +42,7 @@ abstract class PopularSectionConfigurator extends DefaultSectionConfigurator
         ];
     }
 
+    #[Override]
     protected function getFormSchema(Schema $configurator): array
     {
         return [

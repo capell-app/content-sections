@@ -9,11 +9,13 @@ use Capell\ContentSections\Enums\LayoutTypeEnum;
 use Capell\Core\Enums\BlueprintSubjectEnum;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
+use Override;
 
 class BlueprintSelect extends BaseBlueprintSelect
 {
     protected null|BlueprintSubjectEnum|string $type = LayoutTypeEnum::Section->value;
 
+    #[Override]
     public function withRelation(): static
     {
         return $this->relationship(

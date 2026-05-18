@@ -39,11 +39,13 @@ class EditSection extends EditRecord
         afterSave as recordSwitcherAfterSave;
     }
 
+    #[Override]
     public static function getResource(): string
     {
         return AdminSurfaceLookup::resource(ResourceEnum::Section);
     }
 
+    #[Override]
     public function getTitle(): string|Htmlable
     {
         if (filled(static::$title)) {
@@ -58,6 +60,7 @@ class EditSection extends EditRecord
         );
     }
 
+    #[Override]
     public function getSubheading(): string|Htmlable|null
     {
         $blueprint = $this->record->blueprint;
@@ -71,6 +74,7 @@ class EditSection extends EditRecord
         ]);
     }
 
+    #[Override]
     protected function getHeaderActions(): array
     {
         return array_values(array_filter([

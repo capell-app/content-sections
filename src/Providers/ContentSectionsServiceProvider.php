@@ -44,13 +44,13 @@ use Spatie\LaravelPackageTools\Package;
 
 class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
 {
-    private const ADMIN_CREATED_MODEL_ACTION = 'Capell\\Admin\\Actions\\CreatedModelAction';
+    private const string ADMIN_CREATED_MODEL_ACTION = 'Capell\\Admin\\Actions\\CreatedModelAction';
 
-    private const ADMIN_DELETED_MODEL_ACTION = 'Capell\\Admin\\Actions\\DeletedModelAction';
+    private const string ADMIN_DELETED_MODEL_ACTION = 'Capell\\Admin\\Actions\\DeletedModelAction';
 
-    private const BLOCK_DEFINITION_PROVIDER = BlockDefinitionProvider::class;
+    private const string BLOCK_DEFINITION_PROVIDER = BlockDefinitionProvider::class;
 
-    private const PUBLIC_ELEMENT_PAYLOAD_CONTRIBUTOR = PublicElementPayloadContributor::class;
+    private const string PUBLIC_ELEMENT_PAYLOAD_CONTRIBUTOR = PublicElementPayloadContributor::class;
 
     public static string $name = 'capell-content-sections';
 

@@ -24,9 +24,11 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Override;
 
 class HeroSectionConfigurator extends DefaultSectionConfigurator
 {
+    #[Override]
     protected function getMetaSchema(): array
     {
         return [
@@ -49,6 +51,7 @@ class HeroSectionConfigurator extends DefaultSectionConfigurator
         ];
     }
 
+    #[Override]
     protected function getOptionFormSchema(Schema $configurator): array
     {
         return [
@@ -74,6 +77,7 @@ class HeroSectionConfigurator extends DefaultSectionConfigurator
         ];
     }
 
+    #[Override]
     protected function getFormSchema(Schema $configurator): array
     {
         return [
@@ -110,6 +114,7 @@ class HeroSectionConfigurator extends DefaultSectionConfigurator
         ];
     }
 
+    #[Override]
     protected function settingsTab(Schema $configurator, array $components = []): Tab
     {
         return Tab::make('settings')
@@ -123,6 +128,7 @@ class HeroSectionConfigurator extends DefaultSectionConfigurator
             ]);
     }
 
+    #[Override]
     protected function translationsTab(Schema $configurator): Tab
     {
         return Tab::make(__('capell-admin::tab.content'))
