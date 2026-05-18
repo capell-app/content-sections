@@ -22,7 +22,7 @@ use Capell\ContentSections\Filament\Configurators\Blueprints\ContentBlueprintCon
 use Capell\ContentSections\Models\Section;
 use Capell\ContentSections\Support\ContentSectionsBlockDefinitionProvider;
 use Capell\ContentSections\Support\ContentSectionsModelRegistrar;
-use Capell\ContentSections\Support\SectionPublicElementPayloadContributor;
+use Capell\ContentSections\Support\SectionPublicBlockPayloadContributor;
 use Capell\ContentSections\Support\SectionRegistry;
 use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
 use Capell\Core\Data\AssetData;
@@ -34,7 +34,7 @@ use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Contracts\AssetsRegistryInterface;
 use Capell\Frontend\Contracts\FrontendComponentRegistryInterface;
 use Capell\Frontend\Data\FrontendAssetData;
-use Capell\LayoutBuilder\Contracts\PublicElementPayloadContributor;
+use Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor;
 use Capell\PublishingStudio\WorkspaceRegistry;
 use Composer\InstalledVersions;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -50,7 +50,7 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
 
     private const string BLOCK_DEFINITION_PROVIDER = BlockDefinitionProvider::class;
 
-    private const string PUBLIC_ELEMENT_PAYLOAD_CONTRIBUTOR = PublicElementPayloadContributor::class;
+    private const string PUBLIC_ELEMENT_PAYLOAD_CONTRIBUTOR = PublicBlockPayloadContributor::class;
 
     public static string $name = 'capell-content-sections';
 
@@ -110,7 +110,7 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
             ->registerConfigurators()
             ->registerPageTypes()
             ->registerAssets()
-            ->registerPublicElementPayloadContributor()
+            ->registerPublicBlockPayloadContributor()
             ->registerFrontendComponents()
             ->registerEvents()
             ->registerBladeComponents()
@@ -239,10 +239,10 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
         return $this;
     }
 
-    private function registerPublicElementPayloadContributor(): self
+    private function registerPublicBlockPayloadContributor(): self
     {
         if (interface_exists(self::PUBLIC_ELEMENT_PAYLOAD_CONTRIBUTOR)) {
-            $this->app->tag([SectionPublicElementPayloadContributor::class], self::PUBLIC_ELEMENT_PAYLOAD_CONTRIBUTOR::TAG);
+            $this->app->tag([SectionPublicBlockPayloadContributor::class], self::PUBLIC_ELEMENT_PAYLOAD_CONTRIBUTOR::TAG);
         }
 
         return $this;

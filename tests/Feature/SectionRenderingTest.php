@@ -40,7 +40,7 @@ function renderSectionForDomAssertions(string $key): TestResponse
     );
 }
 
-function assertSectionDomElementCount(TestResponse $response, string $selector, int $count): TestResponse
+function assertSectionDomBlockCount(TestResponse $response, string $selector, int $count): TestResponse
 {
     return $response->assertElementExists('body', static function (AssertElement $body) use ($selector, $count): void {
         $body->contains($selector, $count);
@@ -68,14 +68,14 @@ function removeSectionIconValues(array $meta): array
     return $meta;
 }
 
-it('renders accordion panels as disclosure elements', function (): void {
+it('renders accordion panels as disclosure blocks', function (): void {
     renderSectionForDomAssertions('accordion')
         ->assertContainsElement('section.section-accordion', ['text' => 'Accordion'])
         ->assertContainsElement('section.section-accordion details[open]')
         ->assertContainsElement('section.section-accordion summary', ['text' => 'How quickly can editors update content?'])
         ->assertContainsElement('section.section-accordion .prose p', ['text' => 'Editors can update reusable panels once and reuse them across pages.']);
 
-    assertSectionDomElementCount(renderSectionForDomAssertions('accordion'), 'section.section-accordion details', 2);
+    assertSectionDomBlockCount(renderSectionForDomAssertions('accordion'), 'section.section-accordion details', 2);
 });
 
 it('renders call to action headings copy and actions', function (): void {
@@ -134,7 +134,7 @@ it('renders counter cards with formatted values and labels', function (): void {
         ->assertContainsElement('section.section-counter h3', ['text' => 'Faster publishing'])
         ->assertContainsElement('section.section-counter p', ['text' => 'Average reduction in edit-to-live time.']);
 
-    assertSectionDomElementCount(renderSectionForDomAssertions('counter'), 'section.section-counter article', 3);
+    assertSectionDomBlockCount(renderSectionForDomAssertions('counter'), 'section.section-counter article', 3);
 });
 
 it('renders configured section icons through blade icons', function (): void {
@@ -154,13 +154,13 @@ it('renders divider dots when configured', function (): void {
         ->assertDoesntExist('div.section-divider hr');
 });
 
-it('renders FAQ questions as disclosure elements', function (): void {
+it('renders FAQ questions as disclosure blocks', function (): void {
     renderSectionForDomAssertions('faq')
         ->assertContainsElement('section.section-faq details[open]')
         ->assertContainsElement('section.section-faq summary', ['text' => 'Can FAQ content be reused?'])
         ->assertContainsElement('section.section-faq .prose p', ['text' => 'Yes. The block stores reusable question and answer pairs.']);
 
-    assertSectionDomElementCount(renderSectionForDomAssertions('faq'), 'section.section-faq details', 2);
+    assertSectionDomBlockCount(renderSectionForDomAssertions('faq'), 'section.section-faq details', 2);
 });
 
 it('renders feature cards with links', function (): void {
@@ -169,7 +169,7 @@ it('renders feature cards with links', function (): void {
         ->assertContainsElement('section.section-features h3', ['text' => 'Reusable patterns'])
         ->assertContainsElement('section.section-features a', ['href' => '#', 'text' => 'Read more']);
 
-    assertSectionDomElementCount(renderSectionForDomAssertions('features'), 'section.section-features article', 3);
+    assertSectionDomBlockCount(renderSectionForDomAssertions('features'), 'section.section-features article', 3);
 });
 
 it('renders hero as a centered feature section', function (): void {
@@ -185,7 +185,7 @@ it('renders logo links in the configured grid', function (): void {
         ->assertContainsElement('section.section-logos a', ['href' => '#', 'text' => 'Northstar'])
         ->assertContainsElement('section.section-logos a', ['href' => '#', 'text' => 'Signal Works']);
 
-    assertSectionDomElementCount(renderSectionForDomAssertions('logos'), 'section.section-logos a', 4);
+    assertSectionDomBlockCount(renderSectionForDomAssertions('logos'), 'section.section-logos a', 4);
 });
 
 it('renders pricing plans with features actions and highlighted plan state', function (): void {
@@ -195,7 +195,7 @@ it('renders pricing plans with features actions and highlighted plan state', fun
         ->assertContainsElement('section.section-pricing li', ['text' => 'Priority support'])
         ->assertContainsElement('section.section-pricing a', ['href' => '#', 'text' => 'Choose Scale']);
 
-    assertSectionDomElementCount(renderSectionForDomAssertions('pricing'), 'section.section-pricing article', 3);
+    assertSectionDomBlockCount(renderSectionForDomAssertions('pricing'), 'section.section-pricing article', 3);
 });
 
 it('renders stats as a metric grid', function (): void {
@@ -204,7 +204,7 @@ it('renders stats as a metric grid', function (): void {
         ->assertContainsElement('section.section-stats p.text-3xl', ['text' => '18'])
         ->assertContainsElement('section.section-stats h3', ['text' => 'Block types']);
 
-    assertSectionDomElementCount(renderSectionForDomAssertions('stats'), 'section.section-stats article', 4);
+    assertSectionDomBlockCount(renderSectionForDomAssertions('stats'), 'section.section-stats article', 4);
 });
 
 it('renders structured table captions headers and cells', function (): void {
@@ -232,7 +232,7 @@ it('renders team member profiles with initials roles bios and links', function (
         ->assertContainsElement('section.section-team p', ['text' => 'UX Designer'])
         ->assertContainsElement('section.section-team a', ['href' => '#', 'text' => 'Read more']);
 
-    assertSectionDomElementCount(renderSectionForDomAssertions('team'), 'section.section-team article', 3);
+    assertSectionDomBlockCount(renderSectionForDomAssertions('team'), 'section.section-team article', 3);
 });
 
 it('renders testimonial quote attribution and role', function (): void {
@@ -249,5 +249,5 @@ it('renders timeline milestones in order', function (): void {
         ->assertContainsElement('section.section-timeline li h3', ['text' => 'Configure'])
         ->assertContainsElement('section.section-timeline li p', ['text' => 'Capture screenshots and verify frontend output.']);
 
-    assertSectionDomElementCount(renderSectionForDomAssertions('timeline'), 'section.section-timeline li', 3);
+    assertSectionDomBlockCount(renderSectionForDomAssertions('timeline'), 'section.section-timeline li', 3);
 });

@@ -49,13 +49,13 @@ it('spreads attributes onto dynamic section components', function (): void {
         BLADE,
         [
             'asset' => $asset,
-            'class' => ['element-block-item'],
+            'class' => ['block-block-item'],
             'loop' => (object) ['index' => 0],
         ],
     )
         ->assertSee('Alice Johnson')
         ->assertSee('section-asset')
-        ->assertSee('element-block-item');
+        ->assertSee('block-block-item');
 });
 
 it('builds section asset render data from loaded eloquent relations', function (): void {

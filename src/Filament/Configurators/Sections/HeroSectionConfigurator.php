@@ -217,7 +217,7 @@ class HeroSectionConfigurator extends DefaultSectionConfigurator
         $component
             ->compactRepeater()
             ->hiddenLabel()
-            ->hint(__('capell-content-sections::generic.element_assets_repeater_hint'));
+            ->hint(__('capell-content-sections::generic.block_assets_repeater_hint'));
 
         return $component;
     }

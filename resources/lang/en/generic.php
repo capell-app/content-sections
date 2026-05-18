@@ -25,5 +25,5 @@ return [
     'table_cells_helper' => 'Enter cells separated by pipes. Example: Starter | $19 | Included.',
     'three_columns' => '3 columns',
     'two_columns' => '2 columns',
-    'element_assets_repeater_hint' => 'Assets assigned directly to this section only.',
+    'block_assets_repeater_hint' => 'Assets assigned directly to this section only.',
 ];

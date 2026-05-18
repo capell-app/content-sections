@@ -9,16 +9,16 @@ use Capell\ContentSections\Models\Section;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Translation;
-use Capell\LayoutBuilder\Contracts\PublicElementPayloadContributor;
-use Capell\LayoutBuilder\Models\Element;
-use Capell\LayoutBuilder\Models\ElementAsset;
+use Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor;
+use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\BlockAsset;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 
-final class SectionPublicElementPayloadContributor implements PublicElementPayloadContributor
+final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadContributor
 {
     public function priority(): int
     {
@@ -28,10 +28,10 @@ final class SectionPublicElementPayloadContributor implements PublicElementPaylo
     /**
      * @return array<string, mixed>
      */
-    public function data(Element $element, Page $page, Language $language, string $containerKey, int $occurrence): array
+    public function data(Block $block, Page $page, Language $language, string $containerKey, int $occurrence): array
     {
-        $sections = $this->sectionAssets($element)
-            ->map(fn (ElementAsset $elementAsset): array => $this->sectionData($elementAsset))
+        $sections = $this->sectionAssets($block)
+            ->map(fn (BlockAsset $blockAsset): array => $this->sectionData($blockAsset))
             ->values()
             ->all();
 
@@ -42,10 +42,10 @@ final class SectionPublicElementPayloadContributor implements PublicElementPaylo
         return ['sections' => $sections];
     }
 
-    public function html(Element $element, Page $page, Language $language, string $containerKey, int $occurrence): ?string
+    public function html(Block $block, Page $page, Language $language, string $containerKey, int $occurrence): ?string
     {
-        $html = $this->sectionAssets($element)
-            ->map(fn (ElementAsset $elementAsset): string => $this->renderSection($elementAsset, $this->sectionData($elementAsset)))
+        $html = $this->sectionAssets($block)
+            ->map(fn (BlockAsset $blockAsset): string => $this->renderSection($blockAsset, $this->sectionData($blockAsset)))
             ->filter(fn (string $html): bool => trim($html) !== '')
             ->implode("\n");
 
@@ -53,31 +53,31 @@ final class SectionPublicElementPayloadContributor implements PublicElementPaylo
     }
 
     /**
-     * @return Collection<int, ElementAsset>
+     * @return Collection<int, BlockAsset>
      */
-    private function sectionAssets(Element $element): Collection
+    private function sectionAssets(Block $block): Collection
     {
-        $assets = $element->getRelationValue('assets');
+        $assets = $block->getRelationValue('assets');
 
         if (! $assets instanceof EloquentCollection && ! $assets instanceof Collection) {
             return collect();
         }
 
         return $assets
-            ->filter(fn (mixed $elementAsset): bool => $elementAsset instanceof ElementAsset
-                && $elementAsset->asset instanceof Section
-                && ! $elementAsset->asset->isPending()
-                && ! $elementAsset->asset->isExpired())
+            ->filter(fn (mixed $blockAsset): bool => $blockAsset instanceof BlockAsset
+                && $blockAsset->asset instanceof Section
+                && ! $blockAsset->asset->isPending()
+                && ! $blockAsset->asset->isExpired())
             ->values();
     }
 
     /**
      * @return array<string, mixed>
      */
-    private function sectionData(ElementAsset $elementAsset): array
+    private function sectionData(BlockAsset $blockAsset): array
     {
         /** @var Section $section */
-        $section = $elementAsset->asset;
+        $section = $blockAsset->asset;
         $translation = $this->translationFor($section);
         $component = $this->componentFor($section);
 
@@ -87,16 +87,16 @@ final class SectionPublicElementPayloadContributor implements PublicElementPaylo
             'component' => $component,
             'title' => $translation?->label ?? $section->name,
             'summary' => $this->summaryFor($translation),
-            'meta' => $this->metaFor($section, $elementAsset),
+            'meta' => $this->metaFor($section, $blockAsset),
             'linkText' => $translation?->link_text,
             'url' => $section->linkedPage?->pageUrl?->full_url,
-            'elementAsset' => [
-                'id' => $elementAsset->getKey(),
-                'meta' => $elementAsset->meta ?? [],
+            'blockAsset' => [
+                'id' => $blockAsset->getKey(),
+                'meta' => $blockAsset->meta ?? [],
             ],
-            'html' => $this->renderSection($elementAsset, [
+            'html' => $this->renderSection($blockAsset, [
                 'component' => $component,
-                'meta' => $this->metaFor($section, $elementAsset),
+                'meta' => $this->metaFor($section, $blockAsset),
                 'summary' => $this->summaryFor($translation),
                 'title' => $translation?->label ?? $section->name,
                 'linkText' => $translation?->link_text,
@@ -108,10 +108,10 @@ final class SectionPublicElementPayloadContributor implements PublicElementPaylo
     /**
      * @param  array<string, mixed>  $data
      */
-    private function renderSection(ElementAsset $elementAsset, array $data): string
+    private function renderSection(BlockAsset $blockAsset, array $data): string
     {
         /** @var Section $section */
-        $section = $elementAsset->asset;
+        $section = $blockAsset->asset;
 
         return Blade::render(
             '<x-dynamic-component :component="$component" :asset="$asset" :meta="$meta" :summary="$summary" :title="$title" :link-text="$linkText" :url="$url" />',
@@ -130,11 +130,11 @@ final class SectionPublicElementPayloadContributor implements PublicElementPaylo
     /**
      * @return array<string, mixed>
      */
-    private function metaFor(Section $section, ElementAsset $elementAsset): array
+    private function metaFor(Section $section, BlockAsset $blockAsset): array
     {
         return array_replace_recursive(
             is_array($section->meta) ? $section->meta : [],
-            is_array($elementAsset->meta) ? $elementAsset->meta : [],
+            is_array($blockAsset->meta) ? $blockAsset->meta : [],
         );
     }
 

@@ -21,7 +21,7 @@ abstract class AbstractAssets extends ModalTableSelect
     public string $type;
 
     #[Locked]
-    public int $elementIndex;
+    public int $blockIndex;
 
     #[Url(as: 'tab')]
     public ?string $activeTab = null;
