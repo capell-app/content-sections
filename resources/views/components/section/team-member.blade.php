@@ -19,7 +19,7 @@
 ])
 
 <div
-    class="rounded-lg bg-white p-6 text-center text-gray-800 shadow-md dark:bg-gray-900/60 dark:text-white"
+    class="capell-section-team-member rounded-lg bg-white p-6 text-center text-gray-800 shadow-md dark:bg-gray-900/60 dark:text-white"
 >
     @if ($image)
         <img

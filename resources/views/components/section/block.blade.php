@@ -12,6 +12,7 @@
 ])
 <div
     @class([
+        'capell-section-block',
         'md:p-y-16 flex flex-col items-center space-y-6 p-10 text-center',
         match ($color) {
             'danger' => 'bg-danger text-white',

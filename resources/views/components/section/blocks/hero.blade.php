@@ -6,6 +6,7 @@
 
 <section
     @class([
+        'capell-section-hero',
         'section section-hero rounded-lg bg-slate-950 p-10 text-white',
         'text-left' => $alignment === 'start',
         'text-center' => $alignment === 'center',

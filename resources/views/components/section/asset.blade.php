@@ -39,5 +39,5 @@
     :summary="$renderData->summary"
     :title="$renderData->title"
     :url="$renderData->url"
-    class="{{ $sectionClass }}"
+    class="capell-section-asset {{ $sectionClass }}"
 />

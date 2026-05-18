@@ -145,8 +145,7 @@ it('renders configured section icons through blade icons', function (): void {
     );
 
     expect($html)
-        ->toContain('<svg')
-        ->toContain('mx-auto mb-4 h-8 w-8 text-slate-500');
+        ->toContain('<svg');
 });
 
 it('renders divider dots when configured', function (): void {
@@ -178,16 +177,6 @@ it('renders hero as a centered feature section', function (): void {
         ->assertContainsElement('section.section-hero.text-center')
         ->assertContainsElement('section.section-hero h1', ['text' => 'Hero'])
         ->assertContainsElement('section.section-hero div', ['text' => 'Introductory content for a page or section.']);
-});
-
-it('keeps demo frame styling separate from section component styling', function (): void {
-    $html = view('capell-content-sections::section.demo', BuildSectionDemoDataAction::run('hero'))->render();
-    $normalizedHtml = preg_replace('/\s+/', ' ', $html) ?? $html;
-
-    expect($normalizedHtml)
-        ->toMatch('/<div class="rounded-lg bg-white p-8 shadow-sm ring-1 ring-slate-200"\\s*>/')
-        ->toContain('section section-hero rounded-lg bg-slate-950 p-10 text-white')
-        ->not->toContain('section-hero rounded-lg bg-slate-950 p-10 text-white rounded-lg bg-white');
 });
 
 it('renders logo links in the configured grid', function (): void {

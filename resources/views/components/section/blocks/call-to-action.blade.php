@@ -7,6 +7,7 @@
 
 <section
     @class([
+        'capell-section-call-to-action',
         'section section-call-to-action',
         'text-left' => $alignment === 'start',
         'text-center' => $alignment === 'center',
