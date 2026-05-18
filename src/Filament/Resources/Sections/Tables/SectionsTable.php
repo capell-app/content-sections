@@ -198,14 +198,7 @@ class SectionsTable implements TableConfigurator
                         ->toArray();
                 })
                 ->modifyQueryUsing(
-                    fn (Builder $query, array $state): Builder => $query->when(
-                        $state['value'],
-                        fn (Builder $query, int $siteId): Builder => $query->where('site_id', $siteId),
-                    )
-                        ->when(
-                            $state['value'] === 0,
-                            fn (Builder $query): Builder => $query->whereNull('site_id'),
-                        ),
+                    self::applySiteFilter(...),
                 ),
 
             SelectFilter::make('blueprint_id')
@@ -233,10 +226,10 @@ class SectionsTable implements TableConfigurator
                             /* @var class-string<\Capell\Core\Models\Language> $model */
                             $model = Language::class;
 
-                            return $model::query()->when($siteId, fn (Builder $query, int $siteId): Builder => $query->whereHas(
-                                'sites',
-                                fn (BuilderContract $query): BuilderContract => $query->where('sites.id', $siteId),
-                            ))
+                            return $model::query()->when(
+                                $siteId,
+                                fn (Builder $query, int|string $siteId): Builder => self::applyLanguageSiteFilter($query, (int) $siteId),
+                            )
                                 ->ordered()
                                 ->pluck('name', 'id')
                                 ->toArray();
@@ -261,23 +254,7 @@ class SectionsTable implements TableConfigurator
                             selectedId: filled($value) ? (int) $value : null,
                         )[(int) $value] ?? ''),
                 ])
-                ->query(function (Builder $query, array $data): void {
-                    $query
-                        ->when(
-                            $data['language_id'] ?? null,
-                            fn (Builder $query) => $query->whereHas(
-                                'translations',
-                                fn (BuilderContract $query): BuilderContract => $query->where(
-                                    'language_id',
-                                    (int) $data['language_id'],
-                                ),
-                            ),
-                        )
-                        ->when(
-                            $data['parent_id'] ?? null,
-                            fn (Builder $query) => $query->where('parent_id', $data['parent_id']),
-                        );
-                })
+                ->query(self::applyFilterQuery(...))
                 ->indicateUsing(function (array $data): array {
                     $indicators = [];
 
@@ -329,6 +306,40 @@ class SectionsTable implements TableConfigurator
         ];
     }
 
+    protected static function applySiteFilter(Builder $query, array $state): Builder
+    {
+        return $query
+            ->when(
+                $state['value'],
+                fn (Builder $query, int|string $siteId): Builder => $query->where('site_id', (int) $siteId),
+            )
+            ->when(
+                $state['value'] === 0,
+                fn (Builder $query): Builder => $query->whereNull('site_id'),
+            );
+    }
+
+    protected static function applyFilterQuery(Builder $query, array $data): void
+    {
+        $query
+            ->when(
+                $data['language_id'] ?? null,
+                fn (Builder $query): Builder => self::applyParentLanguageFilter($query, (int) $data['language_id']),
+            )
+            ->when(
+                $data['parent_id'] ?? null,
+                fn (Builder $query): Builder => $query->where('parent_id', $data['parent_id']),
+            );
+    }
+
+    protected static function applyLanguageSiteFilter(Builder $query, int $siteId): Builder
+    {
+        return $query->whereHas(
+            'sites',
+            fn (BuilderContract $query): BuilderContract => $query->where('sites.id', $siteId),
+        );
+    }
+
     protected static function parentSectionOptions(
         null|int|string $siteId,
         ?int $languageId,
@@ -346,25 +357,15 @@ class SectionsTable implements TableConfigurator
                 'blueprint',
             ])
             ->whereHas('children')
-            ->whereHas('blueprint', fn (BuilderContract $query): BuilderContract => $query->enabled())
+            ->whereHas('blueprint', self::applyEnabledBlueprintFilter(...))
             ->when($siteId, fn (Builder $query): Builder => $query->where('site_id', (int) $siteId))
             ->when(
                 $languageId,
-                fn (Builder $query): Builder => $query->whereHas(
-                    'translations',
-                    fn (BuilderContract $query): BuilderContract => $query->where('translations.language_id', $languageId),
-                ),
+                fn (Builder $query): Builder => self::applyParentLanguageFilter($query, $languageId),
             )
             ->when(
                 $search !== null && $search !== '',
-                fn (Builder $query): Builder => $query->where(
-                    fn (Builder $query): Builder => $query
-                        ->where('name', 'like', '%' . $search . '%')
-                        ->orWhereHas(
-                            'translations',
-                            fn (BuilderContract $query): BuilderContract => $query->where('title', 'like', '%' . $search . '%'),
-                        ),
-                ),
+                fn (Builder $query): Builder => self::applyParentSearchFilter($query, (string) $search),
             )
             ->when($selectedId !== null, fn (Builder $query): Builder => $query->whereKey($selectedId))
             ->orderBy('site_id')
@@ -377,6 +378,31 @@ class SectionsTable implements TableConfigurator
                 $section->id => static::formatParentSectionOption($section, $siteId),
             ])
             ->all();
+    }
+
+    protected static function applyEnabledBlueprintFilter(BuilderContract $query): BuilderContract
+    {
+        return $query->enabled();
+    }
+
+    protected static function applyParentLanguageFilter(Builder $query, int $languageId): Builder
+    {
+        return $query->whereHas(
+            'translations',
+            fn (BuilderContract $query): BuilderContract => $query->where('translations.language_id', $languageId),
+        );
+    }
+
+    protected static function applyParentSearchFilter(Builder $query, string $search): Builder
+    {
+        return $query->where(
+            fn (Builder $query): Builder => $query
+                ->where('name', 'like', '%' . $search . '%')
+                ->orWhereHas(
+                    'translations',
+                    fn (BuilderContract $query): BuilderContract => $query->where('title', 'like', '%' . $search . '%'),
+                ),
+        );
     }
 
     protected static function formatParentSectionOption(Section $section, null|int|string $siteId): string

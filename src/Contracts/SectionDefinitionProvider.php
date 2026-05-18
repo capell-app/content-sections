@@ -8,7 +8,7 @@ use Capell\ContentSections\Data\SectionDefinitionData;
 
 interface SectionDefinitionProvider
 {
-    public const TAG = 'capell.content_sections.definition_providers';
+    public const string TAG = 'capell.content_sections.definition_providers';
 
     /**
      * @return iterable<SectionDefinitionData>

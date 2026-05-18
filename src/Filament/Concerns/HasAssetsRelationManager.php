@@ -75,41 +75,7 @@ trait HasAssetsRelationManager
         return Type::make($asset->model)
             ->titleAttribute($asset->getTitleKey())
             ->modifyOptionsQueryUsing(
-                fn (Builder $query) => $query->when(
-                    $record instanceof $asset->model,
-                    fn (Builder $query) => $query->whereKeyNot($record->getKey()),
-                )
-                    ->whereDoesntHave(
-                        'assetRelations',
-                        fn (Builder $relationship) => $relationship->where(
-                            'related_type',
-                            $record->getMorphClass(),
-                        )
-                            ->where('related_id', $record->getKey()),
-                    )
-                    ->when(
-                        $asset->model === Page::class,
-                        fn (Builder $query) => $query->with([
-                            'ancestors',
-                            'site',
-                        ])
-                            ->whereHas(
-                                'type',
-                                fn (Builder $query) => $query->where(
-                                    fn (Builder $query) => $query->where(
-                                        'group',
-                                        '!=',
-                                        BlueprintGroupEnum::System->value,
-                                    )
-                                        ->orWhereNull('group'),
-                                ),
-                            )
-                            ->orderBy('site_id'),
-                    )
-                    ->when(
-                        in_array(NestedSet::class, class_uses_recursive($asset->model), true),
-                        fn (Builder $query) => $query->defaultOrder(),
-                    ),
+                fn (Builder $query): Builder => self::modifyAssetOptionsQuery($query, $asset, $record),
             )
             ->getOptionLabelFromRecordUsing(
                 fn (Model $record): string|HtmlString => match ($record::class) {
@@ -144,6 +110,57 @@ trait HasAssetsRelationManager
                         ->searchable();
                 },
             );
+    }
+
+    protected static function modifyAssetOptionsQuery(Builder $query, AssetData $asset, Model $record): Builder
+    {
+        return $query
+            ->when(
+                $record instanceof $asset->model,
+                fn (Builder $query): Builder => $query->whereKeyNot($record->getKey()),
+            )
+            ->whereDoesntHave(
+                'assetRelations',
+                fn (Builder $query): Builder => self::applyExistingAssetRelationFilter($query, $record),
+            )
+            ->when(
+                $asset->model === Page::class,
+                self::applyPageAssetOptionsQuery(...),
+            )
+            ->when(
+                in_array(NestedSet::class, class_uses_recursive($asset->model), true),
+                fn (Builder $query): Builder => $query->defaultOrder(),
+            );
+    }
+
+    protected static function applyExistingAssetRelationFilter(Builder $query, Model $record): Builder
+    {
+        return $query
+            ->where('related_type', $record->getMorphClass())
+            ->where('related_id', $record->getKey());
+    }
+
+    protected static function applyPageAssetOptionsQuery(Builder $query, bool $isPageAsset = true): Builder
+    {
+        return $query
+            ->with([
+                'ancestors',
+                'site',
+            ])
+            ->whereHas('type', self::applySelectablePageTypeQuery(...))
+            ->orderBy('site_id');
+    }
+
+    protected static function applySelectablePageTypeQuery(Builder $query): Builder
+    {
+        return $query->where(self::applyNonSystemBlueprintGroupQuery(...));
+    }
+
+    protected static function applyNonSystemBlueprintGroupQuery(Builder $query): Builder
+    {
+        return $query
+            ->where('group', '!=', BlueprintGroupEnum::System->value)
+            ->orWhereNull('group');
     }
 
     protected static function getPageOptionLabel(Pageable $page): HtmlString

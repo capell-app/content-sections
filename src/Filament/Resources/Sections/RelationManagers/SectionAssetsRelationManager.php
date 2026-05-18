@@ -48,24 +48,12 @@ class SectionAssetsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with([
-                'asset' => fn (MorphTo $morphTo) => $morphTo->morphWith(
-                    CapellCore::getAssets()
-                        ->mapWithKeys(fn (AssetData $asset): array => [
-                            $asset->model => method_exists($asset->model, 'getMorphRelations')
-                                ? $asset->model::getMorphRelations()
-                                : [],
-                        ])
-                        ->toArray(),
-                ),
-            ]))
+            ->modifyQueryUsing(self::applyTableQuery(...))
             ->description(__('capell-admin::generic.content_assets_description'))
             ->columns([
                 TextColumn::make('asset_id')
                     ->toggleable(isToggledHiddenByDefault: true)
-                    ->searchable(
-                        query: fn (Builder $query, string $search): Builder => $query->where('asset_id', $search),
-                    ),
+                    ->searchable(query: self::applyAssetIdSearch(...)),
                 NameColumn::make('asset.name'),
                 MediaLibraryImageColumn::make('asset.image')
                     ->label(__('capell-admin::table.image'))
@@ -99,5 +87,33 @@ class SectionAssetsRelationManager extends RelationManager
             ->toolbarActions([
                 DeleteBulkAction::make(),
             ]);
+    }
+
+    protected static function applyAssetIdSearch(Builder $query, string $search): Builder
+    {
+        return $query->where('asset_id', $search);
+    }
+
+    protected static function applyTableQuery(Builder $query): Builder
+    {
+        return $query->with([
+            'asset' => self::applyAssetMorphRelations(...),
+        ]);
+    }
+
+    protected static function applyAssetMorphRelations(MorphTo $morphTo): void
+    {
+        $morphTo->morphWith(self::assetMorphRelations());
+    }
+
+    protected static function assetMorphRelations(): array
+    {
+        return CapellCore::getAssets()
+            ->mapWithKeys(fn (AssetData $asset): array => [
+                $asset->model => method_exists($asset->model, 'getMorphRelations')
+                    ? $asset->model::getMorphRelations()
+                    : [],
+            ])
+            ->toArray();
     }
 }
