@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 use Capell\ContentSections\Filament\Resources\Sections\Pages\EditSection;
 use Capell\ContentSections\Models\Section;
+use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
+use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
+use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\BlockAsset;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
 use function Pest\Laravel\assertDatabaseHas;
@@ -102,4 +106,31 @@ test('create action creates a section from the edit page', function (): void {
         'blueprint_id' => $blueprint->getKey(),
         'name' => $newData->name,
     ]);
+});
+
+test('layout builder content editor mounts section edit form', function (): void {
+    $block = Block::factory()->create(['key' => 'homepage-hero', 'name' => 'Homepage hero']);
+    $content = Section::factory()->create(['name' => 'Homepage Hero: Page Object Slide']);
+    BlockAsset::factory()
+        ->block($block)
+        ->asset($content)
+        ->occurrence(1)
+        ->create(['order' => 1, 'meta' => ['variant' => 'default']]);
+
+    $layout = Layout::factory()->create(['containers' => [
+        'main' => ['blocks' => [
+            ['block_key' => $block->key, 'occurrence' => 1],
+        ]],
+    ]]);
+
+    livewire(LayoutBuilder::class, ['layout' => $layout])
+        ->callAction('editBlockAsset', data: [
+            'meta' => ['variant' => 'updated'],
+        ], arguments: [
+            'containerKey' => 'main',
+            'blockIndex' => 0,
+            'index' => 0,
+            'type' => 'section',
+        ])
+        ->assertHasNoActionErrors();
 });

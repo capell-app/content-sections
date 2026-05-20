@@ -1,0 +1,69 @@
+{
+    "package": "content-sections",
+    "composerName": "capell-app/content-sections",
+    "generatedFor": "deployment-screenshot-runner",
+    "requiresInstalledPackage": true,
+    "outputDirectory": "public/docs/screenshots/packages/content-sections",
+    "entries": [
+        {
+            "id": "sections-index",
+            "title": "Reusable sections index.",
+            "package": "content-sections",
+            "surface": "admin",
+            "targetType": "admin-resource",
+            "target": "SectionResource:index",
+            "required": true,
+            "notes": "Capture after installing content-sections with content-blocks and layout-builder, with at least three seeded sections across different blueprints so table filters, columns, and navigation state are visible.",
+            "screenshotPath": "public/docs/screenshots/packages/content-sections/sections-index.png",
+            "useCase": "An editor reviews reusable sections before choosing which shared content block to update."
+        },
+        {
+            "id": "sections-create",
+            "title": "Create reusable section form.",
+            "package": "content-sections",
+            "surface": "admin",
+            "targetType": "admin-resource",
+            "target": "SectionResource:create",
+            "required": true,
+            "notes": "Capture with the blueprint selector visible. The form depends on Layout Builder blueprints registered by the installed package.",
+            "screenshotPath": "public/docs/screenshots/packages/content-sections/sections-create.png",
+            "useCase": "An editor starts a new reusable section and chooses the section blueprint that controls the available fields."
+        },
+        {
+            "id": "sections-edit-with-assets",
+            "title": "Edit reusable section with assets.",
+            "package": "content-sections",
+            "surface": "admin",
+            "targetType": "admin-resource",
+            "target": "SectionResource:edit",
+            "required": true,
+            "notes": "Requires a seeded section with translations and at least one related block asset so the relation manager tab is not empty.",
+            "screenshotPath": "public/docs/screenshots/packages/content-sections/sections-edit-with-assets.png",
+            "useCase": "An editor updates shared section copy and checks which block assets are attached before saving."
+        },
+        {
+            "id": "section-selector-modal",
+            "title": "Section selector modal.",
+            "package": "content-sections",
+            "surface": "admin",
+            "targetType": "admin-component",
+            "target": "ModalTableSelect",
+            "required": true,
+            "notes": "Requires a host admin workflow that opens ModalTableSelect, such as attaching section assets from a block or layout field.",
+            "screenshotPath": "public/docs/screenshots/packages/content-sections/section-selector-modal.png",
+            "useCase": "An editor searches existing reusable sections from the modal before attaching one to another content surface."
+        },
+        {
+            "id": "section-block-gallery",
+            "title": "Frontend section block gallery.",
+            "package": "content-sections",
+            "surface": "frontend",
+            "targetType": "frontend-render",
+            "target": "capell-content-sections::components.section.blocks.*",
+            "required": true,
+            "notes": "Seed one public page that renders each registered section block family. Anonymous output must not expose authoring markers, editor URLs, internal IDs, or package internals.",
+            "screenshotPath": "public/docs/screenshots/packages/content-sections/section-block-gallery.png",
+            "useCase": "A maintainer verifies the public section gallery renders every package-owned block safely for anonymous visitors."
+        }
+    ]
+}

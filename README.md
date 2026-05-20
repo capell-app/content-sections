@@ -8,7 +8,7 @@ Reusable content sections for Capell.
 - Namespace: `Capell\ContentSections\`
 - Surfaces: Filament admin, Livewire, database
 - Service providers: `packages/content-sections/src/Providers/ContentSectionsServiceProvider.php`
-- Capell dependencies: `capell-app/admin`, `capell-app/core`, `capell-app/frontend`
+- Capell dependencies: `capell-app/admin`, `capell-app/content-blocks`, `capell-app/core`, `capell-app/frontend`, `capell-app/layout-builder`
 
 ## What It Adds
 
@@ -64,7 +64,8 @@ Reusable content sections for Capell.
 
 ## Docs
 
-No deeper package docs are currently published under `docs/`. Add design notes there when the README would become too long.
+- [overview.md](docs/overview.md)
+- [screenshots.json](docs/screenshots.json)
 
 ## Testing
 
