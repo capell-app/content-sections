@@ -49,6 +49,7 @@ use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Livewire\Livewire;
@@ -126,7 +127,7 @@ it('builds section asset render data from preloaded relations and plain objects'
                         return $relation === 'pageUrl';
                     }
 
-                    public function getRelation(string $relation): object
+                    public function getRelation(string $relation): stdClass
                     {
                         return (object) ['full_url' => 'https://example.test/page'];
                     }
@@ -169,7 +170,6 @@ it('exposes default section definitions and enum metadata', function (): void {
 
 it('declares section configurator keys for popular section variants', function (object $configurator, string $key): void {
     $reflection = new ReflectionMethod($configurator, 'sectionKey');
-    $reflection->setAccessible(true);
 
     expect($reflection->invoke($configurator))->toBe($key);
 })->with([
@@ -205,7 +205,6 @@ it('builds the content blueprint configurator admin tab', function (): void {
 
 it('builds popular section meta schemas for all configured section keys', function (object $configurator, array $expectedNames): void {
     $reflection = new ReflectionMethod($configurator, 'metaFields');
-    $reflection->setAccessible(true);
 
     $fields = collect($reflection->invoke($configurator, Schema::make()->operation('edit')));
     $fieldNames = $fields->map(
@@ -238,7 +237,6 @@ it('builds popular section meta schemas for all configured section keys', functi
 
 it('builds testimonial media metadata schema', function (): void {
     $reflection = new ReflectionMethod(TestimonialSectionConfigurator::class, 'getMetaSchema');
-    $reflection->setAccessible(true);
 
     $components = collect($reflection->invoke(new TestimonialSectionConfigurator));
 
@@ -366,7 +364,10 @@ it('declares section resource metadata', function (): void {
         ->and(SectionResource::getPages())->toHaveKeys(['index', 'create', 'edit'])
         ->and(SectionResource::getRelations())->not->toBeEmpty()
         ->and(SectionResource::getWidgets())->toContain(SectionAlertsWidget::class)
-        ->and(SectionResource::getGlobalSearchResultDetails(new class extends Model {}))->toBe([]);
+        ->and(SectionResource::getGlobalSearchResultDetails(new class extends Model
+        {
+            use HasFactory;
+        }))->toBe([]);
 });
 
 it('covers section model render relations and local helpers', function (): void {
