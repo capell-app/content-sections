@@ -20,6 +20,7 @@ use Capell\ContentSections\Enums\LivewireComponentsEnum;
 use Capell\ContentSections\Enums\ResourceEnum;
 use Capell\ContentSections\Filament\Configurators\Blueprints\ContentBlueprintConfigurator;
 use Capell\ContentSections\Models\Section;
+use Capell\ContentSections\Policies\SectionPolicy;
 use Capell\ContentSections\Support\ContentSectionsBlockDefinitionProvider;
 use Capell\ContentSections\Support\ContentSectionsModelRegistrar;
 use Capell\ContentSections\Support\SectionPublicBlockPayloadContributor;
@@ -39,6 +40,7 @@ use Capell\PublishingStudio\WorkspaceRegistry;
 use Composer\InstalledVersions;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Livewire;
 use Spatie\LaravelPackageTools\Package;
 
@@ -104,6 +106,7 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
     {
         return $this
             ->registerModels()
+            ->registerPolicies()
             ->registerSectionRegistry()
             ->registerRelationships()
             ->registerResources()
@@ -121,6 +124,13 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
     private function registerModels(): self
     {
         ContentSectionsModelRegistrar::register();
+
+        return $this;
+    }
+
+    private function registerPolicies(): self
+    {
+        Gate::policy(Section::class, SectionPolicy::class);
 
         return $this;
     }
