@@ -10,6 +10,18 @@ Reusable content sections for Capell.
 - Service providers: `packages/content-sections/src/Providers/ContentSectionsServiceProvider.php`
 - Capell dependencies: `capell-app/admin`, `capell-app/content-blocks`, `capell-app/core`, `capell-app/frontend`, `capell-app/layout-builder`
 
+## Why It Helps Your Capell Workflow
+
+- Lets teams reuse managed content sections across pages instead of hard-coding every repeatable marketing or content block.
+- Keeps section records, mutation behavior, and frontend rendering in one package so themes can render sections predictably.
+- Helps editors update shared content once while developers keep presentation in Blade and package-owned render surfaces.
+
+## Best Used With
+
+- [Layout Builder](../layout-builder/README.md)
+- [Block Library](../block-library/README.md)
+- [Foundation Theme](../foundation-theme/README.md)
+
 ## What It Adds
 
 - Reusable content sections for Capell.
@@ -66,6 +78,7 @@ Install after Content Blocks and Layout Builder so section definitions can be re
 
 ## Docs
 
+- [docs index](docs/README.md)
 - [overview.md](docs/overview.md)
 - [screenshots.json](docs/screenshots.json)
 

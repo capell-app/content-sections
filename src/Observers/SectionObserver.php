@@ -50,7 +50,7 @@ class SectionObserver
         }
 
         CapellCoreHelper::flushCache([
-            CacheEnum::RelationExists,
+            CacheEnum::RelationExists->value,
         ]);
     }
 
@@ -59,7 +59,7 @@ class SectionObserver
     public function restored(Section $section): void
     {
         CapellCoreHelper::flushCache([
-            CacheEnum::RelationExists,
+            CacheEnum::RelationExists->value,
         ]);
     }
 }

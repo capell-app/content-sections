@@ -37,6 +37,16 @@ Use it when a site needs shared heroes, FAQs, pricing blocks, statistics, testim
 | `SectionAlertsWidget`          | Shows section-level warnings when editing records.                                  |
 | `ModalTableSelect`             | Admin selection modal used when linking section content.                            |
 
+## Editor Workflow
+
+The default `content_first` mode groups editable content by layout placement so editors can update titles, copy, logos, and assigned records without opening the full canvas.
+
+Use `layout_first` when the editor needs placement and structure control. Breakpoint controls let editors inspect desktop, tablet, and mobile layouts; breakpoint-specific container spans fall back to the base span when no override exists.
+
+Undo and redo apply to unsaved changes in the current editing session. Saving establishes the new baseline and clears the undo history.
+
+Layout areas let themes expose places outside the main page body. For example, a theme can register a `header` area so editors can place normal Content Sections elements in site chrome without a separate header-content model.
+
 ## Frontend Surfaces
 
 Content Sections renders through package Blade views under `resources/views/components/section`.
@@ -87,6 +97,10 @@ Then run the package tests from this repository:
 ```bash
 vendor/bin/pest packages/content-sections/tests --configuration=phpunit.xml
 ```
+
+## Developer Docs
+
+- [Mutations](mutations.md)
 
 ## Known Audit Notes
 
