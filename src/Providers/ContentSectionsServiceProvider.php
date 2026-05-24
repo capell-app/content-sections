@@ -28,19 +28,27 @@ use Capell\ContentSections\Support\SectionRegistry;
 use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
 use Capell\Core\Data\AssetData;
 use Capell\Core\Data\PageTypeData;
+use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Models\AssetAttachment;
 use Capell\Core\Models\Blueprint;
+use Capell\Core\Models\Media;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\Translation;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Contracts\AssetsRegistryInterface;
 use Capell\Frontend\Contracts\FrontendComponentRegistryInterface;
 use Capell\Frontend\Data\FrontendAssetData;
 use Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor;
+use Capell\PublishingStudio\Models\Workspace;
 use Capell\PublishingStudio\WorkspaceRegistry;
 use Composer\InstalledVersions;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
 use Livewire\Livewire;
 use Spatie\LaravelPackageTools\Package;
 
@@ -379,8 +387,80 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
             return $this;
         }
 
-        WorkspaceRegistry::register(Section::class);
+        WorkspaceRegistry::register(
+            Section::class,
+            cloneUsing: $this->cloneSectionIntoWorkspace(...),
+            finalizeOnPublish: $this->finalizeSectionPublish(...),
+        );
 
         return $this;
+    }
+
+    private function cloneSectionIntoWorkspace(Model $source, Workspace $workspace): Model
+    {
+        if (! $source instanceof Section) {
+            $clone = $source->replicate();
+            $clone->setAttribute('workspace_id', $workspace->id);
+
+            return $clone;
+        }
+
+        $clone = $source->replicate();
+        $clone->workspace_id = $workspace->id;
+        $clone->shadowed_by_workspace_id = 0;
+        $clone->uuid = $source->uuid;
+        $clone->save();
+
+        $source->translations()->get()->each(function (Translation $translation) use ($clone): void {
+            $translationClone = $translation->replicate();
+            $translationClone->translatable_id = $clone->getKey();
+            $translationClone->save();
+        });
+
+        $source->assets()->get()->each(function (AssetAttachment $attachment) use ($clone): void {
+            $attachmentClone = $attachment->replicate();
+            $attachmentClone->related_id = $clone->getKey();
+            $attachmentClone->save();
+        });
+
+        $source->media()
+            ->where('collection_name', MediaCollectionEnum::Image->value)
+            ->get()
+            ->each(function (Media $media) use ($clone): void {
+                $mediaClone = $media->replicate();
+                $mediaClone->model_id = $clone->getKey();
+                $mediaClone->uuid = (string) Str::uuid();
+                $mediaClone->save();
+            });
+
+        return $clone;
+    }
+
+    private function finalizeSectionPublish(Model $record): Model
+    {
+        if (! $record instanceof Section || blank($record->uuid)) {
+            return $record;
+        }
+
+        if (! DB::getSchemaBuilder()->hasTable('widget_assets')) {
+            return $record;
+        }
+
+        $liveSectionId = Section::query()
+            ->withoutGlobalScopes()
+            ->where('workspace_id', 0)
+            ->where('uuid', $record->uuid)
+            ->value('id');
+
+        if ($liveSectionId === null) {
+            return $record;
+        }
+
+        DB::table('widget_assets')
+            ->where('asset_type', $record->getMorphClass())
+            ->where('asset_id', $liveSectionId)
+            ->update(['asset_id' => $record->getKey()]);
+
+        return $record;
     }
 }

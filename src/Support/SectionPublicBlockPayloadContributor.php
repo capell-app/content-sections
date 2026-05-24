@@ -10,8 +10,8 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Translation;
 use Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor;
-use Capell\LayoutBuilder\Models\Block;
 use Capell\LayoutBuilder\Models\BlockAsset;
+use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
@@ -28,7 +28,7 @@ final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadCo
     /**
      * @return array<string, mixed>
      */
-    public function data(Block $block, Page $page, Language $language, string $containerKey, int $occurrence): array
+    public function data(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): array
     {
         $sections = $this->sectionAssets($block)
             ->map(fn (BlockAsset $blockAsset): array => $this->sectionData($blockAsset))
@@ -42,7 +42,7 @@ final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadCo
         return ['sections' => $sections];
     }
 
-    public function html(Block $block, Page $page, Language $language, string $containerKey, int $occurrence): ?string
+    public function html(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): ?string
     {
         $html = $this->sectionAssets($block)
             ->map(fn (BlockAsset $blockAsset): string => $this->renderSection($blockAsset, $this->sectionData($blockAsset)))
@@ -55,7 +55,7 @@ final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadCo
     /**
      * @return Collection<int, BlockAsset>
      */
-    private function sectionAssets(Block $block): Collection
+    private function sectionAssets(Widget $block): Collection
     {
         $assets = $block->getRelationValue('assets');
 

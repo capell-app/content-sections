@@ -85,6 +85,7 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
  * @property-read int|null $activities_count
  * @property-read string|null $title
  * @property int $id
+ * @property string|null $uuid
  * @property int $workspace_id
  * @property int $shadowed_by_workspace_id
  * @property string $name
@@ -138,6 +139,7 @@ class Section extends Model implements Blueprintable, HasMedia, Publishable, Use
         'name',
         'order',
         'parent_id',
+        'uuid',
         'visible_from',
         'visible_until',
         'site_id',

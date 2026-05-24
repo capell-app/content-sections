@@ -32,6 +32,7 @@ class SectionFactory extends Factory
     public function definition(): array
     {
         return [
+            'uuid' => (string) Str::uuid(),
             'name' => 'Section ' . Str::uuid()->toString(),
             'parent_id' => null,
             'blueprint_id' => (new ContentBlueprintFactory),
