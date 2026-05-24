@@ -45,10 +45,10 @@ class ModalTableSelect extends Component implements HasActions, HasForms, HasTab
     #[Locked]
     public string $tableConfiguration;
 
-    #[Locked]
     /**
      * @var array<array-key, mixed>
      */
+    #[Locked]
     public array $tableArguments = [];
 
     /**
@@ -57,7 +57,7 @@ class ModalTableSelect extends Component implements HasActions, HasForms, HasTab
     public ?array $data = [];
 
     /**
-     * @var Builder<Model>|Closure(): Builder<Model>
+     * @var Builder<Model>|Builder<Section>|Closure(): (Builder<Model>|Builder<Section>)
      */
     #[Locked]
     public Builder|Closure $tableQuery;

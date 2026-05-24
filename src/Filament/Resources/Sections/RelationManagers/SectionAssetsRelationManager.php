@@ -110,6 +110,7 @@ class SectionAssetsRelationManager extends RelationManager
         ]);
     }
 
+    /** @param Relation<*, *, *> $morphTo */
     protected static function applyAssetMorphRelations(Relation $morphTo): void
     {
         if ($morphTo instanceof MorphTo) {

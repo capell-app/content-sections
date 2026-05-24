@@ -88,7 +88,7 @@ it('builds section asset render data from preloaded relations and plain objects'
 
             public function all(): Collection
             {
-                return collect();
+                return capell_test_collect();
             }
         };
     });
@@ -160,7 +160,7 @@ it('builds section asset render data from preloaded relations and plain objects'
 });
 
 it('exposes default section definitions and enum metadata', function (): void {
-    $definitions = collect((new DefaultSectionDefinitionProvider)->definitions());
+    $definitions = capell_test_collect((new DefaultSectionDefinitionProvider)->definitions());
 
     expect($definitions)->toHaveCount(17)
         ->and($definitions->pluck('key')->all())->toContain('content', 'hero', 'pricing', 'timeline')
@@ -202,7 +202,7 @@ it('exposes default section extenders and testimonial configurator metadata', fu
 
 it('builds the content blueprint configurator admin tab', function (): void {
     $components = (new ContentBlueprintConfigurator)->make(Schema::make()->operation('create'));
-    $tabs = collect($components)->first(fn (mixed $component): bool => $component instanceof Tabs);
+    $tabs = capell_test_collect($components)->first(fn (mixed $component): bool => $component instanceof Tabs);
 
     expect($components)->not->toBeEmpty()
         ->and($tabs)->toBeInstanceOf(Tabs::class);
@@ -211,7 +211,7 @@ it('builds the content blueprint configurator admin tab', function (): void {
 it('builds popular section meta schemas for all configured section keys', function (object $configurator, array $expectedNames): void {
     $reflection = new ReflectionMethod($configurator, 'metaFields');
 
-    $fields = collect($reflection->invoke($configurator, Schema::make()->operation('edit')));
+    $fields = capell_test_collect($reflection->invoke($configurator, Schema::make()->operation('edit')));
     $fieldNames = $fields->map(
         fn (mixed $field): ?string => method_exists($field, 'getName') ? $field->getName() : null,
     )->filter()->values()->all();
@@ -243,7 +243,7 @@ it('builds popular section meta schemas for all configured section keys', functi
 it('builds testimonial media metadata schema', function (): void {
     $reflection = new ReflectionMethod(TestimonialSectionConfigurator::class, 'getMetaSchema');
 
-    $components = collect($reflection->invoke(new TestimonialSectionConfigurator));
+    $components = capell_test_collect($reflection->invoke(new TestimonialSectionConfigurator));
 
     expect($components)->not->toBeEmpty()
         ->and($components->map(
@@ -294,7 +294,7 @@ it('declares section asset table metadata and filtered queries', function (): vo
     $assetComponent = new class extends SectionAssets
     {
         /**
-         * @return Builder<Model>
+         * @return Builder<Section>
          */
         public function exposeTableQuery(): Builder
         {

@@ -12,7 +12,6 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Str;
 
@@ -83,10 +82,8 @@ class SectionFactory extends Factory
     }
 
     /**
-     * @param  array  $languages
-     * @param  Collection<array-key, mixed>  $languages
+     * @param  array<int, Language>|SupportCollection<int, Language>|Language|null  $languages
      * @param  array<array-key, mixed>  $data
-     * @param  array<array-key, mixed>  $languages
      */
     public function withTranslations(null|array|SupportCollection|Language $languages = null, array $data = []): self
     {

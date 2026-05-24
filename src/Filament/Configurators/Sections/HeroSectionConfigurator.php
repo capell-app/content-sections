@@ -17,6 +17,7 @@ use Capell\ContentSections\Filament\Components\Forms\Content\RelatedRepeater;
 use Capell\ContentSections\Filament\Components\Forms\Content\SettingsSchema;
 use Capell\ContentSections\Filament\Components\Forms\Content\TranslationsRepeater;
 use Capell\ContentSections\Filament\Components\Forms\CustomColorInput;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
@@ -114,6 +115,9 @@ class HeroSectionConfigurator extends DefaultSectionConfigurator
         ];
     }
 
+    /**
+     * @param  array<int, Component>  $components
+     */
     #[Override]
     protected function settingsTab(Schema $configurator, array $components = []): Tab
     {
