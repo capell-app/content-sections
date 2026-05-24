@@ -132,6 +132,7 @@ it('builds section asset render data from preloaded relations and plain objects'
                         return (object) ['full_url' => 'https://example.test/page'];
                     }
                 },
+                default => null,
             };
         }
 

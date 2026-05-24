@@ -41,6 +41,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Str;
 
@@ -258,7 +259,7 @@ class SectionsTable implements TableConfigurator
                 ->indicateUsing(function (array $data): array {
                     $indicators = [];
 
-                    if (isset($data['language_id']) && $data['language_id'] !== null && $data['language_id'] !== '') {
+                    if (isset($data['language_id']) && $data['language_id'] !== '') {
                         /** @var class-string<Language> $model */
                         $model = Language::class;
 
@@ -268,7 +269,7 @@ class SectionsTable implements TableConfigurator
                         );
                     }
 
-                    if (isset($data['parent_id']) && $data['parent_id'] !== null && $data['parent_id'] !== '') {
+                    if (isset($data['parent_id']) && $data['parent_id'] !== '') {
                         /** @var class-string<Section> $model */
                         $model = Section::class;
 
@@ -374,9 +375,13 @@ class SectionsTable implements TableConfigurator
             ->get();
 
         return $sections
-            ->mapWithKeys(fn (Section $section): array => [
-                $section->id => static::formatParentSectionOption($section, $siteId),
-            ])
+            ->mapWithKeys(function (Model $section) use ($siteId): array {
+                throw_unless($section instanceof Section);
+
+                return [
+                    $section->id => static::formatParentSectionOption($section, $siteId),
+                ];
+            })
             ->all();
     }
 

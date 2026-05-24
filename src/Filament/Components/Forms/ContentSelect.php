@@ -148,7 +148,7 @@ class ContentSelect extends Select
                 /** @var Section $record */
                 $record = $component->getSelectedRecord();
 
-                return $record?->attributesToArray() ?? [];
+                return $record->attributesToArray() ?? [];
             })
             ->getSelectedRecordUsing(static fn (?int $state): ?Section => Section::query()
                 ->with(['blueprint'])

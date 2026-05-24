@@ -197,11 +197,13 @@ test('can filter by publish status', function (string $status, int $expectedCoun
             'published' => $publishedContents,
             'unpublished' => $pendingContents,
             'expired' => $expiredContents,
+            default => [],
         })
         ->assertCanNotSeeTableRecords(match ($status) {
             'published' => [...$pendingContents->all(), ...$expiredContents->all()],
             'unpublished' => [...$publishedContents->all(), ...$expiredContents->all()],
             'expired' => [...$publishedContents->all(), ...$pendingContents->all()],
+            default => [],
         });
 })
     ->with([

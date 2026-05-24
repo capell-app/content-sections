@@ -32,7 +32,7 @@ class ContentNameColumn extends BadgeableColumn
             ->suffixBadges([
                 Badge::make('children')
                     ->label(
-                        fn (Section $record): string|array|null => __(
+                        fn (Section $record): string|array => __(
                             'capell-admin::generic.total_children',
                             ['total' => $this->getChildCount($record)],
                         ),

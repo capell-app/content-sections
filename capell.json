@@ -13,10 +13,7 @@
         "bundle": "foundation"
     },
     "namespace": "Capell\\ContentSections",
-    "surfaces": [
-        "admin",
-        "frontend"
-    ],
+    "surfaces": ["admin", "frontend"],
     "dependencies": {
         "requires": [
             "capell-app/admin",
@@ -25,7 +22,7 @@
             "capell-app/frontend",
             "capell-app/layout-builder"
         ],
-        "optional": [],
+        "supports": [],
         "conflicts": []
     },
     "providers": {
@@ -55,15 +52,10 @@
     "performance": {
         "frontendRenderBudgetMs": 20,
         "adminQueryBudget": 40,
-        "cacheTags": [
-            "content-sections"
-        ],
+        "cacheTags": ["content-sections"],
         "cacheSafety": {
             "cacheable": false,
-            "variesBy": [
-                "site",
-                "locale"
-            ],
+            "variesBy": ["site", "locale"],
             "sensitiveOutput": false,
             "invalidationSources": [],
             "queueInvalidation": true
@@ -93,11 +85,7 @@
                 "caption": "Content Sections extension preview"
             }
         ],
-        "categories": [
-            "admin",
-            "foundation",
-            "frontend"
-        ]
+        "categories": ["admin", "foundation", "frontend"]
     },
     "contributionTraceability": {
         "deferredContributions": [

@@ -22,6 +22,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Override;
 
 class SectionAssetsRelationManager extends RelationManager
@@ -101,9 +102,11 @@ class SectionAssetsRelationManager extends RelationManager
         ]);
     }
 
-    protected static function applyAssetMorphRelations(MorphTo $morphTo): void
+    protected static function applyAssetMorphRelations(Relation $morphTo): void
     {
-        $morphTo->morphWith(self::assetMorphRelations());
+        if ($morphTo instanceof MorphTo) {
+            $morphTo->morphWith(self::assetMorphRelations());
+        }
     }
 
     protected static function assetMorphRelations(): array

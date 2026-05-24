@@ -28,6 +28,7 @@ class TestimonialSectionConfigurator extends DefaultSectionConfigurator
             'editOption' => $this->getEditOptionFormSchema($configurator),
             'edit' => $this->getEditFormSchema($configurator),
             'create' => $this->getCreateFormSchema($configurator),
+            default => $this->getFormSchema($configurator),
         };
     }
 

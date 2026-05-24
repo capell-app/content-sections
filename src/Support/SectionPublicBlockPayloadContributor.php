@@ -83,9 +83,9 @@ final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadCo
 
         return [
             'id' => $section->getKey(),
-            'key' => $section->blueprint?->key ?? Str::slug($section->name),
+            'key' => $section->blueprint->key ?? Str::slug($section->name),
             'component' => $component,
-            'title' => $translation?->label ?? $section->name,
+            'title' => $translation->label ?? $section->name,
             'summary' => $this->summaryFor($translation),
             'meta' => $this->metaFor($section, $blockAsset),
             'linkText' => $translation?->link_text,
@@ -98,7 +98,7 @@ final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadCo
                 'component' => $component,
                 'meta' => $this->metaFor($section, $blockAsset),
                 'summary' => $this->summaryFor($translation),
-                'title' => $translation?->label ?? $section->name,
+                'title' => $translation->label ?? $section->name,
                 'linkText' => $translation?->link_text,
                 'url' => $section->linkedPage?->pageUrl?->full_url,
             ]),
