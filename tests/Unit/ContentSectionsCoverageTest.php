@@ -49,6 +49,7 @@ use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -106,6 +107,9 @@ it('builds section asset render data from preloaded relations and plain objects'
 
     $asset = new class($translation)
     {
+        /**
+         * @var array<array-key, mixed>
+         */
         public array $meta = ['featured' => true];
 
         public function __construct(private readonly object $translation) {}
@@ -250,6 +254,9 @@ it('builds testimonial media metadata schema', function (): void {
 it('exposes modal table select query, form, and selection helpers', function (): void {
     $component = new class extends ModalTableSelect
     {
+        /**
+         * @return Builder<Model>
+         */
         public function exposeTableQuery(): Builder
         {
             return $this->getTableQuery();
@@ -286,6 +293,9 @@ it('rejects invalid modal table configuration classes', function (): void {
 it('declares section asset table metadata and filtered queries', function (): void {
     $assetComponent = new class extends SectionAssets
     {
+        /**
+         * @return Builder<Model>
+         */
         public function exposeTableQuery(): Builder
         {
             return $this->getTableQuery();
@@ -367,6 +377,7 @@ it('declares section resource metadata', function (): void {
         ->and(SectionResource::getWidgets())->toContain(SectionAlertsWidget::class)
         ->and(SectionResource::getGlobalSearchResultDetails(new class extends Model
         {
+            /** @use HasFactory<Factory<static>> */
             use HasFactory;
         }))->toBe([]);
 });

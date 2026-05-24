@@ -9,12 +9,15 @@ use Capell\Core\Models\Blueprint;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static Blueprint|null run(array $state = [])
+ * @method static Blueprint|null run(array<array-key, mixed> $state = [])
  */
 class ResolveRequestedSectionBlueprintAction
 {
     use AsObject;
 
+    /**
+     * @param array<array-key, mixed> $state
+     */
     public function handle(array $state = []): ?Blueprint
     {
         $blueprintId = $state['blueprint_id'] ?? null;

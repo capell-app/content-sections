@@ -13,6 +13,7 @@ class SectionDefinitionData
 {
     /**
      * @param  class-string<ConfiguratorInterface>  $configurator
+     * @param  array<array-key, mixed>  $defaults
      */
     public function __construct(
         public string $key,

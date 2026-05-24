@@ -9,6 +9,7 @@ use Capell\Core\Enums\Attribute\Component;
 use Capell\Core\Enums\Attribute\EnumAttributeHelper;
 use Capell\Core\Enums\Attribute\EnumAttributeInterface;
 
+/** @implements EnumAttributeInterface<Component> */
 enum LivewireComponentsEnum: string implements EnumAttributeInterface
 {
     use EnumAttributeHelper;
@@ -16,6 +17,9 @@ enum LivewireComponentsEnum: string implements EnumAttributeInterface
     #[Component(SectionAssets::class)]
     case ContentAssetsTable = 'capell-content-sections::assets.table.section-assets';
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getComponents(): array
     {
         $attributes = self::getAllCaseAttributes(Component::class);

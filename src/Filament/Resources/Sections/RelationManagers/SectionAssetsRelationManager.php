@@ -90,11 +90,19 @@ class SectionAssetsRelationManager extends RelationManager
             ]);
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
     protected static function applyAssetIdSearch(Builder $query, string $search): Builder
     {
         return $query->where('asset_id', $search);
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
     protected static function applyTableQuery(Builder $query): Builder
     {
         return $query->with([
@@ -109,14 +117,19 @@ class SectionAssetsRelationManager extends RelationManager
         }
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected static function assetMorphRelations(): array
     {
-        return CapellCore::getAssets()
-            ->mapWithKeys(fn (AssetData $asset): array => [
-                $asset->model => method_exists($asset->model, 'getMorphRelations')
-                    ? $asset->model::getMorphRelations()
-                    : [],
-            ])
-            ->toArray();
+        $relations = [];
+
+        foreach (CapellCore::getAssets() as $asset) {
+            $relations[$asset->model] = method_exists($asset->model, 'getMorphRelations')
+                ? $asset->model::getMorphRelations()
+                : [];
+        }
+
+        return $relations;
     }
 }

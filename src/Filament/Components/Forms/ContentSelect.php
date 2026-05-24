@@ -178,6 +178,9 @@ class ContentSelect extends Select
         return new HtmlString($label . Str::limit($record->name, 40));
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     private function getContentOptions(?int $site_id = null, ?string $search = null): array
     {
         $relations = [

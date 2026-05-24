@@ -9,12 +9,15 @@ use Capell\Core\Contracts\Actionable;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static Section run(array $data)
+ * @method static Section run(array<array-key, mixed> $data)
  */
 class CreateContentAction implements Actionable
 {
     use AsObject;
 
+    /**
+     * @param  array<int, array{language_id: int|string, title: string, content?: mixed}>  $translations
+     */
     public function createTranslations(Section $content, array $translations): void
     {
         foreach ($translations as $translation) {
@@ -26,6 +29,9 @@ class CreateContentAction implements Actionable
         }
     }
 
+    /**
+     * @param  array<array-key, mixed>  $data
+     */
     public function handle(array $data): Section
     {
         $translations = $data['translations'] ?? [];

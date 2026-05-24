@@ -33,11 +33,17 @@ class DefaultSectionConfigurator implements ConfiguratorInterface
 
     protected static ConfiguratorTypeEnumInterface $configuratorType = ConfiguratorTypeEnum::Section;
 
+    /**
+     * @return iterable<int, mixed>
+     */
     public static function getExtenders(): iterable
     {
         return app()->tagged(SchemaExtenderEnum::Section->value);
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public function make(Schema $configurator): array
     {
         return match ($configurator->getOperation()) {
@@ -46,6 +52,9 @@ class DefaultSectionConfigurator implements ConfiguratorInterface
         };
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function getMetaSchema(): array
     {
         return [
@@ -68,6 +77,9 @@ class DefaultSectionConfigurator implements ConfiguratorInterface
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function getOptionFormSchema(Schema $configurator): array
     {
         return [
@@ -81,6 +93,9 @@ class DefaultSectionConfigurator implements ConfiguratorInterface
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function getFormSchema(Schema $configurator): array
     {
         return [
