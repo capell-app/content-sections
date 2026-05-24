@@ -10,8 +10,8 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Translation;
 use Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor;
-use Capell\LayoutBuilder\Models\BlockAsset;
 use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
@@ -31,7 +31,7 @@ final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadCo
     public function data(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): array
     {
         $sections = $this->sectionAssets($block)
-            ->map(fn (BlockAsset $blockAsset): array => $this->sectionData($blockAsset))
+            ->map(fn (WidgetAsset $blockAsset): array => $this->sectionData($blockAsset))
             ->values()
             ->all();
 
@@ -45,7 +45,7 @@ final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadCo
     public function html(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): ?string
     {
         $html = $this->sectionAssets($block)
-            ->map(fn (BlockAsset $blockAsset): string => $this->renderSection($blockAsset, $this->sectionData($blockAsset)))
+            ->map(fn (WidgetAsset $blockAsset): string => $this->renderSection($blockAsset, $this->sectionData($blockAsset)))
             ->filter(fn (string $html): bool => trim($html) !== '')
             ->implode("\n");
 
@@ -53,7 +53,7 @@ final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadCo
     }
 
     /**
-     * @return Collection<int, BlockAsset>
+     * @return Collection<int, WidgetAsset>
      */
     private function sectionAssets(Widget $block): Collection
     {
@@ -64,7 +64,7 @@ final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadCo
         }
 
         return $assets
-            ->filter(fn (mixed $blockAsset): bool => $blockAsset instanceof BlockAsset
+            ->filter(fn (mixed $blockAsset): bool => $blockAsset instanceof WidgetAsset
                 && $blockAsset->asset instanceof Section
                 && ! $blockAsset->asset->isPending()
                 && ! $blockAsset->asset->isExpired())
@@ -74,7 +74,7 @@ final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadCo
     /**
      * @return array<string, mixed>
      */
-    private function sectionData(BlockAsset $blockAsset): array
+    private function sectionData(WidgetAsset $blockAsset): array
     {
         /** @var Section $section */
         $section = $blockAsset->asset;
@@ -108,7 +108,7 @@ final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadCo
     /**
      * @param  array<string, mixed>  $data
      */
-    private function renderSection(BlockAsset $blockAsset, array $data): string
+    private function renderSection(WidgetAsset $blockAsset, array $data): string
     {
         /** @var Section $section */
         $section = $blockAsset->asset;
@@ -130,7 +130,7 @@ final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadCo
     /**
      * @return array<string, mixed>
      */
-    private function metaFor(Section $section, BlockAsset $blockAsset): array
+    private function metaFor(Section $section, WidgetAsset $blockAsset): array
     {
         return array_replace_recursive(
             is_array($section->meta) ? $section->meta : [],
