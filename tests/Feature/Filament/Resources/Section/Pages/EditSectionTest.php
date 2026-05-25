@@ -7,8 +7,8 @@ use Capell\ContentSections\Models\Section;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
-use Capell\LayoutBuilder\Models\Block;
-use Capell\LayoutBuilder\Models\BlockAsset;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
 use function Pest\Laravel\assertDatabaseHas;
@@ -109,9 +109,9 @@ test('create action creates a section from the edit page', function (): void {
 });
 
 test('layout builder content editor mounts section edit form', function (): void {
-    $block = Block::factory()->create(['key' => 'homepage-hero', 'name' => 'Homepage hero']);
+    $block = Widget::factory()->create(['key' => 'homepage-hero', 'name' => 'Homepage hero']);
     $content = Section::factory()->create(['name' => 'Homepage Hero: Page Object Slide']);
-    BlockAsset::factory()
+    WidgetAsset::factory()
         ->block($block)
         ->asset($content)
         ->occurrence(1)

@@ -16,7 +16,7 @@ class ReplicateContentAction
     use AsObject;
 
     /**
-     * @param array<array-key, mixed> $data
+     * @param  array<array-key, mixed>  $data
      */
     public function handle(Section $content, array $data = []): Section
     {

@@ -26,7 +26,7 @@
                     class="absolute -left-2 mt-2 h-4 w-4 rounded-full bg-slate-950"
                 ></span>
                 <p
-                    class="text-sm font-semibold uppercase tracking-wide text-slate-500"
+                    class="text-sm font-semibold tracking-wide text-slate-500 uppercase"
                 >
                     {{ $milestone['date'] ?? '' }}
                 </p>

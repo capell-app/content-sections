@@ -9,7 +9,7 @@
     <body class="bg-slate-50 text-slate-950 antialiased">
         <main class="mx-auto min-h-screen max-w-6xl px-6 py-12">
             <p
-                class="mb-3 text-sm font-medium uppercase tracking-wide text-slate-500"
+                class="mb-3 text-sm font-medium tracking-wide text-slate-500 uppercase"
             >
                 section preview
             </p>

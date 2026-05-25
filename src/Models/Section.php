@@ -251,7 +251,7 @@ class Section extends Model implements Blueprintable, HasMedia, Publishable, Use
         $this->addMediaCollection(MediaCollectionEnum::Image->value)->singleFile();
     }
 
-    /** @return BelongsTo<Blueprint, Model> */
+    /** @return BelongsTo<Blueprint, $this> */
     public function blueprint(): BelongsTo
     {
         return $this->belongsTo(Blueprint::class, 'blueprint_id');

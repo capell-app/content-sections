@@ -50,6 +50,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
+use Override;
 use Spatie\LaravelPackageTools\Package;
 
 class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
@@ -105,11 +106,13 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
         });
     }
 
+    #[Override]
     protected function isPackageInstalled(): bool
     {
         return CapellCore::getPackage(static::$packageName)->isInstalled();
     }
 
+    #[Override]
     protected function isLivewireV3(): bool
     {
         $version = InstalledVersions::getVersion('livewire/livewire');
@@ -426,7 +429,11 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
         $source->media()
             ->where('collection_name', MediaCollectionEnum::Image->value)
             ->get()
-            ->each(function (Media $media) use ($clone): void {
+            ->each(function (Model $media) use ($clone): void {
+                if (! $media instanceof Media) {
+                    return;
+                }
+
                 $mediaClone = $media->replicate();
                 $mediaClone->model_id = $clone->getKey();
                 $mediaClone->uuid = (string) Str::uuid();

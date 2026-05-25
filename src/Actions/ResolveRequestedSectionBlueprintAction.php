@@ -16,7 +16,7 @@ class ResolveRequestedSectionBlueprintAction
     use AsObject;
 
     /**
-     * @param array<array-key, mixed> $state
+     * @param  array<array-key, mixed>  $state
      */
     public function handle(array $state = []): ?Blueprint
     {

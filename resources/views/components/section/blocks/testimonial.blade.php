@@ -3,7 +3,7 @@
 <figure
     {{ $attributes->merge(['class' => 'section section-testimonial']) }}
 >
-    <blockquote class="text-2xl font-medium leading-relaxed">
+    <blockquote class="text-2xl leading-relaxed font-medium">
         “{{ $meta['quote'] ?? strip_tags((string) $summary) }}”
     </blockquote>
     <figcaption class="mt-6">

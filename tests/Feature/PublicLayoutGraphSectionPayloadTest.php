@@ -9,8 +9,8 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Actions\BuildPublicLayoutGraphAction;
-use Capell\LayoutBuilder\Models\Block;
-use Capell\LayoutBuilder\Models\BlockAsset;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 
 it('contributes section assets to public layout block payloads', function (): void {
     $language = Language::factory()->create();
@@ -29,7 +29,7 @@ it('contributes section assets to public layout block payloads', function (): vo
             'visible_until' => now()->addDay(),
         ]);
 
-    $block = Block::factory()->create(['key' => 'hero-block']);
+    $block = Widget::factory()->create(['key' => 'hero-block']);
     $layout = Layout::factory()->site($site)->create([
         'containers' => [
             'main' => ['blocks' => [['block_key' => $block->key, 'occurrence' => 1]]],
@@ -37,7 +37,7 @@ it('contributes section assets to public layout block payloads', function (): vo
     ]);
     $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
 
-    BlockAsset::factory()
+    WidgetAsset::factory()
         ->block($block)
         ->asset($section)
         ->create([
@@ -89,7 +89,7 @@ it('does not expose pending or expired section assets in public layout block pay
             'visible_until' => now()->subDay(),
         ]);
 
-    $block = Block::factory()->create(['key' => 'hero-block']);
+    $block = Widget::factory()->create(['key' => 'hero-block']);
     $layout = Layout::factory()->site($site)->create([
         'containers' => [
             'main' => ['blocks' => [['block_key' => $block->key, 'occurrence' => 1]]],
@@ -97,8 +97,8 @@ it('does not expose pending or expired section assets in public layout block pay
     ]);
     $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
 
-    BlockAsset::factory()->block($block)->asset($pendingSection)->create(['order' => 1]);
-    BlockAsset::factory()->block($block)->asset($expiredSection)->create(['order' => 2]);
+    WidgetAsset::factory()->block($block)->asset($pendingSection)->create(['order' => 1]);
+    WidgetAsset::factory()->block($block)->asset($expiredSection)->create(['order' => 2]);
 
     $graph = BuildPublicLayoutGraphAction::run($layout, $page, $language, includeHtml: true);
     $blockData = $graph->containers[0]->blocks[0];
