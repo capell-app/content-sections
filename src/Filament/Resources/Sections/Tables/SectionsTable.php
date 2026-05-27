@@ -53,7 +53,7 @@ class SectionsTable implements TableConfigurator
             ->modifyQueryUsing(
                 fn (Builder $query): Builder => $query
                     ->with([
-                        'ancestors.blueprint',
+                        'ancestors',
                         'blueprint',
                         'creator',
                         'editor',

@@ -21,7 +21,9 @@ class ContentNameColumn extends BadgeableColumn
             ->wrap()
             ->weight(FontWeight::Medium)
             ->description(function (Section $record): ?HtmlString {
-                $ancestors = $record->ancestors()->get();
+                $ancestors = $record->relationLoaded('ancestors')
+                    ? $record->getRelation('ancestors')
+                    : $record->ancestors()->get();
 
                 if ($ancestors->isEmpty()) {
                     return null;
