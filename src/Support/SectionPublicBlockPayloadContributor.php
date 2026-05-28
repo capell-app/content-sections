@@ -174,7 +174,7 @@ final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadCo
 
         return $blueprint instanceof Blueprint && is_string($blueprint->key)
             ? $blueprint->key
-            : Str::slug($section->name)->toString();
+            : (string) Str::slug($section->name);
     }
 
     private function linkedPageUrl(Section $section): ?string
