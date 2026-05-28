@@ -6,6 +6,7 @@ namespace Capell\ContentSections\Support;
 
 use Capell\ContentSections\Actions\ResolveSectionComponentAction;
 use Capell\ContentSections\Models\Section;
+use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Translation;
@@ -57,17 +58,28 @@ final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadCo
      */
     private function sectionAssets(Widget $block): Collection
     {
-        $assets = $block->getRelationValue('assets');
+        if (! $block->relationLoaded('assets')) {
+            return collect();
+        }
+
+        $assets = $block->getRelation('assets');
 
         if (! $assets instanceof EloquentCollection && ! $assets instanceof Collection) {
             return collect();
         }
 
         return $assets
-            ->filter(fn (mixed $blockAsset): bool => $blockAsset instanceof WidgetAsset
-                && $blockAsset->asset instanceof Section
-                && ! $blockAsset->asset->isPending()
-                && ! $blockAsset->asset->isExpired())
+            ->filter(function (mixed $blockAsset): bool {
+                if (! $blockAsset instanceof WidgetAsset) {
+                    return false;
+                }
+
+                $section = $this->loadedSection($blockAsset);
+
+                return $section instanceof Section
+                    && ! $section->isPending()
+                    && ! $section->isExpired();
+            })
             ->values();
     }
 
@@ -77,19 +89,23 @@ final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadCo
     private function sectionData(WidgetAsset $blockAsset): array
     {
         /** @var Section $section */
-        $section = $blockAsset->asset;
+        $section = $this->loadedSection($blockAsset);
+        if (! $section instanceof Section) {
+            return [];
+        }
+
         $translation = $this->translationFor($section);
         $component = $this->componentFor($section);
 
         return [
             'id' => $section->getKey(),
-            'key' => $section->blueprint->key ?? Str::slug($section->name),
+            'key' => $this->blueprintKey($section),
             'component' => $component,
             'title' => $translation->label ?? $section->name,
             'summary' => $this->summaryFor($translation),
             'meta' => $this->metaFor($section, $blockAsset),
             'linkText' => $translation?->link_text,
-            'url' => $section->linkedPage?->pageUrl?->full_url,
+            'url' => $this->linkedPageUrl($section),
             'blockAsset' => [
                 'id' => $blockAsset->getKey(),
                 'meta' => $blockAsset->meta ?? [],
@@ -100,7 +116,7 @@ final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadCo
                 'summary' => $this->summaryFor($translation),
                 'title' => $translation->label ?? $section->name,
                 'linkText' => $translation?->link_text,
-                'url' => $section->linkedPage?->pageUrl?->full_url,
+                'url' => $this->linkedPageUrl($section),
             ]),
         ];
     }
@@ -111,7 +127,10 @@ final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadCo
     private function renderSection(WidgetAsset $blockAsset, array $data): string
     {
         /** @var Section $section */
-        $section = $blockAsset->asset;
+        $section = $this->loadedSection($blockAsset);
+        if (! $section instanceof Section) {
+            return '';
+        }
 
         return Blade::render(
             '<x-dynamic-component :component="$component" :asset="$asset" :meta="$meta" :summary="$summary" :title="$title" :link-text="$linkText" :url="$url" />',
@@ -140,7 +159,8 @@ final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadCo
 
     private function componentFor(Section $section): string
     {
-        $configurator = $section->blueprint?->admin['configurator'] ?? null;
+        $blueprint = $section->relationLoaded('blueprint') ? $section->getRelation('blueprint') : null;
+        $configurator = $blueprint instanceof Blueprint ? ($blueprint->admin['configurator'] ?? null) : null;
 
         return ResolveSectionComponentAction::run(
             configurator: is_string($configurator) ? $configurator : null,
@@ -148,11 +168,46 @@ final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadCo
         );
     }
 
+    private function blueprintKey(Section $section): string
+    {
+        $blueprint = $section->relationLoaded('blueprint') ? $section->getRelation('blueprint') : null;
+
+        return $blueprint instanceof Blueprint && is_string($blueprint->key)
+            ? $blueprint->key
+            : Str::slug($section->name)->toString();
+    }
+
+    private function linkedPageUrl(Section $section): ?string
+    {
+        if (! $section->relationLoaded('linkedPage')) {
+            return null;
+        }
+
+        $linkedPage = $section->getRelation('linkedPage');
+
+        if (! $linkedPage instanceof Page || ! $linkedPage->relationLoaded('pageUrl')) {
+            return null;
+        }
+
+        return $linkedPage->pageUrl?->full_url;
+    }
+
     private function translationFor(Section $section): ?Translation
     {
         $translation = $section->getRelationValue('translation');
 
         return $translation instanceof Translation ? $translation : null;
+    }
+
+    private function loadedSection(WidgetAsset $blockAsset): ?Section
+    {
+        if (! $blockAsset->relationLoaded('asset')) {
+            return null;
+        }
+
+        $asset = $blockAsset->getRelation('asset');
+
+        return $asset instanceof Section ? $asset : null;
     }
 
     private function summaryFor(?Translation $translation): ?string
