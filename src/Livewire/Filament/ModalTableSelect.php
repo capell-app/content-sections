@@ -18,6 +18,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -152,7 +153,7 @@ class ModalTableSelect extends Component implements HasActions, HasForms, HasTab
 
     public function render(): View
     {
-        return view($this->view);
+        return resolve(Factory::class)->make($this->view);
     }
 
     /**

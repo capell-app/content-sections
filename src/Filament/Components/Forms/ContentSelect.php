@@ -129,7 +129,7 @@ class ContentSelect extends Select
                     ->modalHeading(
                         fn (self $component): string => __(
                             'capell-content-sections::heading.edit_content_record',
-                            ['name' => $component->getSelectedRecord()?->getAttribute('name')],
+                            ['name' => (string) $component->getSelectedRecord()?->getAttribute('name')],
                         ),
                     )
                     ->modalWidth(Width::ScreenExtraLarge)
@@ -137,7 +137,7 @@ class ContentSelect extends Select
                     ->successNotificationTitle(
                         fn (Action $action): string => __(
                             'capell-admin::notification.updated_successfully',
-                            ['name' => $action->getModalHeading()],
+                            ['name' => (string) $action->getModalHeading()],
                         ),
                     )
                     ->after(function (Action $action): void {
@@ -247,7 +247,7 @@ class ContentSelect extends Select
             ->successNotificationTitle(
                 fn (Action $action): string => __(
                     'capell-admin::notification.created_successfully',
-                    ['name' => $action->getModalHeading()],
+                    ['name' => (string) $action->getModalHeading()],
                 ),
             )
             ->after(function (Action $action): void {
