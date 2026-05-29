@@ -14,7 +14,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sections', function (Blueprint $table): void {
+        $driver = Schema::getConnection()->getDriverName();
+        $databaseVersion = $driver === 'mysql' ? (string) DB::selectOne('select version() as v')->v : null;
+
+        Schema::create('sections', function (Blueprint $table) use ($databaseVersion, $driver): void {
             $table->id();
             $table->uuid('uuid')->nullable()->index();
             $table->unsignedBigInteger('workspace_id')->default(0)->index();
@@ -29,15 +32,21 @@ return new class extends Migration
             $table->userstamps();
             $table->timestamps();
             $table->softDeletes();
-            if (
-                Schema::getConnection()->getDriverName() === 'pgsql' ||
-                (
-                    Schema::getConnection()->getDriverName() === 'mysql' &&
-                    version_compare(DB::selectOne('select version() as v')->v, '5.8.0', '>=') &&
-                    ! str_contains((string) DB::selectOne('select version() as v')->v, 'MariaDB')
-                )
-            ) {
+
+            if ($driver === 'pgsql') {
                 $table->index('meta->page_id', 'sections_page_id_index');
+            }
+
+            if (
+                $driver === 'mysql' &&
+                $databaseVersion !== null &&
+                version_compare($databaseVersion, '8.0.13', '>=') &&
+                ! str_contains($databaseVersion, 'MariaDB')
+            ) {
+                $table->rawIndex(
+                    '(cast(json_unquote(json_extract(`meta`, \'$."page_id"\')) as unsigned))',
+                    'sections_page_id_index',
+                );
             }
 
             $table->index(['site_id', 'blueprint_id', 'order']);
