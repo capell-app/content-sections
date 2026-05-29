@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\ContentSections\Tests\Feature\Filament\Resources\Section;
 
 use Capell\ContentSections\Actions\CreateHeroContentBlueprintAction;
+use Capell\ContentSections\Enums\ActionLinkEnum;
 use Capell\ContentSections\Enums\SectionConfiguratorEnum;
 use Capell\ContentSections\Filament\Resources\Sections\Pages\EditSection;
 use Capell\ContentSections\Models\Section;
@@ -70,5 +71,60 @@ it('validates edit hero content', function (): void {
         ->call('save')
         ->assertHasAllFormErrors([
             'name' => 'required',
+        ]);
+});
+
+it('saves hero action types labels and urls', function (): void {
+    $blueprint = CreateHeroContentBlueprintAction::run();
+    $section = Section::factory()->blueprint($blueprint)
+        ->state([
+            'name' => 'Hero Content',
+        ])
+        ->create();
+
+    livewire(EditSection::class, [
+        'record' => $section->getRouteKey(),
+    ])
+        ->assertSuccessful()
+        ->fillForm([
+            'meta' => [
+                'actions' => [
+                    [
+                        'type' => ActionLinkEnum::Link->value,
+                        'label' => 'Start a project',
+                        'url' => 'https://capell.test/start',
+                    ],
+                    [
+                        'type' => ActionLinkEnum::Link->value,
+                        'label' => 'View examples',
+                        'url' => '/examples',
+                    ],
+                ],
+            ],
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    $actionMeta = $section->refresh()->meta['actions'] ?? [];
+    $actions = collect(is_array($actionMeta) ? $actionMeta : [])
+        ->map(fn (array $action): array => [
+            'type' => $action['type'] ?? null,
+            'label' => $action['label'] ?? null,
+            'url' => $action['url'] ?? null,
+        ])
+        ->all();
+
+    expect($actions)
+        ->toBe([
+            [
+                'type' => ActionLinkEnum::Link->value,
+                'label' => 'Start a project',
+                'url' => 'https://capell.test/start',
+            ],
+            [
+                'type' => ActionLinkEnum::Link->value,
+                'label' => 'View examples',
+                'url' => '/examples',
+            ],
         ]);
 });
