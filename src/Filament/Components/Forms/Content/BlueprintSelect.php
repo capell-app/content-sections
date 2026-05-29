@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\ContentSections\Filament\Components\Forms\Content;
 
-use Capell\Admin\Filament\Components\Forms\TypeSelect as BaseBlueprintSelect;
+use Capell\Admin\Filament\Components\Forms\BlueprintSelect as BaseBlueprintSelect;
 use Capell\ContentSections\Enums\LayoutTypeEnum;
 use Capell\Core\Enums\BlueprintSubjectEnum;
 use Closure;

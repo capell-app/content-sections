@@ -159,6 +159,7 @@ test('can create an asset for a section', function (string $assetType): void {
     $asset = match ($assetType) {
         'section' => Section::factory()->create(),
         'page' => Page::factory()->create(),
+        default => throw new InvalidArgumentException('Unsupported asset type.'),
     };
 
     livewire(SectionAssetsRelationManager::class, [

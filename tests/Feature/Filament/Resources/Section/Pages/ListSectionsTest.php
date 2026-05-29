@@ -10,6 +10,8 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Illuminate\Database\Eloquent\Factories\Sequence;
+use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Support\Facades\DB;
 
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Laravel\assertSoftDeleted;
@@ -29,6 +31,26 @@ test('can list sections', function (): void {
         ->assertSuccessful()
         ->assertCountTableRecords(5)
         ->assertCanSeeTableRecords($sections);
+});
+
+test('renders section ancestor labels from eager loaded relations', function (): void {
+    $parent = Section::factory()->create(['name' => 'Parent section']);
+    Section::factory()->count(3)->parent($parent)->create();
+    $queries = [];
+
+    DB::listen(static function (QueryExecuted $query) use (&$queries): void {
+        $queries[] = $query->sql;
+    });
+
+    livewire(ListSections::class)
+        ->assertSuccessful()
+        ->assertSee('Parent section');
+
+    $ancestorQueries = collect($queries)
+        ->filter(fn (string $query): bool => str_contains($query, '_lft') && str_contains($query, '_rgt'))
+        ->values();
+
+    expect($ancestorQueries->count())->toBeLessThanOrEqual(2);
 });
 
 test('can search sections', function (): void {
@@ -197,11 +219,13 @@ test('can filter by publish status', function (string $status, int $expectedCoun
             'published' => $publishedContents,
             'unpublished' => $pendingContents,
             'expired' => $expiredContents,
+            default => [],
         })
         ->assertCanNotSeeTableRecords(match ($status) {
             'published' => [...$pendingContents->all(), ...$expiredContents->all()],
             'unpublished' => [...$publishedContents->all(), ...$expiredContents->all()],
             'expired' => [...$publishedContents->all(), ...$pendingContents->all()],
+            default => [],
         });
 })
     ->with([

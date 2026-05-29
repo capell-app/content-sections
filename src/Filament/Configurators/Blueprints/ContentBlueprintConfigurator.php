@@ -8,7 +8,7 @@ use Capell\Admin\Filament\Components\Forms\ConfiguratorSelect;
 use Capell\Admin\Filament\Components\Forms\ContentStructureSelect;
 use Capell\Admin\Filament\Components\Forms\IconPicker;
 use Capell\Admin\Filament\Components\Forms\RequiredFields;
-use Capell\Admin\Filament\Configurators\Types\DefaultTypeConfigurator;
+use Capell\Admin\Filament\Configurators\Blueprints\DefaultBlueprintConfigurator;
 use Capell\ContentSections\Enums\ConfiguratorTypeEnum;
 use Capell\ContentSections\Enums\SectionConfiguratorEnum;
 use Filament\Forms\Components\Checkbox;
@@ -18,7 +18,7 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Override;
 
-class ContentBlueprintConfigurator extends DefaultTypeConfigurator
+class ContentBlueprintConfigurator extends DefaultBlueprintConfigurator
 {
     #[Override]
     public function make(Schema $configurator): array

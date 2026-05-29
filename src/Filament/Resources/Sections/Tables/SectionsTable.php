@@ -41,6 +41,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Str;
 
@@ -52,7 +53,7 @@ class SectionsTable implements TableConfigurator
             ->modifyQueryUsing(
                 fn (Builder $query): Builder => $query
                     ->with([
-                        'ancestors.blueprint',
+                        'ancestors',
                         'blueprint',
                         'creator',
                         'editor',
@@ -100,7 +101,7 @@ class SectionsTable implements TableConfigurator
             });
     }
 
-    public static function getSiteId(HasTable $livewire)
+    public static function getSiteId(HasTable $livewire): int|string|null
     {
         return match (true) {
             $livewire instanceof ListRecords => $livewire->activeTab,
@@ -108,6 +109,9 @@ class SectionsTable implements TableConfigurator
         };
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected static function getTableColumns(): array
     {
         return [
@@ -182,6 +186,9 @@ class SectionsTable implements TableConfigurator
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected static function getTableFilters(): array
     {
         return [
@@ -258,7 +265,7 @@ class SectionsTable implements TableConfigurator
                 ->indicateUsing(function (array $data): array {
                     $indicators = [];
 
-                    if (isset($data['language_id']) && $data['language_id'] !== null && $data['language_id'] !== '') {
+                    if (isset($data['language_id']) && $data['language_id'] !== '') {
                         /** @var class-string<Language> $model */
                         $model = Language::class;
 
@@ -268,7 +275,7 @@ class SectionsTable implements TableConfigurator
                         );
                     }
 
-                    if (isset($data['parent_id']) && $data['parent_id'] !== null && $data['parent_id'] !== '') {
+                    if (isset($data['parent_id']) && $data['parent_id'] !== '') {
                         /** @var class-string<Section> $model */
                         $model = Section::class;
 
@@ -306,6 +313,11 @@ class SectionsTable implements TableConfigurator
         ];
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     * @param  array<array-key, mixed>  $state
+     * @return Builder<Model>
+     */
     protected static function applySiteFilter(Builder $query, array $state): Builder
     {
         return $query
@@ -319,6 +331,10 @@ class SectionsTable implements TableConfigurator
             );
     }
 
+    /**
+     * @param  Builder<Section>  $query
+     * @param  array<array-key, mixed>  $data
+     */
     protected static function applyFilterQuery(Builder $query, array $data): void
     {
         $query
@@ -332,6 +348,10 @@ class SectionsTable implements TableConfigurator
             );
     }
 
+    /**
+     * @param  Builder<Language>  $query
+     * @return Builder<Language>
+     */
     protected static function applyLanguageSiteFilter(Builder $query, int $siteId): Builder
     {
         return $query->whereHas(
@@ -340,6 +360,9 @@ class SectionsTable implements TableConfigurator
         );
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected static function parentSectionOptions(
         null|int|string $siteId,
         ?int $languageId,
@@ -385,6 +408,10 @@ class SectionsTable implements TableConfigurator
         return $query->enabled();
     }
 
+    /**
+     * @param  Builder<Section>  $query
+     * @return Builder<Section>
+     */
     protected static function applyParentLanguageFilter(Builder $query, int $languageId): Builder
     {
         return $query->whereHas(
@@ -393,6 +420,10 @@ class SectionsTable implements TableConfigurator
         );
     }
 
+    /**
+     * @param  Builder<Section>  $query
+     * @return Builder<Section>
+     */
     protected static function applyParentSearchFilter(Builder $query, string $search): Builder
     {
         return $query->where(

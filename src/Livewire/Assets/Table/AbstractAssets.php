@@ -12,9 +12,15 @@ use Ramsey\Uuid\UuidInterface;
 
 abstract class AbstractAssets extends ModalTableSelect
 {
+    /**
+     * @var array{containerKey?: string, blockIndex?: int, hasPageAssets?: bool}
+     */
     #[Locked]
     public array $tableArguments = [];
 
+    /**
+     * @var array<array-key, mixed>
+     */
     public array $existingRecords = [];
 
     #[Locked]

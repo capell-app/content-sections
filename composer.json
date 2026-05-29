@@ -19,11 +19,11 @@
     ],
     "require": {
         "php": "^8.3",
-        "capell-app/admin": "*",
-        "capell-app/content-blocks": "*",
-        "capell-app/core": "*",
-        "capell-app/frontend": "*",
-        "capell-app/layout-builder": "*"
+        "capell-app/admin": "^4.0 || 4.x-dev",
+        "capell-app/content-blocks": "^4.0 || 4.x-dev",
+        "capell-app/core": "^4.0 || 4.x-dev",
+        "capell-app/frontend": "^4.0 || 4.x-dev",
+        "capell-app/layout-builder": "^4.0 || 4.x-dev"
     },
     "suggest": {
         "capell-app/public-actions": "Enables CMS action buttons that submit reusable public actions.",
@@ -45,5 +45,10 @@
     "config": {
         "sort-packages": true
     },
-    "prefer-stable": true
+    "prefer-stable": true,
+    "type": "library",
+    "support": {
+        "source": "https://github.com/capell-app/capell-packages",
+        "docs": "https://docs.capell.app/packages/content-sections"
+    }
 }

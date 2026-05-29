@@ -26,6 +26,9 @@ class SectionAssets extends AbstractAssets
         return AdminSurfaceLookup::resource(ResourceEnum::Section);
     }
 
+    /**
+     * @return Builder<Section>
+     */
     public function getFilteredTableQuery(): Builder
     {
         $query = parent::getFilteredTableQuery();
@@ -46,6 +49,9 @@ class SectionAssets extends AbstractAssets
         return $query;
     }
 
+    /**
+     * @return Builder<Section>
+     */
     #[Override]
     protected function getTableQuery(): Builder
     {

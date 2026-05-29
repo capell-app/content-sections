@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
+use Capell\ContentSections\Filament\Resources\Sections\Pages\CreateSection;
 use Capell\ContentSections\Filament\Resources\Sections\Pages\EditSection;
 use Capell\ContentSections\Models\Section;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
-use Capell\LayoutBuilder\Models\Block;
-use Capell\LayoutBuilder\Models\BlockAsset;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
 use function Pest\Laravel\assertDatabaseHas;
@@ -87,19 +88,17 @@ it('can delete', function (): void {
     assertSoftDeleted($content, ['id' => $content->id]);
 });
 
-test('create action creates a section from the edit page', function (): void {
-    $content = Section::factory()->create();
+test('can create a section', function (): void {
     $newData = Section::factory()->make();
     $blueprint = $newData->getBlueprint();
 
-    livewire(EditSection::class, [
-        'record' => $content->getRouteKey(),
-    ])
+    livewire(CreateSection::class)
         ->assertSuccessful()
-        ->callAction('create', [
+        ->fillForm([
             'blueprint_id' => $blueprint->getKey(),
             'name' => $newData->name,
         ])
+        ->call('create')
         ->assertHasNoFormErrors();
 
     assertDatabaseHas(Section::class, [
@@ -109,9 +108,9 @@ test('create action creates a section from the edit page', function (): void {
 });
 
 test('layout builder content editor mounts section edit form', function (): void {
-    $block = Block::factory()->create(['key' => 'homepage-hero', 'name' => 'Homepage hero']);
+    $block = Widget::factory()->create(['key' => 'homepage-hero', 'name' => 'Homepage hero']);
     $content = Section::factory()->create(['name' => 'Homepage Hero: Page Object Slide']);
-    BlockAsset::factory()
+    WidgetAsset::factory()
         ->block($block)
         ->asset($content)
         ->occurrence(1)

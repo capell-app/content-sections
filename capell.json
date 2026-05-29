@@ -22,7 +22,7 @@
             "capell-app/frontend",
             "capell-app/layout-builder"
         ],
-        "optional": [],
+        "supports": [],
         "conflicts": []
     },
     "providers": {
@@ -78,7 +78,13 @@
     },
     "marketplace": {
         "summary": "Content Sections provides reusable content sections for Capell admin and frontend surfaces.",
-        "screenshots": [],
+        "screenshots": [
+            {
+                "path": "docs/assets/marketplace/extension-card.jpg",
+                "alt": "Content Sections extension preview image",
+                "caption": "Content Sections extension preview"
+            }
+        ],
         "categories": ["admin", "foundation", "frontend"]
     },
     "contributionTraceability": {

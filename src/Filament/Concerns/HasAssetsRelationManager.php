@@ -57,6 +57,9 @@ trait HasAssetsRelationManager
             });
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected static function getAssetForm(): array
     {
         return [
@@ -112,6 +115,10 @@ trait HasAssetsRelationManager
             );
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
     protected static function modifyAssetOptionsQuery(Builder $query, AssetData $asset, Model $record): Builder
     {
         return $query
@@ -133,6 +140,10 @@ trait HasAssetsRelationManager
             );
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
     protected static function applyExistingAssetRelationFilter(Builder $query, Model $record): Builder
     {
         return $query
@@ -140,6 +151,10 @@ trait HasAssetsRelationManager
             ->where('related_id', $record->getKey());
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
     protected static function applyPageAssetOptionsQuery(Builder $query, bool $isPageAsset = true): Builder
     {
         return $query
@@ -151,11 +166,19 @@ trait HasAssetsRelationManager
             ->orderBy('site_id');
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
     protected static function applySelectablePageTypeQuery(Builder $query): Builder
     {
         return $query->where(self::applyNonSystemBlueprintGroupQuery(...));
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
     protected static function applyNonSystemBlueprintGroupQuery(Builder $query): Builder
     {
         return $query

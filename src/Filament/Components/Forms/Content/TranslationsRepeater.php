@@ -17,6 +17,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class TranslationsRepeater
 {
+    /**
+     * @param  array<array-key, mixed>  $components
+     */
     public static function make(
         Schema $configurator,
         array $components = [],
@@ -37,6 +40,9 @@ class TranslationsRepeater
             ]);
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     private static function getContentSchema(Schema $configurator): array
     {
         $record = $configurator->getRecord();
@@ -55,6 +61,9 @@ class TranslationsRepeater
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     private static function getTitleSchema(): array
     {
         return [

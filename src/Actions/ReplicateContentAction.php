@@ -9,12 +9,15 @@ use Carbon\CarbonImmutable;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static Section run(Section $content, array $data = [])
+ * @method static Section run(Section $content, array<array-key, mixed> $data = [])
  */
 class ReplicateContentAction
 {
     use AsObject;
 
+    /**
+     * @param  array<array-key, mixed>  $data
+     */
     public function handle(Section $content, array $data = []): Section
     {
         $content->load('translations');

@@ -16,6 +16,7 @@ return new class extends Migration
     {
         Schema::create('sections', function (Blueprint $table): void {
             $table->id();
+            $table->uuid('uuid')->nullable()->index();
             $table->unsignedBigInteger('workspace_id')->default(0)->index();
             $table->unsignedBigInteger('shadowed_by_workspace_id')->default(0)->index();
             $table->string('name');

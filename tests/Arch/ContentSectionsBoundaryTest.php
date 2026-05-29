@@ -37,5 +37,5 @@ it('declares layout builder as an explicit dependency for section block payloads
     );
 
     expect($manifest['dependencies']['requires'] ?? [])->toContain('capell-app/layout-builder')
-        ->and($manifest['dependencies']['optional'] ?? [])->not->toContain('capell-app/layout-builder');
+        ->and($manifest['dependencies']['supports'] ?? [])->not->toContain('capell-app/layout-builder');
 });

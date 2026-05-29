@@ -9,12 +9,17 @@ use Capell\ContentSections\Models\Section;
 use Capell\Core\Enums\CacheEnum;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Support\CapellCoreHelper;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 
 class SectionObserver
 {
     public function creating(Section $section): void
     {
+        if (blank($section->uuid)) {
+            $section->uuid = (string) Str::uuid();
+        }
+
         if ($section->blueprint_id === null) {
             $section->blueprint_id = Blueprint::query()->where('type', LayoutTypeEnum::Section)->default()->value('id');
             throw_if($section->blueprint_id === null, InvalidArgumentException::class, 'Unable to create content without a blueprint.');
@@ -50,7 +55,7 @@ class SectionObserver
         }
 
         CapellCoreHelper::flushCache([
-            CacheEnum::RelationExists,
+            CacheEnum::RelationExists->value,
         ]);
     }
 
@@ -59,7 +64,7 @@ class SectionObserver
     public function restored(Section $section): void
     {
         CapellCoreHelper::flushCache([
-            CacheEnum::RelationExists,
+            CacheEnum::RelationExists->value,
         ]);
     }
 }

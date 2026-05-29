@@ -15,17 +15,26 @@ use Capell\ContentSections\Enums\ResourceEnum;
 use Capell\ContentSections\Filament\Actions\CreateContentAction;
 use Capell\ContentSections\Filament\Resources\Sections\Widgets\SectionAlertsWidget;
 use Capell\ContentSections\Models\Section;
+use Capell\PublishingStudio\Actions\SaveRecordDraftAction;
+use Capell\PublishingStudio\Enums\WorkspaceStatusEnum;
 use Capell\PublishingStudio\Filament\Actions\PublishingRevisionsHeaderAction;
+use Capell\PublishingStudio\Models\Workspace;
+use Capell\PublishingStudio\Publisher;
+use Filament\Actions\Action;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Widgets\Widget;
 use Howdu\FilamentRecordSwitcher\Filament\Concerns\HasRecordSwitcher;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Foundation\Auth\User as AuthenticatedUser;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use Override;
+use Throwable;
 
 /**
  * @property Section $record
@@ -78,6 +87,8 @@ class EditSection extends EditRecord
     protected function getHeaderActions(): array
     {
         return array_values(array_filter([
+            $this->saveAsDraftAction(),
+            $this->publishAction(),
             $this->publishingRevisionsAction(),
             RestoreAction::make('restore'),
             DeleteAction::make('delete'),
@@ -115,5 +126,113 @@ class EditSection extends EditRecord
         }
 
         return $actionClass::make();
+    }
+
+    private function saveAsDraftAction(): ?Action
+    {
+        if (! class_exists(SaveRecordDraftAction::class)) {
+            return null;
+        }
+
+        return Action::make('saveAsDraft')
+            ->label(__('capell-content-sections::button.save_as_draft'))
+            ->icon('heroicon-o-document-text')
+            ->color('gray')
+            ->visible(fn (): bool => (int) $this->record->getAttribute('workspace_id') === 0)
+            ->action(function (): void {
+                $this->saveSectionDraft();
+            });
+    }
+
+    private function publishAction(): ?Action
+    {
+        if (! class_exists(Publisher::class)) {
+            return null;
+        }
+
+        return Action::make('publish')
+            ->label(__('capell-content-sections::button.publish'))
+            ->icon('heroicon-o-rocket-launch')
+            ->color('primary')
+            ->visible(fn (): bool => (int) $this->record->getAttribute('workspace_id') > 0)
+            ->disabled(fn (): bool => ! in_array($this->workspace()?->status, [
+                WorkspaceStatusEnum::Approved,
+                WorkspaceStatusEnum::Scheduled,
+            ], true))
+            ->requiresConfirmation()
+            ->modalHeading(__('capell-content-sections::heading.publish_section'))
+            ->action(function (): void {
+                $workspace = $this->workspace();
+
+                if (! $workspace instanceof Workspace) {
+                    return;
+                }
+
+                try {
+                    resolve(Publisher::class)->publish($workspace, auth()->user());
+                } catch (Throwable $throwable) {
+                    Notification::make()
+                        ->title(__('capell-content-sections::message.publish_failed'))
+                        ->body($throwable->getMessage())
+                        ->danger()
+                        ->send();
+
+                    return;
+                }
+
+                Notification::make()
+                    ->title(__('capell-content-sections::message.published'))
+                    ->success()
+                    ->send();
+
+                $this->redirect(
+                    static::getResource()::getUrl('edit', ['record' => $this->record->getKey()]),
+                    navigate: false,
+                );
+            });
+    }
+
+    private function saveSectionDraft(): void
+    {
+        $this->authorize('update', $this->record);
+
+        $user = auth()->user();
+
+        if (! $user instanceof AuthenticatedUser) {
+            return;
+        }
+
+        $data = $this->form->getState();
+        $result = SaveRecordDraftAction::run(
+            record: $this->record,
+            data: $data,
+            user: $user,
+            saveRelationships: function (Section $draft): void {
+                $this->form->model($draft)->saveRelationships();
+            },
+        );
+
+        Notification::make()
+            ->title(__('capell-content-sections::message.saved_as_draft', ['workspace' => $result->workspace->name]))
+            ->success()
+            ->send();
+
+        $this->dispatch('workspace-changed', workspaceId: $result->workspace->id);
+
+        $this->redirect(
+            static::getResource()::getUrl('edit', ['record' => $result->record->getKey()]),
+            navigate: false,
+        );
+    }
+
+    private function workspace(): ?Workspace
+    {
+        if (! Schema::hasTable((new Workspace)->getTable())) {
+            return null;
+        }
+
+        $workspaceId = $this->record->getAttribute('workspace_id');
+
+        return $workspaceId === null ? null : Workspace::query()->find((int) $workspaceId);
     }
 }

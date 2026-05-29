@@ -89,7 +89,7 @@ enum AssetEnum: string implements HasColor, HasIcon, HasLabel
         };
     }
 
-    public function hasTranslations(): bool
+    public function hasTranslations(): true
     {
         return match ($this) {
             self::Section => true,

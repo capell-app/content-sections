@@ -28,6 +28,7 @@ class TestimonialSectionConfigurator extends DefaultSectionConfigurator
             'editOption' => $this->getEditOptionFormSchema($configurator),
             'edit' => $this->getEditFormSchema($configurator),
             'create' => $this->getCreateFormSchema($configurator),
+            default => $this->getFormSchema($configurator),
         };
     }
 
@@ -46,6 +47,9 @@ class TestimonialSectionConfigurator extends DefaultSectionConfigurator
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function getCreateFormSchema(Schema $configurator): array
     {
         return [
@@ -56,6 +60,9 @@ class TestimonialSectionConfigurator extends DefaultSectionConfigurator
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function getCreateOptionFormSchema(Schema $configurator): array
     {
         return [
@@ -67,6 +74,9 @@ class TestimonialSectionConfigurator extends DefaultSectionConfigurator
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function getEditFormSchema(Schema $configurator): array
     {
         return [
@@ -91,6 +101,9 @@ class TestimonialSectionConfigurator extends DefaultSectionConfigurator
 
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function getEditOptionFormSchema(Schema $configurator): array
     {
         return [

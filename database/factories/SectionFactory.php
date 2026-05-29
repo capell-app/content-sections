@@ -27,11 +27,12 @@ class SectionFactory extends Factory
     /**
      * Define the model's default state.
      *
-     * @return array<string, mixed>
+     * @return array<array-key, mixed>
      */
     public function definition(): array
     {
         return [
+            'uuid' => (string) Str::uuid(),
             'name' => 'Section ' . Str::uuid()->toString(),
             'parent_id' => null,
             'blueprint_id' => (new ContentBlueprintFactory),
@@ -81,6 +82,10 @@ class SectionFactory extends Factory
         });
     }
 
+    /**
+     * @param  array<int, Language>|SupportCollection<int, Language>|Language|null  $languages
+     * @param  array<array-key, mixed>  $data
+     */
     public function withTranslations(null|array|SupportCollection|Language $languages = null, array $data = []): self
     {
         return $this->afterCreating(function (Section $section) use ($languages, $data): void {

@@ -21,7 +21,9 @@ class ContentNameColumn extends BadgeableColumn
             ->wrap()
             ->weight(FontWeight::Medium)
             ->description(function (Section $record): ?HtmlString {
-                $ancestors = $record->ancestors()->get();
+                $ancestors = $record->relationLoaded('ancestors')
+                    ? $record->getRelation('ancestors')
+                    : $record->ancestors()->get();
 
                 if ($ancestors->isEmpty()) {
                     return null;
@@ -32,7 +34,7 @@ class ContentNameColumn extends BadgeableColumn
             ->suffixBadges([
                 Badge::make('children')
                     ->label(
-                        fn (Section $record): string|array|null => __(
+                        fn (Section $record): string|array => __(
                             'capell-admin::generic.total_children',
                             ['total' => $this->getChildCount($record)],
                         ),

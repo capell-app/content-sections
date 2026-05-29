@@ -11,12 +11,15 @@ use Lorisleiva\Actions\Concerns\AsObject;
 use stdClass;
 
 /**
- * @method static array{definition: SectionDefinitionData, asset: stdClass, title: string, summary: string, meta: array<string, mixed>, linkText: string|null, url: string|null} run(string $key)
+ * @method static array{definition: SectionDefinitionData, asset: stdClass, title: string, summary: string, meta: array<array-key, mixed>, linkText: string|null, url: string|null} run(string $key)
  */
 class BuildSectionDemoDataAction
 {
     use AsObject;
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public function handle(string $key): array
     {
         $registry = resolve(SectionRegistry::class);
@@ -77,7 +80,7 @@ class BuildSectionDemoDataAction
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<array-key, mixed>
      */
     private function meta(string $key): array
     {

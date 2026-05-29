@@ -13,6 +13,9 @@ use Illuminate\Database\Eloquent\Builder;
 
 class SettingsSchema
 {
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function make(Schema $configurator): array
     {
         return [

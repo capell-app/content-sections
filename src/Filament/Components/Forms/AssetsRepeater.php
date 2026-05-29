@@ -51,7 +51,7 @@ class AssetsRepeater extends Repeater
                             $component->getRawItemState($arguments['item'])['asset_id'],
                         ),
                     )
-                    ->tooltip(function (array $arguments, Repeater $component): ?string {
+                    ->tooltip(function (array $arguments, Repeater $component): string {
                         $itemData = $component->getRawItemState($arguments['item']);
 
                         return __(
@@ -60,7 +60,7 @@ class AssetsRepeater extends Repeater
                         );
                     })
                     ->icon(Heroicon::PencilSquare)
-                    ->url(function (array $arguments, Repeater $component): ?string {
+                    ->url(function (array $arguments, Repeater $component): string {
                         $itemData = $component->getRawItemState($arguments['item']);
 
                         return GetAssetResourceUrlAction::run($itemData['asset_type'], $itemData['asset_id']);
@@ -97,6 +97,9 @@ class AssetsRepeater extends Repeater
             });
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected static function getFormSchema(): array
     {
         $select = SelectWithBelongsToRelation::make('asset_id');
@@ -213,6 +216,10 @@ class AssetsRepeater extends Repeater
             ->view('capell-admin::components.actions.dropdown-group');
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
     protected static function modifyAssetQuery(Builder $query, Get $get): Builder
     {
         if ($get('asset_type') !== 'page') {
@@ -229,11 +236,19 @@ class AssetsRepeater extends Repeater
             ->whereHas('type', self::applySelectablePageTypeQuery(...));
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
     protected static function applySelectablePageTypeQuery(Builder $query): Builder
     {
         return $query->where(self::applyNonSystemBlueprintGroupQuery(...));
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
     protected static function applyNonSystemBlueprintGroupQuery(Builder $query): Builder
     {
         return $query
@@ -249,7 +264,7 @@ class AssetsRepeater extends Repeater
             ->successNotificationTitle(
                 fn (Action $action): string => __(
                     'capell-admin::notification.created_successfully',
-                    ['name' => $action->getModalHeading()],
+                    ['name' => (string) $action->getModalHeading()],
                 ),
             )
             ->after(function (Action $action): void {

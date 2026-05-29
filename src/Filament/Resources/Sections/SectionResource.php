@@ -8,6 +8,7 @@ use BackedEnum;
 use Capell\Admin\Filament\Concerns\HasConfiguredForm;
 use Capell\Admin\Filament\Concerns\HasConfiguredTable;
 use Capell\Admin\Filament\Concerns\HasNavigationBadge;
+use Capell\Admin\Support\SiteScope;
 use Capell\ContentSections\Enums\ConfiguratorTypeEnum;
 use Capell\ContentSections\Enums\LayoutTypeEnum;
 use Capell\ContentSections\Filament\Resources\Sections\Pages\CreateSection;
@@ -69,10 +70,11 @@ class SectionResource extends Resource
     #[Override]
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
-            ->withoutGlobalScopes([
+        return SiteScope::applyForCurrentActor(
+            parent::getEloquentQuery()->withoutGlobalScopes([
                 SoftDeletingScope::class,
-            ]);
+            ]),
+        );
     }
 
     #[Override]

@@ -11,12 +11,16 @@ use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static array run(array $data = [])
+ * @method static array<array-key, mixed> run(array<array-key, mixed> $data = [])
  */
 class MutateContentDataBeforeFillAction implements Actionable
 {
     use AsObject;
 
+    /**
+     * @param  array<array-key, mixed>  $data
+     * @return array<array-key, mixed>
+     */
     public function handle(array $data = []): array
     {
         $site = Site::getDefault();

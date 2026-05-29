@@ -80,7 +80,7 @@ it('renders accordion panels as disclosure blocks', function (): void {
 
 it('renders call to action headings copy and actions', function (): void {
     renderSectionForDomAssertions('call_to_action')
-        ->assertContainsElement('section.section-call-to-action.text-center', ['text' => 'Call to Action'])
+        ->assertContainsElement('section.section-call-to-action.text-center', ['text' => 'Call-to-action section'])
         ->assertContainsElement('section.section-call-to-action a', ['href' => '#', 'text' => 'Start a project'])
         ->assertContainsElement('section.section-call-to-action a', ['href' => '#', 'text' => 'View examples'], 1);
 });
@@ -123,8 +123,8 @@ it('renders comparison columns rows and highlighted column state', function (): 
 
 it('renders section copy as prose', function (): void {
     renderSectionForDomAssertions('content')
-        ->assertContainsElement('section.section-content h2', ['text' => 'Content'])
-        ->assertContainsElement('section.section-content .prose', ['text' => 'Reusable rich text content.']);
+        ->assertContainsElement('section.section-content h2', ['text' => 'Content section'])
+        ->assertContainsElement('section.section-content .prose', ['text' => 'Reusable editorial content section.']);
 });
 
 it('renders counter cards with formatted values and labels', function (): void {
@@ -175,8 +175,8 @@ it('renders feature cards with links', function (): void {
 it('renders hero as a centered feature section', function (): void {
     renderSectionForDomAssertions('hero')
         ->assertContainsElement('section.section-hero.text-center')
-        ->assertContainsElement('section.section-hero h1', ['text' => 'Hero'])
-        ->assertContainsElement('section.section-hero div', ['text' => 'Introductory content for a page or section.']);
+        ->assertContainsElement('section.section-hero h1', ['text' => 'Hero section'])
+        ->assertContainsElement('section.section-hero div', ['text' => 'Reusable hero content section.']);
 });
 
 it('renders logo links in the configured grid', function (): void {

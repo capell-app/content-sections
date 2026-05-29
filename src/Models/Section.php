@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Capell\ContentSections\Models;
 
-use Aimeos\Nestedset\Collection;
 use Aimeos\Nestedset\NodeTrait;
 use Aimeos\Nestedset\QueryBuilder;
 use Bkwld\Cloner\Cloneable;
@@ -35,6 +34,7 @@ use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -42,6 +42,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Override;
 use Spatie\Activitylog\LogOptions;
@@ -60,7 +61,7 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
  * @property-read User|null $creator
  * @property-read User|null $destroyer
  * @property-read User|null $editor
- * @property-read array $actions
+ * @property-read array<array-key, mixed> $actions
  * @property-read PublishStatusEnum $publish_status
  * @property-read Media|null $image
  * @property-read EloquentCollection<int, Language> $languages
@@ -84,6 +85,7 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
  * @property-read int|null $activities_count
  * @property-read string|null $title
  * @property int $id
+ * @property string|null $uuid
  * @property int $workspace_id
  * @property int $shadowed_by_workspace_id
  * @property string $name
@@ -103,7 +105,7 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
  * @property CarbonImmutable|null $deleted_at
  *
  * @mixin Model
- * @mixin QueryBuilder
+ * @mixin QueryBuilder<Section>
  */
 #[ObservedBy(SectionObserver::class)]
 class Section extends Model implements Blueprintable, HasMedia, Publishable, Userstampable
@@ -112,7 +114,10 @@ class Section extends Model implements Blueprintable, HasMedia, Publishable, Use
     use ComposhipsJsonRelationshipsTrait;
     use HasAssets;
     use HasCapellMedia;
+
+    /** @use HasFactory<Factory<static>> */
     use HasFactory;
+
     use HasMetaData;
     use HasMorphModelRelations;
     use HasPublishDates;
@@ -134,6 +139,7 @@ class Section extends Model implements Blueprintable, HasMedia, Publishable, Use
         'name',
         'order',
         'parent_id',
+        'uuid',
         'visible_from',
         'visible_until',
         'site_id',
@@ -151,6 +157,9 @@ class Section extends Model implements Blueprintable, HasMedia, Publishable, Use
 
     protected static string $factory = SectionFactory::class;
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getMorphRelations(?Language $language = null, bool $normalizeKey = false): array
     {
         $base = [
@@ -263,32 +272,46 @@ class Section extends Model implements Blueprintable, HasMedia, Publishable, Use
         ]);
     }
 
+    /**
+     * @return BelongsTo<Site, $this>
+     */
     public function site(): BelongsTo
     {
         return $this->belongsTo(Site::class);
     }
 
+    /** @return MorphOne<Media, $this> */
     public function image(): MorphOne
     {
         return $this->morphOneMedia(MediaCollectionEnum::Image->value);
     }
 
+    /**
+     * @return MorphTo<Model, $this>
+     */
     public function linkedPage(): MorphTo
     {
         return $this->morphTo(type: 'meta->linked_pageable_type', id: 'meta->linked_pageable_id');
     }
 
+    /** @return BelongsToJson<self, $this> */
     public function related(): BelongsToJson
     {
         return $this->belongsToJson(self::class, 'meta->related');
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     */
     protected function scopeOrdered(Builder $query, string $dir = 'asc'): void
     {
         $query->orderBy($this->qualifyColumn('order'))
             ->orderBy($this->qualifyColumn('name'));
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function getActionsAttribute(): array
     {
         return $this->meta['actions'] ?? [];

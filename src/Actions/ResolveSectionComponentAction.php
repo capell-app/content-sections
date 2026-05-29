@@ -19,6 +19,6 @@ class ResolveSectionComponentAction
 
         $definition = resolve(SectionRegistry::class)->getByConfigurator($configurator);
 
-        return $definition?->component ?? $fallbackComponent;
+        return $definition->component ?? $fallbackComponent;
     }
 }

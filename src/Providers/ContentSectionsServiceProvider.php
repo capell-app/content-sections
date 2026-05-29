@@ -20,6 +20,7 @@ use Capell\ContentSections\Enums\LivewireComponentsEnum;
 use Capell\ContentSections\Enums\ResourceEnum;
 use Capell\ContentSections\Filament\Configurators\Blueprints\ContentBlueprintConfigurator;
 use Capell\ContentSections\Models\Section;
+use Capell\ContentSections\Policies\SectionPolicy;
 use Capell\ContentSections\Support\ContentSectionsBlockDefinitionProvider;
 use Capell\ContentSections\Support\ContentSectionsModelRegistrar;
 use Capell\ContentSections\Support\SectionPublicBlockPayloadContributor;
@@ -27,19 +28,29 @@ use Capell\ContentSections\Support\SectionRegistry;
 use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
 use Capell\Core\Data\AssetData;
 use Capell\Core\Data\PageTypeData;
+use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Models\AssetAttachment;
 use Capell\Core\Models\Blueprint;
+use Capell\Core\Models\Media;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\Translation;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Contracts\AssetsRegistryInterface;
 use Capell\Frontend\Contracts\FrontendComponentRegistryInterface;
 use Capell\Frontend\Data\FrontendAssetData;
 use Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor;
+use Capell\PublishingStudio\Models\Workspace;
 use Capell\PublishingStudio\WorkspaceRegistry;
 use Composer\InstalledVersions;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
 use Livewire\Livewire;
+use Override;
 use Spatie\LaravelPackageTools\Package;
 
 class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
@@ -95,15 +106,25 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
         });
     }
 
-    private function isPackageInstalled(): bool
+    #[Override]
+    protected function isPackageInstalled(): bool
     {
         return CapellCore::getPackage(static::$packageName)->isInstalled();
+    }
+
+    #[Override]
+    protected function isLivewireV3(): bool
+    {
+        $version = InstalledVersions::getVersion('livewire/livewire');
+
+        return version_compare($version, '4.0.0', '<');
     }
 
     private function bootInstalledPackage(): self
     {
         return $this
             ->registerModels()
+            ->registerPolicies()
             ->registerSectionRegistry()
             ->registerRelationships()
             ->registerResources()
@@ -121,6 +142,13 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
     private function registerModels(): self
     {
         ContentSectionsModelRegistrar::register();
+
+        return $this;
+    }
+
+    private function registerPolicies(): self
+    {
+        Gate::policy(Section::class, SectionPolicy::class);
 
         return $this;
     }
@@ -341,13 +369,6 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
         return $this;
     }
 
-    private function isLivewireV3(): bool
-    {
-        $version = InstalledVersions::getVersion('livewire/livewire');
-
-        return version_compare($version, '4.0.0', '<');
-    }
-
     private function registerBladeComponents(): self
     {
         Blade::componentNamespace('Capell\\ContentSections\\View\\Components', 'capell-content-sections');
@@ -369,8 +390,84 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
             return $this;
         }
 
-        WorkspaceRegistry::register(Section::class);
+        WorkspaceRegistry::register(
+            Section::class,
+            cloneUsing: $this->cloneSectionIntoWorkspace(...),
+            finalizeOnPublish: $this->finalizeSectionPublish(...),
+        );
 
         return $this;
+    }
+
+    private function cloneSectionIntoWorkspace(Model $source, Workspace $workspace): Model
+    {
+        if (! $source instanceof Section) {
+            $clone = $source->replicate();
+            $clone->setAttribute('workspace_id', $workspace->id);
+
+            return $clone;
+        }
+
+        $clone = $source->replicate();
+        $clone->workspace_id = $workspace->id;
+        $clone->shadowed_by_workspace_id = 0;
+        $clone->uuid = $source->uuid;
+        $clone->save();
+
+        $source->translations()->get()->each(function (Translation $translation) use ($clone): void {
+            $translationClone = $translation->replicate();
+            $translationClone->translatable_id = $clone->getKey();
+            $translationClone->save();
+        });
+
+        $source->assets()->get()->each(function (AssetAttachment $attachment) use ($clone): void {
+            $attachmentClone = $attachment->replicate();
+            $attachmentClone->related_id = $clone->getKey();
+            $attachmentClone->save();
+        });
+
+        $source->media()
+            ->where('collection_name', MediaCollectionEnum::Image->value)
+            ->get()
+            ->each(function (Model $media) use ($clone): void {
+                if (! $media instanceof Media) {
+                    return;
+                }
+
+                $mediaClone = $media->replicate();
+                $mediaClone->model_id = $clone->getKey();
+                $mediaClone->uuid = (string) Str::uuid();
+                $mediaClone->save();
+            });
+
+        return $clone;
+    }
+
+    private function finalizeSectionPublish(Model $record): Model
+    {
+        if (! $record instanceof Section || blank($record->uuid)) {
+            return $record;
+        }
+
+        if (! DB::getSchemaBuilder()->hasTable('widget_assets')) {
+            return $record;
+        }
+
+        $liveSectionId = Section::query()
+            ->withoutGlobalScopes()
+            ->where('workspace_id', 0)
+            ->where('uuid', $record->uuid)
+            ->value('id');
+
+        if ($liveSectionId === null) {
+            return $record;
+        }
+
+        DB::table('widget_assets')
+            ->where('asset_type', $record->getMorphClass())
+            ->where('asset_id', $liveSectionId)
+            ->update(['asset_id' => $record->getKey()]);
+
+        return $record;
     }
 }

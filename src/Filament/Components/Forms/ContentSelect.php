@@ -129,7 +129,7 @@ class ContentSelect extends Select
                     ->modalHeading(
                         fn (self $component): string => __(
                             'capell-content-sections::heading.edit_content_record',
-                            ['name' => $component->getSelectedRecord()?->getAttribute('name')],
+                            ['name' => (string) $component->getSelectedRecord()?->getAttribute('name')],
                         ),
                     )
                     ->modalWidth(Width::ScreenExtraLarge)
@@ -137,7 +137,7 @@ class ContentSelect extends Select
                     ->successNotificationTitle(
                         fn (Action $action): string => __(
                             'capell-admin::notification.updated_successfully',
-                            ['name' => $action->getModalHeading()],
+                            ['name' => (string) $action->getModalHeading()],
                         ),
                     )
                     ->after(function (Action $action): void {
@@ -148,7 +148,7 @@ class ContentSelect extends Select
                 /** @var Section $record */
                 $record = $component->getSelectedRecord();
 
-                return $record?->attributesToArray() ?? [];
+                return $record->attributesToArray() ?? [];
             })
             ->getSelectedRecordUsing(static fn (?int $state): ?Section => Section::query()
                 ->with(['blueprint'])
@@ -178,6 +178,9 @@ class ContentSelect extends Select
         return new HtmlString($label . Str::limit($record->name, 40));
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     private function getContentOptions(?int $site_id = null, ?string $search = null): array
     {
         $relations = [
@@ -244,7 +247,7 @@ class ContentSelect extends Select
             ->successNotificationTitle(
                 fn (Action $action): string => __(
                     'capell-admin::notification.created_successfully',
-                    ['name' => $action->getModalHeading()],
+                    ['name' => (string) $action->getModalHeading()],
                 ),
             )
             ->after(function (Action $action): void {
