@@ -21,6 +21,7 @@ use Capell\ContentSections\Enums\LayoutTypeEnum;
 use Capell\ContentSections\Enums\ResourceEnum;
 use Capell\ContentSections\Filament\Components\Tables\Columns\Content\ContentNameColumn;
 use Capell\ContentSections\Models\Section;
+use Capell\ContentSections\Support\SectionSiteScope;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
@@ -52,6 +53,7 @@ class SectionsTable implements TableConfigurator
         return $table
             ->modifyQueryUsing(
                 fn (Builder $query): Builder => $query
+                    ->tap(fn (Builder $query): Builder => SectionSiteScope::applyForCurrentActor($query, 'sections.site_id'))
                     ->with([
                         'ancestors',
                         'blueprint',
@@ -168,7 +170,7 @@ class SectionsTable implements TableConfigurator
                 ->sortable()
                 ->toggleable()
                 ->separator('')
-                ->formatStateUsing(fn (Section $record): int => $record->assets_count),
+                ->formatStateUsing(fn (Section $record): int => (int) $record->assets_count),
             SiteColumn::make('site.name')
                 ->hidden(
                     fn (HasTable $livewire): bool => ($livewire instanceof ListRecords && $livewire->activeTab !== null && $livewire->activeTab !== '')
@@ -199,6 +201,7 @@ class SectionsTable implements TableConfigurator
                     $model = Site::class;
 
                     return $model::query()
+                        ->tap(fn (Builder $query): Builder => SectionSiteScope::applySiteOptionsForCurrentActor($query))
                         ->ordered()
                         ->pluck('name', 'id')
                         ->prepend(__('capell-admin::generic.none'), 0)
@@ -271,7 +274,7 @@ class SectionsTable implements TableConfigurator
 
                         $indicators['language_id'] = __(
                             'capell-admin::filter.language',
-                            ['search' => $model::query()->find($data['language_id'], 'name')?->name],
+                            ['search' => $model::query()->find((int) $data['language_id'], ['name'])?->name],
                         );
                     }
 
@@ -282,10 +285,8 @@ class SectionsTable implements TableConfigurator
                         $indicators['parent_id'] = __(
                             'capell-admin::filter.parent',
                             [
-                                'search' => $model::query()->select('name')->firstWhere(
-                                    'id',
-                                    $data['parent_id'],
-                                )
+                                'search' => SectionSiteScope::applyForCurrentActor($model::query()->select('sections.name'), 'sections.site_id')
+                                    ->firstWhere('id', (int) $data['parent_id'])
                                     ?->name,
                             ],
                         );
@@ -379,12 +380,14 @@ class SectionsTable implements TableConfigurator
                 'ancestors',
                 'blueprint',
             ])
+            ->tap(fn (Builder $query): Builder => SectionSiteScope::applyForCurrentActor($query, 'sections.site_id'))
             ->whereHas('children')
             ->whereHas('blueprint', self::applyEnabledBlueprintFilter(...))
-            ->when($siteId, fn (Builder $query): Builder => $query->where('site_id', (int) $siteId))
+            ->when($siteId, fn (Builder $query): Builder => $query->where('sections.site_id', (int) $siteId))
+            ->when($siteId === 0 || $siteId === '0', fn (Builder $query): Builder => $query->whereNull('sections.site_id'))
             ->when(
-                $languageId,
-                fn (Builder $query): Builder => self::applyParentLanguageFilter($query, $languageId),
+                $languageId !== null,
+                fn (Builder $query): Builder => self::applyParentLanguageFilter($query, (int) $languageId),
             )
             ->when(
                 $search !== null && $search !== '',
@@ -444,8 +447,11 @@ class SectionsTable implements TableConfigurator
             $label .= $section->site->name . ' &raquo; ';
         }
 
-        if ($section->ancestors->isNotEmpty()) {
-            $label .= $section->ancestors->pluck('name')
+        $visibleAncestors = $section->ancestors
+            ->filter(fn (Section $ancestor): bool => SectionSiteScope::actorCanUseSection(auth()->user(), $ancestor));
+
+        if ($visibleAncestors->isNotEmpty()) {
+            $label .= $visibleAncestors->pluck('name')
                 ->map(fn (string $item): string => Str::limit($item, 30))
                 ->implode(' &raquo; ')
                 . ' &raquo; ';

@@ -134,10 +134,11 @@ it('resolves requested screenshot section blueprints from query parameters', fun
     request()->query->set('section', 'accordion');
 
     $blueprint = ResolveRequestedSectionBlueprintAction::run();
+    $admin = $blueprint->admin ?? [];
 
     expect($blueprint)->toBeInstanceOf(Blueprint::class)
         ->and($blueprint?->key)->toBe('accordion')
-        ->and($blueprint?->admin['configurator'])->toBe(AccordionSectionConfigurator::getKey());
+        ->and($admin['configurator'] ?? null)->toBe(AccordionSectionConfigurator::getKey());
 });
 
 it('creates the default section blueprint for generic create routes', function (): void {

@@ -12,6 +12,7 @@ use Capell\Core\Models\Translation;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Support\Enums\Width;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -31,6 +32,7 @@ class ModifyContentSelectCreateAction
                     ->modalHeading(__('capell-content-sections::form.blueprint'))
                     ->fillForm(function (): array {
                         $site = Site::getDefault();
+                        $translations = $site instanceof Site ? $site->translations : collect();
 
                         /** @var class-string<Blueprint> $model */
                         $model = Blueprint::class;
@@ -40,7 +42,7 @@ class ModifyContentSelectCreateAction
                                 ->where('type', LayoutTypeEnum::Section)
                                 ->default()
                                 ->value('id'),
-                            'translations' => $site->translations->mapWithKeys(fn (Translation $translation): array => [
+                            'translations' => $translations->mapWithKeys(fn (Translation $translation): array => [
                                 (string) Str::uuid() => [
                                     'language_id' => $translation->language_id,
                                 ],
@@ -52,10 +54,14 @@ class ModifyContentSelectCreateAction
                     ->slideOver()
                     ->visible(fn (?int $state, Section $record): bool => filled($state))
                     ->successNotificationTitle(
-                        fn (Action $action): string => __(
-                            'capell-admin::notification.created_successfully',
-                            ['name' => (string) $action->getModalHeading()],
-                        ),
+                        function (Action $action): string {
+                            $heading = $action->getModalHeading();
+
+                            return __(
+                                'capell-admin::notification.created_successfully',
+                                ['name' => $heading instanceof Htmlable ? $heading->toHtml() : $heading],
+                            );
+                        },
                     )
                     ->after(function (Action $action): void {
                         $action->success();

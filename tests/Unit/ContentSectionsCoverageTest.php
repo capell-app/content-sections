@@ -105,39 +105,33 @@ it('builds section asset render data from preloaded relations and plain objects'
         }
     };
 
-    $asset = new class($translation)
+    $linkedPage = new class extends Model
     {
+        use HasFactory;
+    };
+    $linkedPage->setRelation('pageUrl', (object) ['full_url' => 'https://example.test/page']);
+
+    $asset = new class($translation, $linkedPage) extends Model
+    {
+        use HasFactory;
+
         /**
          * @var array<array-key, mixed>
          */
         public array $meta = ['featured' => true];
 
-        public function __construct(private readonly object $translation) {}
-
-        public function relationLoaded(string $relation): bool
+        public function __construct(?object $translation = null, ?Model $linkedPage = null)
         {
-            return in_array($relation, ['translation', 'image', 'linkedPage'], true);
-        }
+            parent::__construct();
 
-        public function getRelation(string $relation): mixed
-        {
-            return match ($relation) {
-                'translation' => $this->translation,
-                'image' => (object) ['id' => 10],
-                'linkedPage' => new class
-                {
-                    public function relationLoaded(string $relation): bool
-                    {
-                        return $relation === 'pageUrl';
-                    }
+            if ($translation !== null) {
+                $this->setRelation('translation', $translation);
+                $this->setRelation('image', (object) ['id' => 10]);
+            }
 
-                    public function getRelation(string $relation): stdClass
-                    {
-                        return (object) ['full_url' => 'https://example.test/page'];
-                    }
-                },
-                default => null,
-            };
+            if ($linkedPage instanceof Model) {
+                $this->setRelation('linkedPage', $linkedPage);
+            }
         }
 
         public function getMeta(string $key): ?string
@@ -213,7 +207,7 @@ it('builds popular section meta schemas for all configured section keys', functi
 
     $fields = capell_test_collect($reflection->invoke($configurator, Schema::make()->operation('edit')));
     $fieldNames = $fields->map(
-        fn (mixed $field): ?string => method_exists($field, 'getName') ? $field->getName() : null,
+        fn (mixed $field): ?string => is_object($field) && method_exists($field, 'getName') ? $field->getName() : null,
     )->filter()->values()->all();
 
     expect($fieldNames)->toContain(...$expectedNames);
@@ -247,7 +241,7 @@ it('builds testimonial media metadata schema', function (): void {
 
     expect($components)->not->toBeEmpty()
         ->and($components->map(
-            fn (mixed $component): ?string => method_exists($component, 'getName') ? $component->getName() : null,
+            fn (mixed $component): ?string => is_object($component) && method_exists($component, 'getName') ? $component->getName() : null,
         )->filter()->values()->all())->toContain('image');
 });
 
@@ -259,7 +253,10 @@ it('exposes modal table select query, form, and selection helpers', function ():
          */
         public function exposeTableQuery(): Builder
         {
-            return $this->getTableQuery();
+            /** @var Builder<Model> $query */
+            $query = $this->getTableQuery();
+
+            return $query;
         }
 
         public function exposeCanSubmitSelectedRecords(): bool
@@ -331,11 +328,16 @@ it('builds pending, expired, and trashed section alert messages', function (): v
     $trashedWidget = new SectionAlertsWidget;
     $trashedWidget->record = $trashedSection;
 
+    $pendingRecord = $pendingWidget->record;
+    $expiredRecord = $expiredWidget->record;
+
+    throw_if(! $pendingRecord instanceof Section || ! $expiredRecord instanceof Section, RuntimeException::class, 'Expected pending and expired section records.');
+
     expect($pendingWidget->alerts())->toHaveKey('pending')
         ->and($expiredWidget->alerts())->toHaveKey('expired')
         ->and($trashedWidget->alerts())->toHaveKey('trashed')
-        ->and($pendingWidget->record->publish_status)->toBe(PublishStatusEnum::pending)
-        ->and($expiredWidget->record->publish_status)->toBe(PublishStatusEnum::expired);
+        ->and($pendingRecord->publish_status)->toBe(PublishStatusEnum::pending)
+        ->and($expiredRecord->publish_status)->toBe(PublishStatusEnum::expired);
 });
 
 it('normalizes section observer defaults and relation cache hooks', function (): void {

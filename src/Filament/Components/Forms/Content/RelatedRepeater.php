@@ -7,11 +7,14 @@ namespace Capell\ContentSections\Filament\Components\Forms\Content;
 use Capell\ContentSections\Actions\ReplicateContentAction;
 use Capell\ContentSections\Filament\Components\Forms\ContentSelect;
 use Capell\ContentSections\Models\Section;
+use Capell\ContentSections\Support\SectionSiteScope;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Gate;
 
 class RelatedRepeater
 {
@@ -36,9 +39,12 @@ class RelatedRepeater
 
                         $existingContent = Section::query()
                             ->with(['blueprint'])
-                            ->find($newData['content_id']);
+                            ->tap(fn (Builder $query): Builder => SectionSiteScope::applyForCurrentActor($query, 'sections.site_id'))
+                            ->find((int) $newData['content_id']);
 
                         throw_unless($existingContent, Exception::class, 'Content not found with ID: ' . $newData['content_id']);
+
+                        Gate::authorize('replicate', $existingContent);
 
                         $newContent = ReplicateContentAction::run($existingContent);
 

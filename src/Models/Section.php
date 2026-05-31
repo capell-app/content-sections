@@ -162,40 +162,42 @@ class Section extends Model implements Blueprintable, HasMedia, Publishable, Use
      */
     public static function getMorphRelations(?Language $language = null, bool $normalizeKey = false): array
     {
+        $languageId = $language instanceof Language ? (int) $language->id : null;
+
         $base = [
             'ancestors.blueprint',
             'image',
             'media',
-            'linkedPage' => function (BuilderContract $query) use ($language): void {
+            'linkedPage' => function (BuilderContract $query) use ($languageId): void {
                 $query->with([
-                    'translation' => function (BuilderContract $query) use ($language): void {
+                    'translation' => function (BuilderContract $query) use ($languageId): void {
                         $query->with('language')
                             ->when(
-                                $language,
-                                function (BuilderContract $query) use ($language): void {
+                                $languageId !== null,
+                                function (BuilderContract $query) use ($languageId): void {
                                     if (DB::getDriverName() === 'sqlite') {
                                         $query->orderByRaw(
                                             'CASE language_id '
-                                            . sprintf('WHEN %d THEN 0 ELSE 1 END', $language->id),
+                                            . sprintf('WHEN %d THEN 0 ELSE 1 END', $languageId),
                                         );
                                     } else {
-                                        $query->orderByRaw('FIELD(language_id, ?)', [$language->id ?? 0]);
+                                        $query->orderByRaw('FIELD(language_id, ?)', [$languageId]);
                                     }
                                 },
                             );
                     },
-                    'pageUrl' => function (BuilderContract $query) use ($language): void {
+                    'pageUrl' => function (BuilderContract $query) use ($languageId): void {
                         $query->with('siteDomain')
                             ->when(
-                                $language,
-                                function (BuilderContract $query) use ($language): void {
+                                $languageId !== null,
+                                function (BuilderContract $query) use ($languageId): void {
                                     if (DB::getDriverName() === 'sqlite') {
                                         $query->orderByRaw(
                                             'CASE language_id '
-                                            . sprintf('WHEN %d THEN 0 ELSE 1 END', $language->id),
+                                            . sprintf('WHEN %d THEN 0 ELSE 1 END', $languageId),
                                         );
                                     } else {
-                                        $query->orderByRaw('FIELD(language_id, ?)', [$language->id ?? 0]);
+                                        $query->orderByRaw('FIELD(language_id, ?)', [$languageId]);
                                     }
                                 },
                             );
@@ -203,7 +205,7 @@ class Section extends Model implements Blueprintable, HasMedia, Publishable, Use
                 ]);
             },
             'translation' => fn (BuilderContract $query): BuilderContract => $query->with('language')
-                ->when($language, fn (BuilderContract $query): BuilderContract => $query->where('language_id', $language->id)),
+                ->when($languageId !== null, fn (BuilderContract $query): BuilderContract => $query->where('language_id', $languageId)),
             'blueprint',
         ];
 

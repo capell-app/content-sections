@@ -5,6 +5,7 @@ declare(strict_types=1);
 return [
     'asset_added' => 'Asset added successfully.',
     'asset_created_successfully' => 'Asset ":name" created successfully.',
+    'content_not_accessible' => 'The selected content is not available for your assigned sites.',
     'no_assets_selected' => 'No assets selected.',
     'page_created_successfully' => 'Page created successfully.',
     'publish_failed' => 'Section publish failed.',

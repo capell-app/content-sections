@@ -6,6 +6,7 @@ namespace Capell\ContentSections\Actions;
 
 use Capell\ContentSections\Data\SectionAssetRenderData;
 use Capell\Frontend\Contracts\FrontendComponentRegistryInterface;
+use Illuminate\Database\Eloquent\Model;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 final class BuildSectionAssetRenderDataAction
@@ -65,7 +66,7 @@ final class BuildSectionAssetRenderDataAction
     {
         $linkedPage = $this->relation($asset, 'linkedPage');
 
-        if (! is_object($linkedPage) || ! method_exists($linkedPage, 'relationLoaded') || ! $linkedPage->relationLoaded('pageUrl')) {
+        if (! $linkedPage instanceof Model || ! $linkedPage->relationLoaded('pageUrl')) {
             return null;
         }
 
@@ -78,18 +79,16 @@ final class BuildSectionAssetRenderDataAction
 
     private function relation(object $model, string $relation): mixed
     {
-        if (! method_exists($model, 'relationLoaded') || ! $model->relationLoaded($relation)) {
+        if (! $model instanceof Model || ! $model->relationLoaded($relation)) {
             return null;
         }
 
-        return method_exists($model, 'getRelation')
-            ? $model->getRelation($relation)
-            : data_get($model, $relation);
+        return $model->getRelation($relation);
     }
 
     private function plainObjectValue(object $object, string $key): mixed
     {
-        if (method_exists($object, 'relationLoaded')) {
+        if ($object instanceof Model) {
             return null;
         }
 

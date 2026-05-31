@@ -2,7 +2,7 @@
 
 @php
     $tabs = is_array($meta['tabs'] ?? null) ? array_values($meta['tabs']) : [];
-    $group = 'section-tabs-' . substr(md5(json_encode($tabs)), 0, 8);
+    $group = 'section-tabs-' . substr(hash('xxh128', (string) json_encode($tabs, JSON_INVALID_UTF8_SUBSTITUTE)), 0, 8);
 @endphp
 
 <section

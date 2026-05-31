@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\ContentSections\Support;
 
+use Capell\Admin\Contracts\ConfiguratorInterface;
 use Capell\ContentSections\Contracts\SectionDefinitionProvider;
 use Capell\ContentSections\Data\SectionDefinitionData;
 use Capell\ContentSections\Enums\SectionConfiguratorEnum;
@@ -39,6 +40,7 @@ class DefaultSectionDefinitionProvider implements SectionDefinitionProvider
 
     private function definition(string $key, string $configurator, string|Heroicon $icon): SectionDefinitionData
     {
+        /** @var class-string<ConfiguratorInterface> $configurator */
         return new SectionDefinitionData(
             key: $key,
             label: __('capell-content-sections::section.' . $key . '.label'),

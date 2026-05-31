@@ -6,11 +6,15 @@ namespace Capell\ContentSections\Enums;
 
 use Capell\ContentSections\Models\Section;
 use Filament\Support\Contracts\HasLabel;
+use Illuminate\Database\Eloquent\Model;
 
 enum LayoutTypeEnum: string implements HasLabel
 {
     case Section = 'section';
 
+    /**
+     * @return class-string<Model>
+     */
     public function getModel(): string
     {
         return match ($this) {

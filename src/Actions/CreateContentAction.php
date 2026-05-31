@@ -24,7 +24,7 @@ class CreateContentAction implements Actionable
             $content->translations()->create([
                 'language_id' => $translation['language_id'],
                 'title' => $translation['title'],
-                'content' => $translation['content'],
+                'content' => $translation['content'] ?? null,
             ]);
         }
     }

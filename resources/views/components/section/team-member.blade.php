@@ -1,8 +1,5 @@
 @php
     use Capell\Core\Enums\MediaConversionEnum;
-    use Capell\Frontend\Facades\Frontend;
-
-    $language = Frontend::language();
 @endphp
 
 @props([

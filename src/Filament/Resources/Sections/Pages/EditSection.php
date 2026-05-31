@@ -21,6 +21,7 @@ use Capell\PublishingStudio\Filament\Actions\PublishingRevisionsHeaderAction;
 use Capell\PublishingStudio\Models\Workspace;
 use Capell\PublishingStudio\Publisher;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Notifications\Notification;
@@ -29,6 +30,7 @@ use Filament\Widgets\Widget;
 use Howdu\FilamentRecordSwitcher\Filament\Concerns\HasRecordSwitcher;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Foundation\Auth\User as AuthenticatedUser;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
@@ -61,10 +63,12 @@ class EditSection extends EditRecord
             return static::$title;
         }
 
+        $recordTitle = $this->getRecordTitle();
+
         return new HtmlString(
             __(
                 'capell-content-sections::heading.edit_content_record',
-                ['name' => Str::limit($this->getRecordTitle(), 40)],
+                ['name' => Str::limit($recordTitle instanceof Htmlable ? $recordTitle->toHtml() : $recordTitle, 40)],
             ),
         );
     }
@@ -86,7 +90,8 @@ class EditSection extends EditRecord
     #[Override]
     protected function getHeaderActions(): array
     {
-        return array_values(array_filter([
+        /** @var array<Action|ActionGroup> $actions */
+        $actions = array_values(array_filter([
             $this->saveAsDraftAction(),
             $this->publishAction(),
             $this->publishingRevisionsAction(),
@@ -99,6 +104,8 @@ class EditSection extends EditRecord
                 ->replicaModelAction(ReplicateContentAction::class)
                 ->hidden($this->record->trashed()),
         ]));
+
+        return $actions;
     }
 
     /** @return array<class-string<Widget>> */
@@ -155,6 +162,8 @@ class EditSection extends EditRecord
             ->icon('heroicon-o-rocket-launch')
             ->color('primary')
             ->visible(fn (): bool => (int) $this->record->getAttribute('workspace_id') > 0)
+            ->authorize(fn (): bool => ($workspace = $this->workspace()) instanceof Workspace
+                && Gate::allows('publish', $workspace))
             ->disabled(fn (): bool => ! in_array($this->workspace()?->status, [
                 WorkspaceStatusEnum::Approved,
                 WorkspaceStatusEnum::Scheduled,
@@ -167,6 +176,8 @@ class EditSection extends EditRecord
                 if (! $workspace instanceof Workspace) {
                     return;
                 }
+
+                Gate::authorize('publish', $workspace);
 
                 try {
                     resolve(Publisher::class)->publish($workspace, auth()->user());
