@@ -21,7 +21,10 @@
     @endif
 
     <div class="rounded-lg border border-slate-200 bg-white p-2">
-        <div class="flex flex-wrap gap-2" role="tablist">
+        <div
+            class="flex flex-wrap gap-2"
+            role="tablist"
+        >
             @foreach ($tabs as $tab)
                 <a
                     class="rounded px-4 py-2 font-semibold text-slate-600 first:bg-slate-950 first:text-white"
