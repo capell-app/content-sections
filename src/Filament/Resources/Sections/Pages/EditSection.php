@@ -9,7 +9,9 @@ use Capell\Admin\Filament\Actions\ReplicateAction;
 use Capell\Admin\Filament\Concerns\HasAncestorBreadcrumbs;
 use Capell\Admin\Filament\Concerns\HasBlueprintRelationManagers;
 use Capell\Admin\Support\AdminSurfaceLookup;
+use Capell\ContentSections\Actions\CancelScheduledSectionUnpublishAction;
 use Capell\ContentSections\Actions\ReplicateContentAction;
+use Capell\ContentSections\Actions\UnpublishSectionAction;
 use Capell\ContentSections\Enums\LivewireComponentsEnum;
 use Capell\ContentSections\Enums\ResourceEnum;
 use Capell\ContentSections\Filament\Actions\CreateContentAction;
@@ -93,6 +95,8 @@ class EditSection extends EditRecord
         /** @var array<Action|ActionGroup> $actions */
         $actions = array_values(array_filter([
             $this->saveAsDraftAction(),
+            $this->unpublishAction(),
+            $this->cancelScheduledUnpublishAction(),
             $this->publishAction(),
             $this->publishingRevisionsAction(),
             RestoreAction::make('restore'),
@@ -122,6 +126,13 @@ class EditSection extends EditRecord
         $this->dispatch('refresh-alerts')->to(LivewireComponentsEnum::ContentAssetsTable->value);
 
         $this->recordSwitcherAfterSave();
+    }
+
+    #[Override]
+    protected function getSaveFormAction(): Action
+    {
+        return parent::getSaveFormAction()
+            ->label(__('capell-content-sections::button.save_and_publish'));
     }
 
     private function publishingRevisionsAction(): ?object
@@ -200,6 +211,79 @@ class EditSection extends EditRecord
                     static::getResource()::getUrl('edit', ['record' => $this->record->getKey()]),
                     navigate: false,
                 );
+            });
+    }
+
+    private function unpublishAction(): Action
+    {
+        return Action::make('unpublish')
+            ->label(__('capell-content-sections::button.unpublish'))
+            ->icon('heroicon-o-exclamation-circle')
+            ->color('warning')
+            ->visible(fn (): bool => (int) $this->record->getAttribute('workspace_id') === 0
+                && ! $this->record->isPending()
+                && ! $this->record->isExpired())
+            ->authorize(fn (): bool => Gate::allows('update', $this->record))
+            ->requiresConfirmation()
+            ->modalHeading(__('capell-content-sections::button.unpublish'))
+            ->modalDescription(__('capell-content-sections::message.unpublish_section_confirmation'))
+            ->action(function (): void {
+                $user = auth()->user();
+
+                if (! $user instanceof AuthenticatedUser) {
+                    return;
+                }
+
+                $result = UnpublishSectionAction::run($this->record, $user);
+
+                if (! $result->changed) {
+                    return;
+                }
+
+                $this->record->refresh();
+
+                Notification::make()
+                    ->title(__('capell-content-sections::message.unpublished'))
+                    ->success()
+                    ->send();
+
+                $this->dispatch('refresh-alerts')->to(LivewireComponentsEnum::ContentAssetsTable->value);
+            });
+    }
+
+    private function cancelScheduledUnpublishAction(): Action
+    {
+        return Action::make('cancelScheduledUnpublish')
+            ->label(__('capell-content-sections::button.cancel_scheduled_unpublish'))
+            ->icon('heroicon-o-arrow-uturn-left')
+            ->color('gray')
+            ->visible(fn (): bool => (int) $this->record->getAttribute('workspace_id') === 0
+                && $this->record->visible_until?->isFuture() === true)
+            ->authorize(fn (): bool => Gate::allows('update', $this->record))
+            ->requiresConfirmation()
+            ->modalHeading(__('capell-content-sections::button.cancel_scheduled_unpublish'))
+            ->modalDescription(__('capell-content-sections::message.cancel_scheduled_unpublish_confirmation'))
+            ->action(function (): void {
+                $user = auth()->user();
+
+                if (! $user instanceof AuthenticatedUser) {
+                    return;
+                }
+
+                $result = CancelScheduledSectionUnpublishAction::run($this->record, $user);
+
+                if (! $result->changed) {
+                    return;
+                }
+
+                $this->record->refresh();
+
+                Notification::make()
+                    ->title(__('capell-content-sections::message.scheduled_unpublish_cancelled'))
+                    ->success()
+                    ->send();
+
+                $this->dispatch('refresh-alerts')->to(LivewireComponentsEnum::ContentAssetsTable->value);
             });
     }
 
