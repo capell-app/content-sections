@@ -50,8 +50,13 @@ class SectionAlertsWidget extends Widget implements HasActions, HasForms
     public function alerts(): Collection
     {
         $alerts = collect();
+        $record = $this->record;
 
-        if ($this->record->trashed()) {
+        if (! $record instanceof Section) {
+            return $alerts;
+        }
+
+        if ($record->trashed()) {
             $alerts->put('trashed', new MessageData(
                 message: __(
                     'capell-admin::message.resource_deleted',
@@ -62,11 +67,11 @@ class SectionAlertsWidget extends Widget implements HasActions, HasForms
             ));
         }
 
-        switch ($this->record->publish_status) {
+        switch ($record->publish_status) {
             case PublishStatusEnum::pending:
                 $alerts->put('pending', new MessageData(
                     message: __('capell-admin::message.resource_pending', [
-                        'date' => $this->record->visible_from?->diffForHumans(),
+                        'date' => $record->visible_from?->diffForHumans(),
                         'name' => __('capell-content-sections::generic.content'),
                     ]),
                     type: AlertTypeEnum::Warning,
@@ -76,7 +81,7 @@ class SectionAlertsWidget extends Widget implements HasActions, HasForms
             case PublishStatusEnum::expired:
                 $alerts->put('expired', new MessageData(
                     message: __('capell-admin::message.resource_expired', [
-                        'date' => $this->record->visible_until?->diffForHumans(),
+                        'date' => $record->visible_until?->diffForHumans(),
                         'name' => __('capell-content-sections::generic.content'),
                     ]),
                     type: AlertTypeEnum::Warning,
@@ -90,6 +95,10 @@ class SectionAlertsWidget extends Widget implements HasActions, HasForms
 
     protected function loadRecord(): void
     {
+        if (! $this->record instanceof Section) {
+            return;
+        }
+
         $this->record->loadMissing([
             'site' => fn (Relation $query) => $query->withTrashed(),
         ]);

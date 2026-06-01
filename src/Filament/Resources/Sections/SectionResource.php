@@ -8,7 +8,6 @@ use BackedEnum;
 use Capell\Admin\Filament\Concerns\HasConfiguredForm;
 use Capell\Admin\Filament\Concerns\HasConfiguredTable;
 use Capell\Admin\Filament\Concerns\HasNavigationBadge;
-use Capell\Admin\Support\SiteScope;
 use Capell\ContentSections\Enums\ConfiguratorTypeEnum;
 use Capell\ContentSections\Enums\LayoutTypeEnum;
 use Capell\ContentSections\Filament\Resources\Sections\Pages\CreateSection;
@@ -20,6 +19,7 @@ use Capell\ContentSections\Filament\Resources\Sections\Tables\SectionsTable;
 use Capell\ContentSections\Filament\Resources\Sections\Widgets\SectionAlertsWidget;
 use Capell\ContentSections\Models\Section;
 use Capell\ContentSections\Providers\ContentSectionsServiceProvider;
+use Capell\ContentSections\Support\SectionSiteScope;
 use Capell\Core\Facades\CapellCore;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -70,10 +70,11 @@ class SectionResource extends Resource
     #[Override]
     public static function getEloquentQuery(): Builder
     {
-        return SiteScope::applyForCurrentActor(
+        return SectionSiteScope::applyForCurrentActor(
             parent::getEloquentQuery()->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]),
+            'sections.site_id',
         );
     }
 
@@ -86,7 +87,7 @@ class SectionResource extends Resource
     #[Override]
     public static function getGlobalSearchEloquentQuery(): Builder
     {
-        return parent::getGlobalSearchEloquentQuery()
+        return SectionSiteScope::applyForCurrentActor(parent::getGlobalSearchEloquentQuery(), 'sections.site_id')
             ->with([
                 'site:id,name,default',
                 'blueprint:id,name',

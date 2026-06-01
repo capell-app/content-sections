@@ -117,6 +117,10 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
     {
         $version = InstalledVersions::getVersion('livewire/livewire');
 
+        if (! is_string($version)) {
+            return true;
+        }
+
         return version_compare($version, '4.0.0', '<');
     }
 

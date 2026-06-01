@@ -11,6 +11,7 @@ use Capell\Admin\Filament\Contracts\TableConfigurator;
 use Capell\ContentSections\Enums\LayoutTypeEnum;
 use Capell\ContentSections\Filament\Components\Tables\Columns\Content\ContentNameColumn;
 use Capell\ContentSections\Models\Section;
+use Capell\ContentSections\Support\SectionSiteScope;
 use Capell\Core\Models\Site;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
@@ -27,6 +28,7 @@ class SectionSelectionTable implements TableConfigurator
                 $model = Section::class;
 
                 return $model::query()
+                    ->tap(fn (Builder $query): Builder => SectionSiteScope::applyForCurrentActor($query, 'sections.site_id'))
                     ->with([
                         'blueprint',
                         'site',
@@ -49,6 +51,7 @@ class SectionSelectionTable implements TableConfigurator
                         $model = Site::class;
 
                         return $model::query()
+                            ->tap(fn (Builder $query): Builder => SectionSiteScope::applySiteOptionsForCurrentActor($query))
                             ->ordered()
                             ->pluck('name', 'id')
                             ->prepend(__('capell-admin::generic.none'), 0)
@@ -81,7 +84,7 @@ class SectionSelectionTable implements TableConfigurator
 
                 return $query->when(
                     $excludeIds !== [],
-                    fn (Builder $query) => $query->whereNotIn('id', $excludeIds),
+                    fn (Builder $query): Builder => $query->whereNotIn('id', $excludeIds),
                 );
             });
     }

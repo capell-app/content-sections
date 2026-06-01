@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Capell\ContentSections\Database\Factories\ContentBlueprintFactory;
 use Capell\ContentSections\Filament\Resources\Sections\Pages\CreateSection;
 use Capell\ContentSections\Models\Section;
+use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
@@ -67,6 +68,7 @@ test('create with translations', function (string $mode): void {
     $site = Site::factory()->state(['language_id' => $languages->first()->id])->withTranslations($languages)->create();
 
     $blueprint = (new ContentBlueprintFactory)->default()->create();
+    assert($blueprint instanceof Blueprint);
 
     $newData = Section::factory()
         ->blueprint($blueprint)

@@ -13,6 +13,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Model;
 
 class TranslationsRepeater
@@ -51,7 +52,9 @@ class TranslationsRepeater
             $loadedBlueprint = $record->getRelationValue('blueprint');
             $blueprint = $loadedBlueprint instanceof Blueprint ? $loadedBlueprint : null;
         } else {
-            $blueprintId = $configurator->getRawState()['blueprint_id'] ?? null;
+            $rawState = $configurator->getRawState();
+            $state = $rawState instanceof Arrayable ? $rawState->toArray() : $rawState;
+            $blueprintId = $state['blueprint_id'] ?? null;
             $blueprint = is_numeric($blueprintId) ? Blueprint::query()->find((int) $blueprintId) : null;
         }
 

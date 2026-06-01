@@ -18,6 +18,7 @@ beforeEach(function (): void {
 
 it('saves reusable section asset edits into a section draft workspace from a live builder context', function (): void {
     $block = Widget::factory()->create(['key' => 'featured', 'name' => 'Featured']);
+    /** @var Section $section */
     $section = Section::factory()->create(['name' => 'Live reusable section']);
     $blockAsset = WidgetAsset::factory()
         ->block($block)
@@ -52,7 +53,7 @@ it('saves reusable section asset edits into a section draft workspace from a liv
 
     $live = Section::query()
         ->withoutGlobalScopes()
-        ->findOrFail($section->getKey());
+        ->findOrFail((int) $section->getKey());
 
     expect($live->name)->toBe('Live reusable section')
         ->and((int) $blockAsset->fresh()->asset_id)->toBe($section->getKey())

@@ -99,8 +99,10 @@ class SectionFactory extends Factory
                 $languages = Language::all();
             }
 
-            if ($section->site !== null && $languages->doesntContain('id', $section->site->language->id)) {
-                $languages = $languages->prepend($section->site->language);
+            $primaryLanguage = $section->site?->language;
+
+            if ($primaryLanguage instanceof Language && $languages->doesntContain('id', $primaryLanguage->id)) {
+                $languages = $languages->prepend($primaryLanguage);
             }
 
             $languages->each(function (Language $language) use ($section, $data): void {

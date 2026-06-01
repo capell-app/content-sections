@@ -11,6 +11,7 @@ use Capell\Core\Contracts\Pageable;
 use Capell\Core\Data\AssetData;
 use Capell\Core\Enums\BlueprintGroupEnum;
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Models\AssetAttachment;
 use Capell\Core\Models\Page;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
@@ -53,6 +54,8 @@ trait HasAssetsRelationManager
                     ]);
                 }
 
+                throw_unless($asset instanceof AssetAttachment, RuntimeException::class, 'Expected content section asset attachment to be created.');
+
                 return $asset;
             });
     }
@@ -75,7 +78,13 @@ trait HasAssetsRelationManager
 
     protected static function getMorphToSelectType(AssetData $asset, Model $record): Type
     {
-        return Type::make($asset->model)
+        $assetModel = $asset->model;
+
+        if (! is_subclass_of($assetModel, Model::class)) {
+            throw new RuntimeException(sprintf('Asset model [%s] must extend [%s].', $assetModel, Model::class));
+        }
+
+        return Type::make($assetModel)
             ->titleAttribute($asset->getTitleKey())
             ->modifyOptionsQueryUsing(
                 fn (Builder $query): Builder => self::modifyAssetOptionsQuery($query, $asset, $record),
@@ -87,14 +96,14 @@ trait HasAssetsRelationManager
                 },
             )
             ->modifyKeySelectUsing(
-                function (Select $select) use ($asset): Select {
+                function (Select $select) use ($asset, $assetModel): Select {
                     $createOptionUsing = $select->getCreateOptionUsing();
 
                     $adminAsset = CapellAdmin::getAsset($asset->name);
 
                     return $select->createOptionForm(
                         fn (Schema $configurator): Schema => $adminAsset->formClass::configure(
-                            $configurator->operation('createOption')->model($asset->model),
+                            $configurator->operation('createOption')->model($assetModel),
                         ),
                     )
                         ->createOptionUsing(function (Select $component, array $data) use ($asset, $adminAsset, $createOptionUsing): int|string {
@@ -188,7 +197,7 @@ trait HasAssetsRelationManager
 
     protected static function getPageOptionLabel(Pageable $page): HtmlString
     {
-        $label = $page->site->name . ' &raquo; ';
+        $label = ($page->site->name ?? '') . ' &raquo; ';
 
         if ($page instanceof Page) {
             $ancestors = $page->ancestors()->get();

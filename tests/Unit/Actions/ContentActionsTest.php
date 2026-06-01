@@ -8,6 +8,7 @@ use Capell\ContentSections\Actions\ReplicateContentAction;
 use Capell\ContentSections\Models\Section;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
+use Capell\Core\Models\Translation;
 
 it('creates section content with translated title fallback for the section name', function (): void {
     $language = Language::factory()->create();
@@ -28,14 +29,17 @@ it('creates section content with translated title fallback for the section name'
             ],
         ],
     ]);
+    $translation = $section->translations->first();
+
+    throw_unless($translation instanceof Translation, RuntimeException::class, 'Expected section translation to be created.');
 
     expect($section)->toBeInstanceOf(Section::class)
         ->and($section->name)->toBe('Welcome hero')
         ->and($section->order)->toBe(3)
         ->and($section->translations)->toHaveCount(1)
-        ->and($section->translations->first()->language_id)->toBe($language->getKey())
-        ->and($section->translations->first()->title)->toBe('Welcome hero')
-        ->and($section->translations->first()->content)->toBe('Launch copy');
+        ->and($translation->language_id)->toBe($language->getKey())
+        ->and($translation->title)->toBe('Welcome hero')
+        ->and($translation->content)->toBe('Launch copy');
 });
 
 it('replicates section content with replacement data and replacement translations', function (): void {
@@ -61,14 +65,17 @@ it('replicates section content with replacement data and replacement translation
             ],
         ],
     ]);
+    $translation = $replica->translations->first();
+
+    throw_unless($translation instanceof Translation, RuntimeException::class, 'Expected replicated section translation to be created.');
 
     expect($replica)->toBeInstanceOf(Section::class)
         ->and($replica->is($section))->toBeFalse()
         ->and($replica->name)->toBe('Replicated section')
         ->and($replica->order)->toBe(9)
         ->and($replica->translations)->toHaveCount(1)
-        ->and($replica->translations->first()->title)->toBe('Replicated title')
-        ->and($replica->translations->first()->content)->toBe('Replicated copy')
+        ->and($translation->title)->toBe('Replicated title')
+        ->and($translation->content)->toBe('Replicated copy')
         ->and($section->fresh()->name)->toBe('Original section');
 });
 
@@ -77,5 +84,5 @@ it('creates the hero section blueprint with an editor-facing description', funct
 
     expect($blueprint)->toBeInstanceOf(Blueprint::class)
         ->and($blueprint->name)->toBe('Hero')
-        ->and($blueprint->admin['notes'])->toBe('A page-opening section for headline, supporting copy, artwork, and primary action.');
+        ->and(($blueprint->admin ?? [])['notes'] ?? null)->toBe('A page-opening section for headline, supporting copy, artwork, and primary action.');
 });

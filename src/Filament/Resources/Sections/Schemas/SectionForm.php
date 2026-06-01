@@ -12,6 +12,7 @@ use Capell\ContentSections\Enums\ConfiguratorTypeEnum;
 use Capell\ContentSections\Filament\Configurators\Sections\DefaultSectionConfigurator;
 use Capell\Core\Models\Blueprint;
 use Filament\Schemas\Schema;
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Model;
 
 class SectionForm implements FormConfigurator
@@ -27,16 +28,18 @@ class SectionForm implements FormConfigurator
             $blueprint = $loadedBlueprint instanceof Blueprint ? $loadedBlueprint : null;
         }
 
-        $blueprintId = $configurator->getRawState()['blueprint_id'] ?? ($record instanceof Model ? $record->getAttribute('blueprint_id') : null);
+        $rawState = $configurator->getRawState();
+        $state = $rawState instanceof Arrayable ? $rawState->toArray() : $rawState;
+        $blueprintId = $state['blueprint_id'] ?? ($record instanceof Model ? $record->getAttribute('blueprint_id') : null);
 
         if (! $blueprint instanceof Blueprint && $blueprintId !== null) {
             /** @var class-string<Blueprint> $model */
             $model = Blueprint::class;
 
-            $blueprint = $model::query()->find($blueprintId);
+            $blueprint = $model::query()->find((int) $blueprintId);
         }
 
-        $blueprint ??= ResolveRequestedSectionBlueprintAction::run($configurator->getRawState());
+        $blueprint ??= ResolveRequestedSectionBlueprintAction::run($state);
 
         $adminType = $blueprint instanceof Blueprint
             ? $resolver->resolveForType($blueprint, ConfiguratorTypeEnum::Section, DefaultSectionConfigurator::getKey())

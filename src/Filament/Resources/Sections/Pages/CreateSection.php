@@ -23,7 +23,7 @@ class CreateSection extends CreateRecord
     {
         $this->callHook('beforeFill');
 
-        $this->form->fill(MutateContentDataBeforeFillAction::run($this->data));
+        $this->form->fill(MutateContentDataBeforeFillAction::run($this->data ?? []));
 
         $this->callHook('afterFill');
     }

@@ -31,7 +31,7 @@ class SectionAssets extends AbstractAssets
      */
     public function getFilteredTableQuery(): Builder
     {
-        $query = parent::getFilteredTableQuery();
+        $query = parent::getFilteredTableQuery() ?? Section::query();
 
         if (isset($this->getTableFilterState('filter')['language_id'])) {
             $language_id = $this->getTableFilterState('filter')['language_id'];
@@ -43,7 +43,7 @@ class SectionAssets extends AbstractAssets
         }
 
         $query->with([
-            'translation' => fn (BuilderContract $query): BuilderContract => $query->where('language_id', $language_id),
+            'translation' => fn (BuilderContract $query): BuilderContract => $query->where('language_id', (int) $language_id),
         ]);
 
         return $query;

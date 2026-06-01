@@ -50,6 +50,6 @@ class ContentNameColumn extends BadgeableColumn
             $record->loadCount('children');
         }
 
-        return $record->children_count;
+        return (int) $record->children_count;
     }
 }

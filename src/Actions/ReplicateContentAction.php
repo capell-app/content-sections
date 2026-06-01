@@ -30,7 +30,9 @@ class ReplicateContentAction
 
         $className = $content::class;
 
-        $model = $className::query()->find($content->getKey());
+        $model = $className::query()
+            ->whereKey($content->getKey())
+            ->firstOrFail();
 
         $model->fill($data);
 

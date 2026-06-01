@@ -7,6 +7,7 @@ namespace Capell\ContentSections\Policies;
 use Capell\Admin\Policies\Concerns\ResolvesShieldPermission;
 use Capell\Admin\Support\SiteScope;
 use Capell\ContentSections\Models\Section;
+use Capell\ContentSections\Support\SectionSiteScope;
 use Illuminate\Foundation\Auth\User;
 use Throwable;
 
@@ -111,11 +112,6 @@ final class SectionPolicy
 
     private function canUseSectionSite(User $user, Section $section): bool
     {
-        if ($section->site_id === null || SiteScope::isGlobalActor($user)) {
-            return true;
-        }
-
-        return $user->getAssignedSiteIds()->contains($section->site_id);
-
+        return SectionSiteScope::actorCanUseSection($user, $section);
     }
 }
