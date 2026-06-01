@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\ContentSections\Actions;
 
-use Capell\Admin\Data\Pages\PublishVisibilityActionResultData;
+use Capell\ContentSections\Data\SectionVisibilityActionResultData;
 use Capell\ContentSections\Models\Section;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Gate;
@@ -14,16 +14,16 @@ final class CancelScheduledSectionUnpublishAction
 {
     use AsObject;
 
-    public function handle(Section $section, User $actor): PublishVisibilityActionResultData
+    public function handle(Section $section, User $actor): SectionVisibilityActionResultData
     {
         $response = Gate::forUser($actor)->inspect('update', $section);
 
         if (! $response->allowed()) {
-            return PublishVisibilityActionResultData::skipped('unauthorized');
+            return SectionVisibilityActionResultData::skipped('unauthorized');
         }
 
         if (! $section->visible_until?->isFuture()) {
-            return PublishVisibilityActionResultData::skipped('not_scheduled');
+            return SectionVisibilityActionResultData::skipped('not_scheduled');
         }
 
         $section->visible_until = null;
@@ -31,7 +31,7 @@ final class CancelScheduledSectionUnpublishAction
 
         $this->invalidateFrontendCache($section);
 
-        return PublishVisibilityActionResultData::changed();
+        return SectionVisibilityActionResultData::changed();
     }
 
     private function invalidateFrontendCache(Section $section): void

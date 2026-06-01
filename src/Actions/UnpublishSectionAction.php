@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\ContentSections\Actions;
 
-use Capell\Admin\Data\Pages\PublishVisibilityActionResultData;
+use Capell\ContentSections\Data\SectionVisibilityActionResultData;
 use Capell\ContentSections\Models\Section;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Auth\User;
@@ -15,16 +15,16 @@ final class UnpublishSectionAction
 {
     use AsObject;
 
-    public function handle(Section $section, User $actor): PublishVisibilityActionResultData
+    public function handle(Section $section, User $actor): SectionVisibilityActionResultData
     {
         $response = Gate::forUser($actor)->inspect('update', $section);
 
         if (! $response->allowed()) {
-            return PublishVisibilityActionResultData::skipped('unauthorized');
+            return SectionVisibilityActionResultData::skipped('unauthorized');
         }
 
         if ($section->isExpired() || $section->isPending()) {
-            return PublishVisibilityActionResultData::skipped('not_live');
+            return SectionVisibilityActionResultData::skipped('not_live');
         }
 
         $section->visible_until = CarbonImmutable::now();
@@ -32,7 +32,7 @@ final class UnpublishSectionAction
 
         $this->invalidateFrontendCache($section);
 
-        return PublishVisibilityActionResultData::changed();
+        return SectionVisibilityActionResultData::changed();
     }
 
     private function invalidateFrontendCache(Section $section): void
