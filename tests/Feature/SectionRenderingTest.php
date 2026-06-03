@@ -20,6 +20,7 @@ beforeEach(function (): void {
 
     view()->addNamespace('capell-block-library', __DIR__ . '/../../../block-library/resources/views');
     view()->addNamespace('capell-content-sections', __DIR__ . '/../../resources/views');
+
     resolve(Translator::class)->addNamespace('capell-block-library', __DIR__ . '/../../../block-library/resources/lang');
     resolve(Translator::class)->addNamespace('capell-content-sections', __DIR__ . '/../../resources/lang');
     Blade::anonymousComponentPath(__DIR__ . '/../Fixtures/components', 'capell');

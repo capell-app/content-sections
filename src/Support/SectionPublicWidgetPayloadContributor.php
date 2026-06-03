@@ -153,7 +153,6 @@ final class SectionPublicWidgetPayloadContributor implements PublicWidgetPayload
         return Blade::render(
             '<x-dynamic-component :component="$component" :asset="$asset" :meta="$meta" :summary="$summary" :title="$title" :link-text="$linkText" :url="$url" />',
             ['component' => $data['component'], ...$viewData],
-            deleteCachedView: true,
         );
     }
 

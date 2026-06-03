@@ -9,6 +9,7 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Actions\BuildPublicLayoutGraphAction;
+use Capell\LayoutBuilder\Data\PublicLayoutWidgetData;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 
@@ -19,7 +20,7 @@ function placeSectionAndBuildPublicGraph(
     string $key,
     string $content,
     array $meta = [],
-): object {
+): PublicLayoutWidgetData {
     $language = Language::factory()->create();
     $site = Site::factory()->create(['language_id' => $language->id]);
     $blueprint = EnsureSectionBlueprintForKeyAction::run($key);
