@@ -12,7 +12,7 @@
 ])
 <div
     @class([
-        'capell-section-block',
+        'capell-section-widget',
         'md:p-y-16 flex flex-col items-center space-y-6 p-10 text-center',
         match ($color) {
             'danger' => 'bg-danger text-white',
@@ -41,7 +41,7 @@
 
     <h2 class="space-y-8">
         @if ($summary)
-            <span class="mb-1 block text-2xl font-bold tracking-tight">
+            <span class="widget mb-1 text-2xl font-bold tracking-tight">
                 {{ $summary }}
             </span>
         @endif

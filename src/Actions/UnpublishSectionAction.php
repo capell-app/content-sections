@@ -6,6 +6,7 @@ namespace Capell\ContentSections\Actions;
 
 use Capell\ContentSections\Data\SectionVisibilityActionResultData;
 use Capell\ContentSections\Models\Section;
+use Capell\Frontend\Support\Cache\CacheInvalidationRegistry;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Gate;
@@ -37,13 +38,13 @@ final class UnpublishSectionAction
 
     private function invalidateFrontendCache(Section $section): void
     {
-        $registryClass = 'Capell\\Frontend\\Support\\Cache\\CacheInvalidationRegistry';
+        $registryClass = CacheInvalidationRegistry::class;
 
         if (! class_exists($registryClass)) {
             return;
         }
 
-        $registry = app($registryClass);
+        $registry = resolve($registryClass);
 
         if (! is_object($registry) || ! method_exists($registry, 'invalidateChangedModel')) {
             return;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\ContentBlocks\Support\BlockRegistry;
+use Capell\BlockLibrary\Support\BlockRegistry;
 use Capell\ContentSections\Actions\BuildSectionDemoDataAction;
 use Capell\ContentSections\Actions\RegisterDefaultSectionsAction;
 use Capell\ContentSections\Actions\RegisterSectionDefinitionProviderAction;
@@ -45,11 +45,11 @@ it('registers the main sections', function (): void {
 });
 
 it('exposes registered sections as typed content blocks', function (): void {
-    $blocks = resolve(BlockRegistry::class);
+    $widgets = resolve(BlockRegistry::class);
 
-    expect($blocks->get('section.accordion')?->view)->toBe('capell-content-sections::section.blocks.accordion')
-        ->and($blocks->get('section.accordion')?->category)->toBe('main')
-        ->and($blocks->get('section.call_to_action')?->safeForPublicOutput)->toBeTrue();
+    expect($widgets->get('section.accordion')?->view)->toBe('capell-content-sections::section.widgets.accordion')
+        ->and($widgets->get('section.accordion')?->category)->toBe('main')
+        ->and($widgets->get('section.call_to_action')?->safeForPublicOutput)->toBeTrue();
 });
 
 it('guards against duplicate section keys', function (): void {
@@ -61,14 +61,14 @@ it('guards against duplicate section keys', function (): void {
         icon: Heroicon::OutlinedQueueList,
         group: 'main',
         configurator: SectionConfiguratorEnum::Accordion->value,
-        component: 'capell-content-sections::section.blocks.accordion',
+        component: 'capell-content-sections::section.widgets.accordion',
     );
 
     $registry->register($definition);
     $registry->register($definition);
 })->throws(InvalidArgumentException::class);
 
-it('resolves block definitions from configurator classes and keys', function (): void {
+it('resolves widget definitions from configurator classes and keys', function (): void {
     $registry = new SectionRegistry;
 
     RegisterDefaultSectionsAction::run($registry);

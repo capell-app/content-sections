@@ -13,24 +13,24 @@ class SectionRegistry
     /**
      * @var array<string, SectionDefinitionData>
      */
-    private array $blocks = [];
+    private array $widgets = [];
 
     /**
      * @var array<string, string>
      */
     private array $configuratorIndex = [];
 
-    public function register(SectionDefinitionData $block): void
+    public function register(SectionDefinitionData $widget): void
     {
-        if (isset($this->blocks[$block->key])) {
-            throw new InvalidArgumentException(sprintf('Section [%s] is already registered.', $block->key));
+        if (isset($this->widgets[$widget->key])) {
+            throw new InvalidArgumentException(sprintf('Section [%s] is already registered.', $widget->key));
         }
 
-        $this->blocks[$block->key] = $block;
-        $this->configuratorIndex[$this->normalizeConfigurator($block->configurator)] = $block->key;
+        $this->widgets[$widget->key] = $widget;
+        $this->configuratorIndex[$this->normalizeConfigurator($widget->configurator)] = $widget->key;
 
-        if (is_subclass_of($block->configurator, ConfiguratorInterface::class)) {
-            $this->configuratorIndex[$this->normalizeConfigurator($block->configurator::getKey())] = $block->key;
+        if (is_subclass_of($widget->configurator, ConfiguratorInterface::class)) {
+            $this->configuratorIndex[$this->normalizeConfigurator($widget->configurator::getKey())] = $widget->key;
         }
     }
 
@@ -39,12 +39,12 @@ class SectionRegistry
      */
     public function all(): array
     {
-        return $this->blocks;
+        return $this->widgets;
     }
 
     public function get(string $key): ?SectionDefinitionData
     {
-        return $this->blocks[$key] ?? null;
+        return $this->widgets[$key] ?? null;
     }
 
     public function getByConfigurator(string $configurator): ?SectionDefinitionData

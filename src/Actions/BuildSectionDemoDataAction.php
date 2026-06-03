@@ -128,7 +128,7 @@ class BuildSectionDemoDataAction
             'tabs' => [
                 'tabs' => [
                     ['label' => 'Plan', 'icon' => 'heroicon-o-map', 'content' => '<p>Collect requirements and choose the content model.</p>'],
-                    ['label' => 'Build', 'icon' => 'heroicon-o-wrench-screwdriver', 'content' => '<p>Create blocks, seed examples, and wire frontend rendering.</p>'],
+                    ['label' => 'Build', 'icon' => 'heroicon-o-wrench-screwdriver', 'content' => '<p>Create widgets, seed examples, and wire frontend rendering.</p>'],
                     ['label' => 'Publish', 'icon' => 'heroicon-o-rocket-launch', 'content' => '<p>Preview, approve, and ship the page with confidence.</p>'],
                 ],
             ],
@@ -151,24 +151,24 @@ class BuildSectionDemoDataAction
             ],
             'pricing' => [
                 'plans' => [
-                    ['name' => 'Launch', 'price' => '$49', 'period' => 'mo', 'description' => 'For small editorial teams.', 'features' => "Core blocks\nBasic publishing\nEmail support", 'action_label' => 'Choose Launch', 'action_url' => '#'],
-                    ['name' => 'Scale', 'price' => '$149', 'period' => 'mo', 'description' => 'For growing content operations.', 'features' => "All blocks\nApprovals\nPriority support", 'action_label' => 'Choose Scale', 'action_url' => '#', 'highlighted' => true],
+                    ['name' => 'Launch', 'price' => '$49', 'period' => 'mo', 'description' => 'For small editorial teams.', 'features' => "Core widgets\nBasic publishing\nEmail support", 'action_label' => 'Choose Launch', 'action_url' => '#'],
+                    ['name' => 'Scale', 'price' => '$149', 'period' => 'mo', 'description' => 'For growing content operations.', 'features' => "All widgets\nApprovals\nPriority support", 'action_label' => 'Choose Scale', 'action_url' => '#', 'highlighted' => true],
                     ['name' => 'Enterprise', 'price' => 'Custom', 'description' => 'For multi-site CMS programmes.', 'features' => "Custom workflows\nDedicated support\nSecurity review", 'action_label' => 'Talk to us', 'action_url' => '#'],
                 ],
             ],
             'stats' => [
                 'stats' => [
-                    ['value' => '18', 'label' => 'Block types', 'description' => 'Useful defaults without a bloated package.'],
+                    ['value' => '18', 'label' => 'Widget types', 'description' => 'Useful defaults without a bloated package.'],
                     ['value' => '4', 'label' => 'Editor states', 'description' => 'Draft, preview, approve, and publish flows.'],
                     ['value' => '100%', 'label' => 'Reusable', 'description' => 'Sections can be shared across pages.'],
-                    ['value' => '0', 'label' => 'Pro bundle', 'description' => 'Advanced blocks stay in optional packages.'],
+                    ['value' => '0', 'label' => 'Pro bundle', 'description' => 'Advanced widgets stay in optional packages.'],
                 ],
                 'columns' => '4',
             ],
             'team' => [
                 'members' => [
                     ['name' => 'Alex Morgan', 'role' => 'Content Lead', 'bio' => 'Owns the editorial model and publishing standards.', 'url' => '#'],
-                    ['name' => 'Priya Shah', 'role' => 'UX Designer', 'bio' => 'Turns reusable blocks into clear content patterns.', 'url' => '#'],
+                    ['name' => 'Priya Shah', 'role' => 'UX Designer', 'bio' => 'Turns reusable widgets into clear content patterns.', 'url' => '#'],
                     ['name' => 'Jamie Lee', 'role' => 'Engineer', 'bio' => 'Keeps the admin and frontend rendering dependable.', 'url' => '#'],
                 ],
                 'columns' => '3',
@@ -182,7 +182,7 @@ class BuildSectionDemoDataAction
             ],
             'faq' => [
                 'questions' => [
-                    ['question' => 'Can FAQ content be reused?', 'answer' => '<p>Yes. The block stores reusable question and answer pairs.</p>'],
+                    ['question' => 'Can FAQ content be reused?', 'answer' => '<p>Yes. The widget stores reusable question and answer pairs.</p>'],
                     ['question' => 'Is it separate from Accordion?', 'answer' => '<p>It shares the same pattern but uses FAQ-oriented labels and defaults.</p>'],
                 ],
                 'first_open' => true,

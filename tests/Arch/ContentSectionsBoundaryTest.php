@@ -25,11 +25,11 @@ it('only depends on the layout-builder package through public contracts', functi
 
     expect($violations)->toEqualCanonicalizing([
         'packages/content-sections/src/Providers/ContentSectionsServiceProvider.php',
-        'packages/content-sections/src/Support/SectionPublicBlockPayloadContributor.php',
+        'packages/content-sections/src/Support/SectionPublicWidgetPayloadContributor.php',
     ]);
 });
 
-it('declares layout builder as an explicit dependency for section block payloads', function (): void {
+it('declares layout builder as an explicit dependency for section widget payloads', function (): void {
     $manifest = json_decode(
         (string) file_get_contents(dirname(__DIR__, 2) . '/capell.json'),
         true,

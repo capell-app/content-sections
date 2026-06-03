@@ -55,7 +55,6 @@ it('labels the primary save action as save and publish', function (): void {
     $component = Livewire::test(EditSection::class, ['record' => $section->getRouteKey()])
         ->instance();
     $method = new ReflectionMethod($component, 'getSaveFormAction');
-    $method->setAccessible(true);
 
     /** @var Action $saveAction */
     $saveAction = $method->invoke($component);

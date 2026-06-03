@@ -6,7 +6,7 @@ namespace Capell\ContentSections\Enums;
 
 enum FrontendComponentKeyEnum: string
 {
-    case SectionBlock = 'section.block';
+    case SectionWidget = 'section.widget';
 
     case SectionTeamMember = 'section.team-member';
 }

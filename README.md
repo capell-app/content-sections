@@ -8,7 +8,7 @@ Reusable content sections for Capell.
 - Namespace: `Capell\ContentSections\`
 - Surfaces: Filament admin, Livewire, database
 - Service providers: `packages/content-sections/src/Providers/ContentSectionsServiceProvider.php`
-- Capell dependencies: `capell-app/admin`, `capell-app/content-blocks`, `capell-app/core`, `capell-app/frontend`, `capell-app/layout-builder`
+- Capell dependencies: `capell-app/admin`, `capell-app/block-library`, `capell-app/core`, `capell-app/frontend`, `capell-app/layout-builder`
 
 ## Why It Helps Your Capell Workflow
 
@@ -19,17 +19,17 @@ Reusable content sections for Capell.
 ## Best Used With
 
 - [Layout Builder](../layout-builder/README.md)
-- [Block Library](../block-library/README.md)
+- [Widget Library](../widget-library/README.md)
 - [Foundation Theme](../foundation-theme/README.md)
 
 ## What It Adds
 
 - Reusable content sections for Capell.
-- Content block definitions for each registered section, exposed through `capell-app/content-blocks`.
+- Content widget definitions for each registered section, exposed through `capell-app/block-library`.
 - Admin resources: `SectionResource`.
 - Livewire components: `AbstractAssets`, `ModalTableSelect`, `SectionAssets`.
 
-Install after Content Blocks and Layout Builder so section definitions can be registered as layout-selectable blocks.
+Install after Content Blocks and Layout Builder so section definitions can be registered as layout-selectable widgets.
 
 ## Code Map
 
@@ -39,7 +39,7 @@ Install after Content Blocks and Layout Builder so section definitions can be re
 | Data      | `packages/content-sections/src/Data`      | Structured payloads, form state, view models, and integration data. |
 | Enums     | `packages/content-sections/src/Enums`     | Persisted states and Filament option values.                        |
 | Models    | `packages/content-sections/src/Models`    | Eloquent records owned by the package.                              |
-| Filament  | `packages/content-sections/src/Filament`  | Admin resources, pages, blocks, and settings UI.                    |
+| Filament  | `packages/content-sections/src/Filament`  | Admin resources, pages, widgets, and settings UI.                   |
 | Livewire  | `packages/content-sections/src/Livewire`  | Interactive frontend or admin components.                           |
 | Providers | `packages/content-sections/src/Providers` | Registration, extension hooks, routes, migrations, and resources.   |
 | Resources | `packages/content-sections/resources`     | Views, translations, assets, and package resources.                 |
@@ -51,7 +51,7 @@ Install after Content Blocks and Layout Builder so section definitions can be re
 
 - Resources: `SectionResource`.
 - Pages: `CreateSection`, `EditSection`, `ListSections`.
-- Blocks: `SectionAlertsBlock`.
+- Widgets: `SectionAlertsWidget`.
 
 ## Runtime Surface
 
@@ -67,7 +67,7 @@ Install after Content Blocks and Layout Builder so section definitions can be re
 ## Extension Points
 
 - Contracts: `SectionDefinitionProvider`.
-- Content block bridge: registered sections are exposed as `section.{key}` block definitions through `BlockDefinitionProvider::TAG`.
+- Content widget bridge: registered sections are exposed as `section.{key}` widget definitions through `BlockDefinitionProvider::TAG`.
 - Register Capell extension points, routes, migrations, settings, render hooks, and resources from service providers.
 
 ## Install And Setup

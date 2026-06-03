@@ -108,26 +108,26 @@ test('can create a section', function (): void {
 });
 
 test('layout builder content editor mounts section edit form', function (): void {
-    $block = Widget::factory()->create(['key' => 'homepage-hero', 'name' => 'Homepage hero']);
+    $widget = Widget::factory()->create(['key' => 'homepage-hero', 'name' => 'Homepage hero']);
     $content = Section::factory()->create(['name' => 'Homepage Hero: Page Object Slide']);
     WidgetAsset::factory()
-        ->block($block)
+        ->widget($widget)
         ->asset($content)
         ->occurrence(1)
         ->create(['order' => 1, 'meta' => ['variant' => 'default']]);
 
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['blocks' => [
-            ['block_key' => $block->key, 'occurrence' => 1],
+        'main' => ['widgets' => [
+            ['widget_key' => $widget->key, 'occurrence' => 1],
         ]],
     ]]);
 
     livewire(LayoutBuilder::class, ['layout' => $layout])
-        ->callAction('editBlockAsset', data: [
+        ->callAction('editWidgetAsset', data: [
             'meta' => ['variant' => 'updated'],
         ], arguments: [
             'containerKey' => 'main',
-            'blockIndex' => 0,
+            'widgetIndex' => 0,
             'index' => 0,
             'type' => 'section',
         ])

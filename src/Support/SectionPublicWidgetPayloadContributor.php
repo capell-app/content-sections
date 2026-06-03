@@ -10,7 +10,7 @@ use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Translation;
-use Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor;
+use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -18,8 +18,9 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
+use Illuminate\View\ComponentAttributeBag;
 
-final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadContributor
+final class SectionPublicWidgetPayloadContributor implements PublicWidgetPayloadContributor
 {
     public function priority(): int
     {
@@ -29,10 +30,10 @@ final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadCo
     /**
      * @return array<string, mixed>
      */
-    public function data(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): array
+    public function data(Widget $widget, Page $page, Language $language, string $containerKey, int $occurrence): array
     {
-        $sections = $this->sectionAssets($block)
-            ->map(fn (WidgetAsset $blockAsset): array => $this->sectionData($blockAsset))
+        $sections = $this->sectionAssets($widget)
+            ->map(fn (WidgetAsset $widgetAsset): array => $this->sectionData($widgetAsset))
             ->values()
             ->all();
 
@@ -43,10 +44,10 @@ final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadCo
         return ['sections' => $sections];
     }
 
-    public function html(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): ?string
+    public function html(Widget $widget, Page $page, Language $language, string $containerKey, int $occurrence): ?string
     {
-        $html = $this->sectionAssets($block)
-            ->map(fn (WidgetAsset $blockAsset): string => $this->renderSection($blockAsset, $this->sectionData($blockAsset)))
+        $html = $this->sectionAssets($widget)
+            ->map(fn (WidgetAsset $widgetAsset): string => $this->renderSection($widgetAsset, $this->sectionData($widgetAsset)))
             ->filter(fn (string $html): bool => trim($html) !== '')
             ->implode("\n");
 
@@ -56,25 +57,25 @@ final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadCo
     /**
      * @return Collection<int, WidgetAsset>
      */
-    private function sectionAssets(Widget $block): Collection
+    private function sectionAssets(Widget $widget): Collection
     {
-        if (! $block->relationLoaded('assets')) {
+        if (! $widget->relationLoaded('assets')) {
             return collect();
         }
 
-        $assets = $block->getRelation('assets');
+        $assets = $widget->getRelation('assets');
 
         if (! $assets instanceof EloquentCollection && ! $assets instanceof Collection) {
             return collect();
         }
 
         return $assets
-            ->filter(function (mixed $blockAsset): bool {
-                if (! $blockAsset instanceof WidgetAsset) {
+            ->filter(function (mixed $widgetAsset): bool {
+                if (! $widgetAsset instanceof WidgetAsset) {
                     return false;
                 }
 
-                $section = $this->loadedSection($blockAsset);
+                $section = $this->loadedSection($widgetAsset);
 
                 return $section instanceof Section
                     && ! $section->isPending()
@@ -86,10 +87,10 @@ final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadCo
     /**
      * @return array<string, mixed>
      */
-    private function sectionData(WidgetAsset $blockAsset): array
+    private function sectionData(WidgetAsset $widgetAsset): array
     {
         /** @var Section $section */
-        $section = $this->loadedSection($blockAsset);
+        $section = $this->loadedSection($widgetAsset);
         if (! $section instanceof Section) {
             return [];
         }
@@ -103,16 +104,16 @@ final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadCo
             'component' => $component,
             'title' => $translation->label ?? $section->name,
             'summary' => $this->summaryFor($translation),
-            'meta' => $this->metaFor($section, $blockAsset),
+            'meta' => $this->metaFor($section, $widgetAsset),
             'linkText' => $translation?->link_text,
             'url' => $this->linkedPageUrl($section),
-            'blockAsset' => [
-                'id' => $blockAsset->getKey(),
-                'meta' => $blockAsset->meta ?? [],
+            'widgetAsset' => [
+                'id' => $widgetAsset->getKey(),
+                'meta' => $widgetAsset->meta ?? [],
             ],
-            'html' => $this->renderSection($blockAsset, [
+            'html' => $this->renderSection($widgetAsset, [
                 'component' => $component,
-                'meta' => $this->metaFor($section, $blockAsset),
+                'meta' => $this->metaFor($section, $widgetAsset),
                 'summary' => $this->summaryFor($translation),
                 'title' => $translation->label ?? $section->name,
                 'linkText' => $translation?->link_text,
@@ -124,36 +125,58 @@ final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadCo
     /**
      * @param  array<string, mixed>  $data
      */
-    private function renderSection(WidgetAsset $blockAsset, array $data): string
+    private function renderSection(WidgetAsset $widgetAsset, array $data): string
     {
         /** @var Section $section */
-        $section = $this->loadedSection($blockAsset);
+        $section = $this->loadedSection($widgetAsset);
         if (! $section instanceof Section) {
             return '';
         }
 
+        $viewData = [
+            'asset' => $section,
+            'meta' => $data['meta'],
+            'summary' => new HtmlString((string) ($data['summary'] ?? '')),
+            'title' => $data['title'],
+            'linkText' => $data['linkText'],
+            'url' => $data['url'],
+            'attributes' => new ComponentAttributeBag,
+        ];
+
+        $viewName = $this->componentViewName((string) $data['component']);
+
+        if ($viewName !== null && view()->exists($viewName)) {
+            return view($viewName, $viewData)->render();
+        }
+
         return Blade::render(
             '<x-dynamic-component :component="$component" :asset="$asset" :meta="$meta" :summary="$summary" :title="$title" :link-text="$linkText" :url="$url" />',
-            [
-                'component' => $data['component'],
-                'asset' => $section,
-                'meta' => $data['meta'],
-                'summary' => new HtmlString((string) ($data['summary'] ?? '')),
-                'title' => $data['title'],
-                'linkText' => $data['linkText'],
-                'url' => $data['url'],
-            ],
+            ['component' => $data['component'], ...$viewData],
+            deleteCachedView: true,
+        );
+    }
+
+    private function componentViewName(string $component): ?string
+    {
+        if (! Str::startsWith($component, 'capell-content-sections::section.widgets.')) {
+            return null;
+        }
+
+        return Str::replaceFirst(
+            'capell-content-sections::section.widgets.',
+            'capell-content-sections::components.section.widgets.',
+            $component,
         );
     }
 
     /**
      * @return array<string, mixed>
      */
-    private function metaFor(Section $section, WidgetAsset $blockAsset): array
+    private function metaFor(Section $section, WidgetAsset $widgetAsset): array
     {
         return array_replace_recursive(
             is_array($section->meta) ? $section->meta : [],
-            is_array($blockAsset->meta) ? $blockAsset->meta : [],
+            is_array($widgetAsset->meta) ? $widgetAsset->meta : [],
         );
     }
 
@@ -164,7 +187,7 @@ final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadCo
 
         return ResolveSectionComponentAction::run(
             configurator: is_string($configurator) ? $configurator : null,
-            fallbackComponent: 'capell-content-sections::section.blocks.content',
+            fallbackComponent: 'capell-content-sections::section.widgets.content',
         );
     }
 
@@ -199,13 +222,13 @@ final class SectionPublicBlockPayloadContributor implements PublicBlockPayloadCo
         return $translation instanceof Translation ? $translation : null;
     }
 
-    private function loadedSection(WidgetAsset $blockAsset): ?Section
+    private function loadedSection(WidgetAsset $widgetAsset): ?Section
     {
-        if (! $blockAsset->relationLoaded('asset')) {
+        if (! $widgetAsset->relationLoaded('asset')) {
             return null;
         }
 
-        $asset = $blockAsset->getRelation('asset');
+        $asset = $widgetAsset->getRelation('asset');
 
         return $asset instanceof Section ? $asset : null;
     }
