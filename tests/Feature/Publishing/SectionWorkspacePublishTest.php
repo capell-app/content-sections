@@ -27,10 +27,10 @@ it('repoints layout builder section usages to the published section draft row', 
         'workspace_id' => 123,
         'name' => 'Draft reusable section',
     ]);
-    $block = Widget::factory()->create();
+    $widget = Widget::factory()->create();
 
     $usage = WidgetAsset::factory()
-        ->block($block)
+        ->widget($widget)
         ->asset($live)
         ->create();
 
@@ -49,14 +49,14 @@ it('publishes section drafts through publisher with revisions media and site wid
         'workspace_id' => 0,
         'name' => 'Live reusable section',
     ]);
-    $firstBlock = Widget::factory()->create();
-    $secondBlock = Widget::factory()->create();
+    $firstWidget = Widget::factory()->create();
+    $secondWidget = Widget::factory()->create();
     $firstUsage = WidgetAsset::factory()
-        ->block($firstBlock)
+        ->widget($firstWidget)
         ->asset($live)
         ->create();
     $secondUsage = WidgetAsset::factory()
-        ->block($secondBlock)
+        ->widget($secondWidget)
         ->asset($live)
         ->create();
 

@@ -13,7 +13,7 @@ use Ramsey\Uuid\UuidInterface;
 abstract class AbstractAssets extends ModalTableSelect
 {
     /**
-     * @var array{containerKey?: string, blockIndex?: int, hasPageAssets?: bool}
+     * @var array{containerKey?: string, widgetIndex?: int, hasPageAssets?: bool}
      */
     #[Locked]
     public array $tableArguments = [];
@@ -27,7 +27,7 @@ abstract class AbstractAssets extends ModalTableSelect
     public string $type;
 
     #[Locked]
-    public int $blockIndex;
+    public int $widgetIndex;
 
     #[Url(as: 'tab')]
     public ?string $activeTab = null;

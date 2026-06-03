@@ -9,7 +9,7 @@ use Capell\Admin\Data\AdminAssetData;
 use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Enums\ConfiguratorTypeEnum as AdminConfiguratorTypeEnum;
 use Capell\Admin\Facades\CapellAdmin;
-use Capell\ContentBlocks\Contracts\BlockDefinitionProvider;
+use Capell\BlockLibrary\Contracts\BlockDefinitionProvider;
 use Capell\ContentSections\Actions\RegisterDefaultSectionsAction;
 use Capell\ContentSections\Actions\RegisterSectionDefinitionProviderAction;
 use Capell\ContentSections\Contracts\SectionDefinitionProvider;
@@ -23,7 +23,7 @@ use Capell\ContentSections\Models\Section;
 use Capell\ContentSections\Policies\SectionPolicy;
 use Capell\ContentSections\Support\ContentSectionsBlockDefinitionProvider;
 use Capell\ContentSections\Support\ContentSectionsModelRegistrar;
-use Capell\ContentSections\Support\SectionPublicBlockPayloadContributor;
+use Capell\ContentSections\Support\SectionPublicWidgetPayloadContributor;
 use Capell\ContentSections\Support\SectionRegistry;
 use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
 use Capell\Core\Data\AssetData;
@@ -39,7 +39,7 @@ use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Contracts\AssetsRegistryInterface;
 use Capell\Frontend\Contracts\FrontendComponentRegistryInterface;
 use Capell\Frontend\Data\FrontendAssetData;
-use Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor;
+use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
 use Capell\PublishingStudio\Models\Workspace;
 use Capell\PublishingStudio\WorkspaceRegistry;
 use Composer\InstalledVersions;
@@ -61,7 +61,7 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
 
     private const string BLOCK_DEFINITION_PROVIDER = BlockDefinitionProvider::class;
 
-    private const string PUBLIC_ELEMENT_PAYLOAD_CONTRIBUTOR = PublicBlockPayloadContributor::class;
+    private const string PUBLIC_ELEMENT_PAYLOAD_CONTRIBUTOR = PublicWidgetPayloadContributor::class;
 
     public static string $name = 'capell-content-sections';
 
@@ -135,7 +135,7 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
             ->registerConfigurators()
             ->registerPageTypes()
             ->registerAssets()
-            ->registerPublicBlockPayloadContributor()
+            ->registerPublicWidgetPayloadContributor()
             ->registerFrontendComponents()
             ->registerEvents()
             ->registerBladeComponents()
@@ -271,10 +271,10 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
         return $this;
     }
 
-    private function registerPublicBlockPayloadContributor(): self
+    private function registerPublicWidgetPayloadContributor(): self
     {
         if (interface_exists(self::PUBLIC_ELEMENT_PAYLOAD_CONTRIBUTOR)) {
-            $this->app->tag([SectionPublicBlockPayloadContributor::class], self::PUBLIC_ELEMENT_PAYLOAD_CONTRIBUTOR::TAG);
+            $this->app->tag([SectionPublicWidgetPayloadContributor::class], self::PUBLIC_ELEMENT_PAYLOAD_CONTRIBUTOR::TAG);
         }
 
         return $this;
@@ -285,9 +285,9 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
         $this->callAfterResolving(FrontendComponentRegistryInterface::class, function (FrontendComponentRegistryInterface $registry): void {
             $registry
                 ->register(
-                    key: FrontendComponentKeyEnum::SectionBlock->value,
-                    component: 'capell-content-sections::section.block',
-                    aliases: ['capell-content-sections::section.block'],
+                    key: FrontendComponentKeyEnum::SectionWidget->value,
+                    component: 'capell-content-sections::section.widget',
+                    aliases: ['capell-content-sections::section.widget'],
                     props: [
                         'asset',
                         'class',

@@ -17,7 +17,7 @@
     "dependencies": {
         "requires": [
             "capell-app/admin",
-            "capell-app/content-blocks",
+            "capell-app/block-library",
             "capell-app/core",
             "capell-app/frontend",
             "capell-app/layout-builder"

@@ -42,20 +42,19 @@ it('spreads attributes onto dynamic section components', function (): void {
         <<<'BLADE'
         <x-capell-content-sections::section.asset
             :asset="$asset"
-            component-item="section.block"
+            component-item="section.widget"
             :loop="$loop"
             :class="$class"
         />
         BLADE,
         [
             'asset' => $asset,
-            'class' => ['block-block-item'],
+            'class' => ['widget-widget-item'],
             'loop' => (object) ['index' => 0],
         ],
     )
         ->assertSee('Alice Johnson')
-        ->assertSee('section-asset')
-        ->assertSee('block-block-item');
+        ->assertElementExists('.section-asset.widget-widget-item');
 });
 
 it('builds section asset render data from loaded eloquent relations', function (): void {
@@ -90,7 +89,7 @@ it('builds section asset render data from loaded eloquent relations', function (
 
     $data = BuildSectionAssetRenderDataAction::run(
         asset: $section,
-        componentItem: 'section.block',
+        componentItem: 'section.widget',
         withLinkText: true,
         withSummary: true,
         withUrl: true,
@@ -128,7 +127,7 @@ it('does not lazy-load linked page URLs while building section asset render data
 
     $data = BuildSectionAssetRenderDataAction::run(
         asset: $section,
-        componentItem: 'section.block',
+        componentItem: 'section.widget',
         withLinkText: true,
         withSummary: true,
         withUrl: true,

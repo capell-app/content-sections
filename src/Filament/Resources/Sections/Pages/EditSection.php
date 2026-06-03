@@ -102,11 +102,13 @@ class EditSection extends EditRecord
             RestoreAction::make('restore'),
             DeleteAction::make('delete'),
             ForceDeleteAction::make('forceDelete'),
-            CreateContentAction::make('create')
-                ->redirectAfterCreate(),
-            ReplicateAction::make('replicate')
-                ->replicaModelAction(ReplicateContentAction::class)
-                ->hidden($this->record->trashed()),
+            ActionGroup::make([
+                CreateContentAction::make('create')
+                    ->redirectAfterCreate(),
+                ReplicateAction::make('replicate')
+                    ->replicaModelAction(ReplicateContentAction::class)
+                    ->hidden($this->record->trashed()),
+            ]),
         ]));
 
         return $actions;

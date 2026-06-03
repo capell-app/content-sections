@@ -7,12 +7,12 @@ description: 'How the Capell Content Sections package adds reusable section reco
 
 Content Sections adds reusable page sections that can be edited in the Capell admin and rendered through package-owned Blade components on the public frontend.
 
-Use it when a site needs shared heroes, FAQs, pricing blocks, statistics, testimonials, timelines, tables, teams, logos, and similar structured page sections without storing presentation markup in page content fields.
+Use it when a site needs shared heroes, FAQs, pricing widgets, statistics, testimonials, timelines, tables, teams, logos, and similar structured page sections without storing presentation markup in page content fields.
 
 ## Hard Dependencies
 
 - `capell-app/admin`
-- `capell-app/content-blocks`
+- `capell-app/block-library`
 - `capell-app/core`
 - `capell-app/frontend`
 - `capell-app/layout-builder`
@@ -22,9 +22,9 @@ Use it when a site needs shared heroes, FAQs, pricing blocks, statistics, testim
 - `SectionResource` in the admin content navigation under Pages.
 - Create, edit, and list pages for reusable section records.
 - A section assets relation manager for records with attached assets.
-- Section blueprint/configurator support for common marketing and editorial blocks.
-- Frontend Blade components for rendered section blocks.
-- Livewire helpers used by admin asset and block selection workflows.
+- Section blueprint/configurator support for common marketing and editorial widgets.
+- Frontend Blade components for rendered section widgets.
+- Livewire helpers used by admin asset and widget selection workflows.
 
 ## Admin Surfaces
 
@@ -51,7 +51,7 @@ Layout areas let themes expose places outside the main page body. For example, a
 
 Content Sections renders through package Blade views under `resources/views/components/section`.
 
-The package-owned public block views include:
+The package-owned public widget views include:
 
 - accordion
 - call to action
@@ -81,8 +81,8 @@ The screenshot contract is stored in [screenshots.json](screenshots.json). The f
 - admin section index;
 - create section form;
 - edit section form with warnings and asset relation manager;
-- modal section/block selector;
-- a frontend page rendering each registered section block family.
+- modal section/widget selector;
+- a frontend page rendering each registered section widget family.
 
 ## Install And Verify
 
@@ -104,4 +104,4 @@ vendor/bin/pest packages/content-sections/tests --configuration=phpunit.xml
 
 ## Known Audit Notes
 
-Content Sections has both admin and frontend surfaces. Final visual screenshots should be captured from a seeded app that includes `layout-builder` and `content-blocks`, because those are hard dependencies for editing and rendering section blocks.
+Content Sections has both admin and frontend surfaces. Final visual screenshots should be captured from a seeded app that includes `layout-builder` and `block-library`, because those are hard dependencies for editing and rendering section widgets.

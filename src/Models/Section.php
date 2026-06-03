@@ -251,6 +251,7 @@ class Section extends Model implements Blueprintable, HasMedia, Publishable, Use
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection(MediaCollectionEnum::Image->value)->singleFile();
+        $this->addMediaCollection(MediaCollectionEnum::Video->value)->singleFile();
     }
 
     /** @return BelongsTo<Blueprint, $this> */

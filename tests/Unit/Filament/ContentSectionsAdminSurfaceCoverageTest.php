@@ -3,27 +3,23 @@
 declare(strict_types=1);
 
 use Capell\ContentSections\Enums\ActionLinkEnum;
-use Capell\ContentSections\Filament\Components\Forms\ActionsRepeater;
-use Capell\ContentSections\Filament\Components\Forms\AssetsRepeater;
 use Capell\ContentSections\Filament\Components\Forms\ContentSelect;
 use Capell\ContentSections\Filament\Configurators\Sections\TestimonialSectionConfigurator;
 use Capell\ContentSections\Filament\Resources\Sections\SectionResource;
 use Capell\ContentSections\Filament\Resources\Sections\Tables\SectionSelectionTable;
 use Capell\ContentSections\Filament\Resources\Sections\Tables\SectionsTable;
 use Capell\ContentSections\Models\Section;
+use Capell\ContentSections\Tests\Fixtures\ContentSectionsActionsRepeaterHarness;
+use Capell\ContentSections\Tests\Fixtures\ContentSectionsAssetsRepeaterHarness;
+use Capell\ContentSections\Tests\Fixtures\ContentSectionsSchemaLivewireHarness;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Filament\Actions\Action;
-use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\Select;
-use Filament\Schemas\Components\Component as SchemaComponent;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section as FilamentSection;
 use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
-use Filament\Support\Contracts\TranslatableContentDriver;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -34,7 +30,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Collection;
-use Livewire\Component;
 use Mockery\MockInterface;
 
 it('builds testimonial section schemas for create and edit flows', function (): void {
@@ -174,7 +169,7 @@ it('labels content action repeater items from the selected higher level target',
         ->and($repeater->isCollapsed(contentSectionsStateSchema([])))->toBeFalse();
 });
 
-it('adds and edits content section block assets through the repeater action workflow', function (): void {
+it('adds and edits content section widget assets through the repeater action workflow', function (): void {
     $assetPage = Page::factory()->create(['name' => 'Asset page']);
     $component = ContentSectionsAssetsRepeaterHarness::make('assets');
     $component->container(contentSectionsSchema('edit'));
@@ -563,137 +558,4 @@ function contentSectionsStateSchema(array $state): Schema
     $schema->rawState($state);
 
     return $schema;
-}
-
-final class ContentSectionsAssetsRepeaterHarness extends AssetsRepeater
-{
-    /** @var array<array-key, mixed> */
-    public array $rawState = [];
-
-    public ?Schema $lastChildSchema = null;
-
-    public bool $afterStateUpdatedCalled = false;
-
-    public bool $partiallyRendered = false;
-
-    public bool $collapsedCalled = false;
-
-    #[Override]
-    public function getRawState(): mixed
-    {
-        return $this->rawState;
-    }
-
-    #[Override]
-    public function rawState(mixed $state): static
-    {
-        $this->rawState = is_array($state) ? $state : [];
-
-        return $this;
-    }
-
-    #[Override]
-    public function getRawItemState(string $key): array
-    {
-        $state = $this->rawState[$key] ?? [];
-
-        return is_array($state) ? $state : [];
-    }
-
-    #[Override]
-    public function getChildSchema($key = null): Schema
-    {
-        $state = is_int($key) || is_string($key)
-            ? ($this->rawState[$key] ?? [])
-            : [];
-
-        $this->lastChildSchema = contentSectionsStateSchema(is_array($state) ? $state : []);
-
-        return $this->lastChildSchema;
-    }
-
-    #[Override]
-    public function collapsed(bool|Closure $condition = true, bool $shouldMakeComponentCollapsible = true): static
-    {
-        $this->collapsedCalled = true;
-
-        return parent::collapsed($condition, $shouldMakeComponentCollapsible);
-    }
-
-    #[Override]
-    public function callAfterStateUpdated(bool $shouldBubbleToParents = true): static
-    {
-        $this->afterStateUpdatedCalled = true;
-
-        return $this;
-    }
-
-    #[Override]
-    public function partiallyRender(): void
-    {
-        $this->partiallyRendered = true;
-    }
-}
-
-final class ContentSectionsActionsRepeaterHarness extends ActionsRepeater
-{
-    /** @var array<array-key, mixed> */
-    public array $rawState = [];
-
-    #[Override]
-    public function getRawState(): mixed
-    {
-        return $this->rawState;
-    }
-
-    #[Override]
-    public function rawState(mixed $state): static
-    {
-        $this->rawState = is_array($state) ? $state : [];
-
-        return $this;
-    }
-
-    #[Override]
-    public function getChildSchema($key = null): Schema
-    {
-        $state = is_string($key) || is_int($key)
-            ? ($this->rawState[$key] ?? [])
-            : [];
-
-        return contentSectionsStateSchema(is_array($state) ? $state : []);
-    }
-}
-
-final class ContentSectionsSchemaLivewireHarness extends Component implements HasSchemas
-{
-    public function makeFilamentTranslatableContentDriver(): ?TranslatableContentDriver
-    {
-        return null;
-    }
-
-    public function getOldSchemaState(string $statePath): mixed
-    {
-        return null;
-    }
-
-    /**
-     * @param  array<SchemaComponent>  $skipComponentsChildContainersWhileSearching
-     */
-    public function getSchemaComponent(string $key, bool $withHidden = false, array $skipComponentsChildContainersWhileSearching = []): SchemaComponent|Action|ActionGroup|null
-    {
-        return null;
-    }
-
-    public function getSchema(string $name): ?Schema
-    {
-        return null;
-    }
-
-    public function currentlyValidatingSchema(?Schema $schema): void {}
-
-    public function getDefaultTestingSchemaName(): ?string
-    {
-        return null;
-    }
 }

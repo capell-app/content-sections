@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\ContentSections\Support;
 
-use Capell\ContentBlocks\Contracts\BlockDefinitionProvider;
-use Capell\ContentBlocks\Data\BlockDefinitionData;
+use Capell\BlockLibrary\Contracts\BlockDefinitionProvider;
+use Capell\BlockLibrary\Data\BlockDefinitionData;
 
 final class ContentSectionsBlockDefinitionProvider implements BlockDefinitionProvider
 {

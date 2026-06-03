@@ -7,7 +7,7 @@ namespace Capell\ContentSections\Tests;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Admin\Providers\Filament\AdminPanelProvider;
-use Capell\ContentBlocks\Providers\ContentBlocksServiceProvider;
+use Capell\BlockLibrary\Providers\BlockLibraryServiceProvider;
 use Capell\ContentSections\Providers\ContentSectionsServiceProvider;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Media;
@@ -61,7 +61,7 @@ class ContentSectionsTestCase extends AbstractTestCase
     {
         return [
             ...parent::getPackageProviders($app),
-            ContentBlocksServiceProvider::class,
+            BlockLibraryServiceProvider::class,
             ContentSectionsServiceProvider::class,
             LayoutBuilderServiceProvider::class,
             AdminPanelProvider::class,

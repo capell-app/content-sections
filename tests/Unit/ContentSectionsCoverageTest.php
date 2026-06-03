@@ -274,7 +274,7 @@ it('exposes modal table select query, form, and selection helpers', function ():
         ->and($component->form(Schema::make()))->toBeInstanceOf(Schema::class)
         ->and($component->exposeTableQuery())->toBeInstanceOf(Builder::class)
         ->and($component->selectRecordsAction()->getName())->toBe('selectRecords')
-        ->and($component->render()->name())->toBe('capell-content-sections::livewire.filament.blocks-table-select')
+        ->and($component->render()->name())->toBe('capell-content-sections::livewire.filament.widgets-table-select')
         ->and($component->exposeCanSubmitSelectedRecords())->toBeFalse();
 });
 
