@@ -158,6 +158,10 @@ final class SectionPublicWidgetPayloadContributor implements PublicWidgetPayload
 
     private function componentViewName(string $component): ?string
     {
+        if (Str::startsWith($component, 'capell-block-library::blocks.catalog.')) {
+            return $component;
+        }
+
         if (! Str::startsWith($component, 'capell-content-sections::section.widgets.')) {
             return null;
         }
@@ -187,7 +191,7 @@ final class SectionPublicWidgetPayloadContributor implements PublicWidgetPayload
 
         return ResolveSectionComponentAction::run(
             configurator: is_string($configurator) ? $configurator : null,
-            fallbackComponent: 'capell-content-sections::section.widgets.content',
+            fallbackComponent: 'capell-block-library::blocks.catalog.content',
         );
     }
 

@@ -48,7 +48,7 @@ class DefaultSectionDefinitionProvider implements SectionDefinitionProvider
             icon: $icon,
             group: 'main',
             configurator: $configurator,
-            component: 'capell-content-sections::section.widgets.' . str_replace('_', '-', $key),
+            component: 'capell-block-library::blocks.catalog.' . str_replace('_', '-', $key),
             defaults: [],
         );
     }

@@ -59,11 +59,11 @@
             "package": "content-sections",
             "surface": "frontend",
             "targetType": "frontend-render",
-            "target": "capell-content-sections::components.section.widgets.*",
+            "target": "capell-block-library::blocks.catalog.*",
             "required": true,
             "notes": "Seed one public page that renders each registered section widget family. Anonymous output must not expose authoring markers, editor URLs, internal IDs, or package internals.",
             "screenshotPath": "packages/content-sections/docs/screenshots/section-widget-gallery.png",
-            "useCase": "A maintainer verifies the public section gallery renders every package-owned widget safely for anonymous visitors."
+            "useCase": "A maintainer verifies the public section gallery renders every Block Library-backed widget safely for anonymous visitors."
         }
     ]
 }

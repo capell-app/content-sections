@@ -53,7 +53,7 @@ it('contributes section assets to public layout widget payloads', function (): v
         ->toMatchArray([
             'id' => $section->getKey(),
             'key' => 'hero',
-            'component' => 'capell-content-sections::section.widgets.hero',
+            'component' => 'capell-block-library::blocks.catalog.hero',
             'title' => 'Hero Copy',
             'summary' => '<p>Hero summary</p>',
             'meta' => ['alignment' => 'start'],
