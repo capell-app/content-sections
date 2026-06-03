@@ -29,7 +29,7 @@ Reusable content sections for Capell.
 - Admin resources: `SectionResource`.
 - Livewire components: `AbstractAssets`, `ModalTableSelect`, `SectionAssets`.
 
-Install after Content Blocks and Layout Builder so section definitions can be registered as layout-selectable widgets.
+Install after Block Library and Layout Builder so section definitions can be registered as layout-selectable widgets.
 
 ## Code Map
 
