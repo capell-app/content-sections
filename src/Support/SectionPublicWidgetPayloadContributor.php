@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\ContentSections\Support;
 
 use Capell\ContentSections\Actions\ResolveSectionComponentAction;
+use Capell\ContentSections\Actions\SanitizeSectionHtmlAction;
 use Capell\ContentSections\Models\Section;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
@@ -178,10 +179,15 @@ final class SectionPublicWidgetPayloadContributor implements PublicWidgetPayload
      */
     private function metaFor(Section $section, WidgetAsset $widgetAsset): array
     {
-        return array_replace_recursive(
+        $meta = array_replace_recursive(
             is_array($section->meta) ? $section->meta : [],
             is_array($widgetAsset->meta) ? $widgetAsset->meta : [],
         );
+
+        /** @var array<string, mixed> $sanitised */
+        $sanitised = SanitizeSectionHtmlAction::run($meta);
+
+        return $sanitised;
     }
 
     private function componentFor(Section $section): string
@@ -244,7 +250,11 @@ final class SectionPublicWidgetPayloadContributor implements PublicWidgetPayload
         }
 
         if (is_string($translation->content) && $translation->content !== '') {
-            return $translation->content;
+            return SanitizeSectionHtmlAction::run($translation->content);
+        }
+
+        if (is_string($translation->summary)) {
+            return SanitizeSectionHtmlAction::run($translation->summary);
         }
 
         return $translation->summary;

@@ -1,0 +1,130 @@
+<?php
+
+declare(strict_types=1);
+
+use Capell\ContentSections\Actions\EnsureSectionBlueprintForKeyAction;
+use Capell\ContentSections\Models\Section;
+use Capell\Core\Models\Language;
+use Capell\Core\Models\Layout;
+use Capell\Core\Models\Page;
+use Capell\Core\Models\Site;
+use Capell\LayoutBuilder\Actions\BuildPublicLayoutGraphAction;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
+
+/**
+ * @param  array<string, mixed>  $meta
+ */
+function placeSectionAndBuildPublicGraph(
+    string $key,
+    string $content,
+    array $meta = [],
+): object {
+    $language = Language::factory()->create();
+    $site = Site::factory()->create(['language_id' => $language->id]);
+    $blueprint = EnsureSectionBlueprintForKeyAction::run($key);
+
+    $section = Section::factory()
+        ->site($site)
+        ->blueprint($blueprint)
+        ->withTranslations($language, [
+            'title' => 'Untrusted Copy',
+            'content' => $content,
+        ])
+        ->create([
+            'name' => 'Untrusted section',
+            'meta' => $meta,
+            'visible_until' => now()->addDay(),
+        ]);
+
+    $widget = Widget::factory()->create(['key' => 'untrusted-widget']);
+    $layout = Layout::factory()->site($site)->create([
+        'containers' => [
+            'main' => ['widgets' => [['widget_key' => $widget->key, 'occurrence' => 1]]],
+        ],
+    ]);
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
+
+    WidgetAsset::factory()->widget($widget)->asset($section)->create(['order' => 1]);
+
+    $graph = BuildPublicLayoutGraphAction::run($layout, $page, $language, includeHtml: true);
+
+    return $graph->containers[0]->widgets[0];
+}
+
+it('strips script tags from section summary in the anonymous public payload', function (): void {
+    $widgetData = placeSectionAndBuildPublicGraph(
+        'hero',
+        '<p>Welcome</p><script>alert(document.cookie)</script>',
+    );
+
+    $summary = $widgetData->data['sections'][0]['summary'];
+
+    expect($summary)
+        ->toContain('<p>Welcome</p>')
+        ->not->toContain('<script')
+        ->not->toContain('alert(document.cookie)');
+});
+
+it('strips inline event handlers from section summary in the anonymous public payload', function (): void {
+    $widgetData = placeSectionAndBuildPublicGraph(
+        'content',
+        '<p onclick="steal()">Editorial copy</p><img src=x onerror="steal()">',
+    );
+
+    $summary = $widgetData->data['sections'][0]['summary'];
+
+    expect($summary)
+        ->toContain('Editorial copy')
+        ->not->toContain('onclick')
+        ->not->toContain('onerror')
+        ->not->toContain('steal()');
+});
+
+it('does not emit script markup in the rendered anonymous section html', function (): void {
+    $widgetData = placeSectionAndBuildPublicGraph(
+        'hero',
+        '<p>Hero body</p><script>window.__xss=1</script>',
+    );
+
+    expect($widgetData->html)
+        ->toContain('Hero body')
+        ->not->toContain('<script')
+        ->not->toContain('window.__xss');
+});
+
+it('sanitises malicious html inside nested section meta values', function (): void {
+    $widgetData = placeSectionAndBuildPublicGraph(
+        'faq',
+        '<p>FAQ intro</p>',
+        [
+            'questions' => [
+                [
+                    'question' => 'Is meta sanitised?',
+                    'answer' => '<p>Yes.</p><script>alert(1)</script>',
+                ],
+            ],
+        ],
+    );
+
+    $meta = $widgetData->data['sections'][0]['meta'];
+
+    expect($meta['questions'][0]['answer'])
+        ->toContain('<p>Yes.</p>')
+        ->not->toContain('<script')
+        ->and($widgetData->html)
+        ->not->toContain('<script')
+        ->not->toContain('alert(1)');
+});
+
+it('preserves legitimate rich-text markup in section summary', function (): void {
+    $widgetData = placeSectionAndBuildPublicGraph(
+        'content',
+        '<p>Lead paragraph with <strong>bold</strong> and <a href="/about">a link</a>.</p><ul><li>One</li></ul>',
+    );
+
+    expect($widgetData->data['sections'][0]['summary'])
+        ->toContain('<strong>bold</strong>')
+        ->toContain('<a href="/about">a link</a>')
+        ->toContain('<li>One</li>');
+});
