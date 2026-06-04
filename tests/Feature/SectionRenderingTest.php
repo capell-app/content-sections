@@ -10,6 +10,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Testing\TestResponse;
+use Illuminate\View\ComponentAttributeBag;
 use Sinnbeck\DomAssertions\Asserts\AssertElement;
 
 beforeEach(function (): void {
@@ -23,6 +24,32 @@ beforeEach(function (): void {
 
     resolve(Translator::class)->addNamespace('capell-block-library', __DIR__ . '/../../../block-library/resources/lang');
     resolve(Translator::class)->addNamespace('capell-content-sections', __DIR__ . '/../../resources/lang');
+    Blade::anonymousComponentPath(__DIR__ . '/../../../block-library/resources/views', 'capell-block-library');
+    foreach ([
+        'accordion',
+        'call-to-action',
+        'comparison',
+        'content',
+        'counter',
+        'divider',
+        'faq',
+        'features',
+        'hero',
+        'logos',
+        'pricing',
+        'stats',
+        'table',
+        'tabs',
+        'team',
+        'testimonial',
+        'timeline',
+    ] as $component) {
+        Blade::component(
+            'capell-block-library::blocks.catalog.' . $component,
+            'capell-block-library::blocks.catalog.' . $component,
+        );
+    }
+
     Blade::anonymousComponentPath(__DIR__ . '/../Fixtures/components', 'capell');
 
     RegisterDefaultSectionsAction::run($registry);
@@ -33,10 +60,10 @@ function renderSectionForDomAssertions(string $key): TestResponse
 {
     $data = BuildSectionDemoDataAction::run($key);
     $data['meta'] = removeSectionIconValues($data['meta']);
-    $html = Blade::render(
-        '<x-dynamic-component :component="$definition->component" :asset="$asset" :meta="$meta" :summary="$summary" :title="$title" :link-text="$linkText" :url="$url" />',
-        $data,
-    );
+    $html = view()->make($data['definition']->component, [
+        ...$data,
+        'attributes' => new ComponentAttributeBag,
+    ])->render();
 
     return TestResponse::fromBaseResponse(
         new Response('<!DOCTYPE html><html><body>' . $html . '</body></html>'),
@@ -104,10 +131,10 @@ it('renders public action buttons through the public actions component when avai
         ],
     ];
 
-    $html = Blade::render(
-        '<x-dynamic-component :component="$definition->component" :asset="$asset" :meta="$meta" :summary="$summary" :title="$title" :link-text="$linkText" :url="$url" />',
-        $data,
-    );
+    $html = view()->make($data['definition']->component, [
+        ...$data,
+        'attributes' => new ComponentAttributeBag,
+    ])->render();
 
     TestResponse::fromBaseResponse(new Response('<!DOCTYPE html><html><body>' . $html . '</body></html>'))
         ->assertContainsElement('section.section-call-to-action form', ['action' => 'http://localhost/actions/request-preview'])
@@ -142,10 +169,10 @@ it('renders counter cards with formatted values and labels', function (): void {
 
 it('renders configured section icons through blade icons', function (): void {
     $data = BuildSectionDemoDataAction::run('counter');
-    $html = Blade::render(
-        '<x-dynamic-component :component="$definition->component" :asset="$asset" :meta="$meta" :summary="$summary" :title="$title" :link-text="$linkText" :url="$url" />',
-        $data,
-    );
+    $html = view()->make($data['definition']->component, [
+        ...$data,
+        'attributes' => new ComponentAttributeBag,
+    ])->render();
 
     expect($html)
         ->toContain('<svg');
