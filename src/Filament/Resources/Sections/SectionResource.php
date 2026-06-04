@@ -40,6 +40,8 @@ class SectionResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    protected static bool $isGloballySearchable = true;
+
     protected static string $formConfigurator = SectionForm::class;
 
     protected static string $tableConfigurator = SectionsTable::class;

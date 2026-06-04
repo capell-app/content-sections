@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\ContentSections\Livewire\Assets\Table;
 
 use Capell\ContentSections\Livewire\Filament\ModalTableSelect;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
@@ -43,6 +44,12 @@ abstract class AbstractAssets extends ModalTableSelect
             : (string) $id;
     }
 
+    public function table(Table $table): Table
+    {
+        return parent::table($table)
+            ->persistFiltersInSession();
+    }
+
     public function selectRecords(): void
     {
         if (! $this->canSubmitSelectedRecords()) {
@@ -59,10 +66,5 @@ abstract class AbstractAssets extends ModalTableSelect
         $this->resetPage();
 
         $this->dispatch('close-modal', id: $this->actionModalId);
-    }
-
-    protected function shouldPersistTableFiltersInSession(): bool
-    {
-        return true;
     }
 }

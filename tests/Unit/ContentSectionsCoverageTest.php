@@ -109,11 +109,18 @@ it('builds section asset render data from preloaded relations and plain objects'
         }
     };
 
-    $linkedPage = new class extends Model {};
+    $linkedPage = new class extends Model
+    {
+        /** @use HasFactory<Factory<static>> */
+        use HasFactory;
+    };
     $linkedPage->setRelation('pageUrl', (object) ['full_url' => 'https://example.test/page']);
 
     $asset = new class($translation, $linkedPage) extends Model
     {
+        /** @use HasFactory<Factory<static>> */
+        use HasFactory;
+
         /**
          * @var array<array-key, mixed>
          */
@@ -218,7 +225,7 @@ it('declares content sections manifest surfaces accurately', function (): void {
             'keys' => ['section.widget', 'section.team-member'],
         ])
         ->and($manifest['performance']['cacheSafety']['invalidationSources'] ?? [])->toContain([
-            'model' => 'Capell\\ContentSections\\Models\\Section',
+            'model' => Section::class,
             'events' => ['created', 'updated', 'deleted', 'restored', 'forceDeleted'],
         ]);
 });

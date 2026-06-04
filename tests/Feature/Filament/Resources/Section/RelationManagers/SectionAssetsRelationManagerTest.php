@@ -6,7 +6,7 @@ use Capell\ContentSections\Enums\AssetEnum;
 use Capell\ContentSections\Filament\Resources\Sections\Pages\EditSection;
 use Capell\ContentSections\Filament\Resources\Sections\RelationManagers\SectionAssetsRelationManager;
 use Capell\ContentSections\Models\Section;
-use Capell\Core\Models\AssetRelation;
+use Capell\Core\Models\AssetAttachment;
 use Capell\Core\Models\Page;
 use Filament\Actions\CreateAction;
 use Filament\Actions\Testing\TestAction;
@@ -17,7 +17,7 @@ use function Pest\Livewire\livewire;
 
 it('can list section assets', function (): void {
     $section = Section::factory()
-        ->has(AssetRelation::factory(['related_type' => AssetEnum::Section->value])->count(5), 'assets')
+        ->has(AssetAttachment::factory(['related_type' => AssetEnum::Section->value])->count(5), 'assets')
         ->create();
 
     $resource = $section->assets->first()->load('asset');
@@ -35,7 +35,7 @@ it('can list section assets', function (): void {
 it('can search section assets by name', function (): void {
     $section = Section::factory()
         ->has(
-            AssetRelation::factory(['related_type' => AssetEnum::Section->value])
+            AssetAttachment::factory(['related_type' => AssetEnum::Section->value])
                 ->asset(
                     Capell\Core\Enums\AssetEnum::Page,
                     ['name' => 'First'],
@@ -43,7 +43,7 @@ it('can search section assets by name', function (): void {
             'assets',
         )
         ->has(
-            AssetRelation::factory([
+            AssetAttachment::factory([
                 'related_type' => AssetEnum::Section->value,
                 'asset_type' => AssetEnum::Section->value,
                 'asset_id' => Section::factory(['name' => 'Second']),
@@ -51,7 +51,7 @@ it('can search section assets by name', function (): void {
             'assets',
         )
         ->has(
-            AssetRelation::factory(['related_type' => AssetEnum::Section->value])
+            AssetAttachment::factory(['related_type' => AssetEnum::Section->value])
                 ->asset(
                     Capell\Core\Enums\AssetEnum::Page,
                     ['name' => 'Third'],
@@ -59,7 +59,7 @@ it('can search section assets by name', function (): void {
             'assets',
         )
         ->has(
-            AssetRelation::factory([
+            AssetAttachment::factory([
                 'related_type' => AssetEnum::Section->value,
                 'asset_type' => AssetEnum::Section->value,
                 'asset_id' => Section::factory(['name' => 'Fourth']),
@@ -83,7 +83,7 @@ it('can search section assets by name', function (): void {
 
 it('returns no results when search matches nothing', function (): void {
     $section = Section::factory()
-        ->has(AssetRelation::factory(['related_type' => AssetEnum::Section->value])->count(3), 'assets')
+        ->has(AssetAttachment::factory(['related_type' => AssetEnum::Section->value])->count(3), 'assets')
         ->create();
 
     livewire(SectionAssetsRelationManager::class, [
@@ -99,12 +99,12 @@ it('returns no results when search matches nothing', function (): void {
 it('can filter section assets by asset type', function (): void {
     $section = Section::factory()
         ->has(
-            AssetRelation::factory(['related_type' => AssetEnum::Section->value])
+            AssetAttachment::factory(['related_type' => AssetEnum::Section->value])
                 ->asset(Capell\Core\Enums\AssetEnum::Page),
             'assets',
         )
         ->has(
-            AssetRelation::factory([
+            AssetAttachment::factory([
                 'related_type' => AssetEnum::Section->value,
                 'asset_type' => AssetEnum::Section->value,
                 'asset_id' => Section::factory(),
@@ -130,7 +130,7 @@ it('can filter section assets by asset type', function (): void {
 
 it('can bulk delete section assets', function (): void {
     $section = Section::factory()
-        ->has(AssetRelation::factory(['related_type' => AssetEnum::Section->value])->count(3), 'assets')
+        ->has(AssetAttachment::factory(['related_type' => AssetEnum::Section->value])->count(3), 'assets')
         ->create();
 
     $assets = $section->assets;
@@ -147,7 +147,7 @@ it('can bulk delete section assets', function (): void {
         ->assertCountTableRecords(0);
 
     foreach ($assets as $asset) {
-        assertDatabaseMissing(AssetRelation::class, ['id' => $asset->id]);
+        assertDatabaseMissing(AssetAttachment::class, ['id' => $asset->id]);
     }
 });
 
@@ -178,7 +178,7 @@ test('can create an asset for a section', function (string $assetType): void {
         ->assertHasNoFormErrors()
         ->assertCountTableRecords(1);
 
-    assertDatabaseHas(AssetRelation::class, [
+    assertDatabaseHas(AssetAttachment::class, [
         'related_type' => $section->getMorphClass(),
         'related_id' => $section->id,
         'asset_type' => $assetType,

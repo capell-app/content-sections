@@ -14,7 +14,7 @@ use Capell\Core\Concerns\HasCapellMedia;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Enums\PublishStatusEnum;
-use Capell\Core\Models\AssetRelation;
+use Capell\Core\Models\AssetAttachment;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Concerns\HasAssets;
 use Capell\Core\Models\Concerns\HasMetaData;
@@ -53,7 +53,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
 
 /**
- * @property-read EloquentCollection<int, AssetRelation> $assets
+ * @property-read EloquentCollection<int, AssetAttachment> $assets
  * @property-read int|null $assets_count
  * @property-read int|null $audits_count
  * @property-read Collection<int, Section> $children
@@ -79,7 +79,7 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
  * @property-read EloquentCollection|Section[] $related
  * @property-read int|null $related_count
  * @property-read Page|null $linkedPage
- * @property-read EloquentCollection<int, AssetRelation> $assetRelations
+ * @property-read EloquentCollection<int, AssetAttachment> $assetRelations
  * @property-read int|null $asset_relations_count
  * @property-read EloquentCollection<int, Activity> $activities
  * @property-read int|null $activities_count

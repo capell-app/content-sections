@@ -121,7 +121,13 @@
             "invalidationSources": [
                 {
                     "model": "Capell\\ContentSections\\Models\\Section",
-                    "events": ["created", "updated", "deleted", "restored", "forceDeleted"]
+                    "events": [
+                        "created",
+                        "updated",
+                        "deleted",
+                        "restored",
+                        "forceDeleted"
+                    ]
                 }
             ],
             "queueInvalidation": true
