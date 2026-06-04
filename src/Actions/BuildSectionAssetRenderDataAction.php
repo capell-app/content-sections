@@ -38,7 +38,7 @@ final class BuildSectionAssetRenderDataAction
             title: is_string($title) ? $title : null,
             url: $withUrl ? $this->url($asset) : null,
             color: method_exists($asset, 'getMeta') ? $asset->getMeta('color') : null,
-            icon: method_exists($asset, 'getMeta') ? $asset->getMeta('icon') : null,
+            icon: method_exists($asset, 'getMeta') ? NormalizeSectionIconAction::run($asset->getMeta('icon')) : null,
         );
     }
 

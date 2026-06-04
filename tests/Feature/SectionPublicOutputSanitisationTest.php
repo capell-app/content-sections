@@ -118,6 +118,35 @@ it('sanitises malicious html inside nested section meta values', function (): vo
         ->not->toContain('alert(1)');
 });
 
+it('normalises untrusted icon meta before public section rendering', function (): void {
+    $widgetData = placeSectionAndBuildPublicGraph(
+        'features',
+        '<p>Feature intro</p>',
+        [
+            'features' => [
+                [
+                    'heading' => 'Safe feature',
+                    'description' => 'Safe feature copy.',
+                    'icon' => 'heroicon-o-sparkles',
+                ],
+                [
+                    'heading' => 'Unsafe feature',
+                    'description' => 'Unsafe icon copy.',
+                    'icon' => '../../storage/app/private/secret.svg',
+                ],
+            ],
+        ],
+    );
+
+    $features = $widgetData->data['sections'][0]['meta']['features'];
+
+    expect($features[0]['icon'])->toBe('heroicon-o-sparkles')
+        ->and($features[1]['icon'])->toBeNull()
+        ->and($widgetData->html)->toContain('Safe feature')
+        ->and($widgetData->html)->toContain('Unsafe feature')
+        ->and($widgetData->html)->not->toContain('../../storage');
+});
+
 it('preserves legitimate rich-text markup in section summary', function (): void {
     $widgetData = placeSectionAndBuildPublicGraph(
         'content',

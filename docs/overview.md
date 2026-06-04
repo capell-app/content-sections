@@ -25,6 +25,8 @@ Use it when a site needs shared heroes, FAQs, pricing widgets, statistics, testi
 - Section blueprint/configurator support for common marketing and editorial widgets.
 - Frontend payload wiring for rendered Block Library section widgets.
 - Livewire helpers used by admin asset and widget selection workflows.
+- Public-output sanitisation for editor-authored rich text, nested meta HTML, and icon keys before section data reaches anonymous frontend Blade.
+- Real package diagnostics for storage, morph registration, admin resource availability, registry population, and the Layout Builder public payload contributor.
 
 ## Admin Surfaces
 
@@ -50,6 +52,8 @@ Layout areas let themes expose places outside the main page body. For example, a
 ## Frontend Surfaces
 
 Content Sections renders section records through Block Library views under `capell-block-library::blocks.catalog.*`.
+
+Section summaries and nested meta are sanitised at the payload-contributor boundary, so Block Library views can preserve safe rich text without exposing scripts, event handlers, or untrusted icon identifiers.
 
 The package-owned public widget views include:
 

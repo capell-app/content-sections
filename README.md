@@ -6,7 +6,7 @@ Reusable content sections for Capell.
 
 - Package: `capell-app/content-sections`
 - Namespace: `Capell\ContentSections\`
-- Surfaces: Filament admin, Livewire, database
+- Surfaces: Filament admin, public frontend, Livewire admin helpers, database
 - Service providers: `packages/content-sections/src/Providers/ContentSectionsServiceProvider.php`
 - Capell dependencies: `capell-app/admin`, `capell-app/block-library`, `capell-app/core`, `capell-app/frontend`, `capell-app/layout-builder`
 
@@ -28,6 +28,8 @@ Reusable content sections for Capell.
 - Content widget definitions for each registered section, exposed through `capell-app/block-library`.
 - Admin resources: `SectionResource`.
 - Livewire components: `AbstractAssets`, `ModalTableSelect`, `SectionAssets`.
+- Public layout payloads and rendered HTML are sanitised before anonymous frontend output, including rich-text summaries, nested meta HTML, and editor-selected icon keys.
+- Diagnostics cover install/runtime readiness: the `sections` table, morph alias, admin resource, default section registry, and Layout Builder public payload contributor.
 
 Install after Block Library and Layout Builder so section definitions can be registered as layout-selectable widgets.
 
@@ -56,6 +58,7 @@ Install after Block Library and Layout Builder so section definitions can be reg
 ## Runtime Surface
 
 - Livewire: `AbstractAssets`, `ModalTableSelect`, `SectionAssets`.
+- Public frontend: `SectionPublicWidgetPayloadContributor` contributes hydrated section payloads and rendered Block Library HTML to Layout Builder.
 
 ## Data And Persistence
 

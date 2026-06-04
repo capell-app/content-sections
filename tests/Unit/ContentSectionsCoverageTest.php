@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Capell\ContentSections\Actions\BuildSectionAssetRenderDataAction;
 use Capell\ContentSections\Actions\ModifyContentSelectCreateAction;
+use Capell\ContentSections\Actions\NormalizeSectionIconAction;
 use Capell\ContentSections\Enums\ActionLinkEnum;
 use Capell\ContentSections\Enums\AssetEnum;
 use Capell\ContentSections\Enums\ConfiguratorTypeEnum;
@@ -35,9 +36,11 @@ use Capell\ContentSections\Filament\Resources\Sections\Widgets\SectionAlertsWidg
 use Capell\ContentSections\Health\ContentSectionsHealthCheck;
 use Capell\ContentSections\Livewire\Assets\Table\SectionAssets;
 use Capell\ContentSections\Livewire\Filament\ModalTableSelect;
+use Capell\ContentSections\Manifest\ContentSectionsPackageContribution;
 use Capell\ContentSections\Models\Section;
 use Capell\ContentSections\Observers\SectionObserver;
 use Capell\ContentSections\Support\DefaultSectionDefinitionProvider;
+use Capell\Core\Data\Diagnostics\DoctorCheckResultData;
 use Capell\Core\Enums\PublishStatusEnum;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
@@ -53,6 +56,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\File;
 use Livewire\Livewire;
 
 uses(CreatesAdminUser::class);
@@ -105,16 +109,11 @@ it('builds section asset render data from preloaded relations and plain objects'
         }
     };
 
-    $linkedPage = new class extends Model
-    {
-        use HasFactory;
-    };
+    $linkedPage = new class extends Model {};
     $linkedPage->setRelation('pageUrl', (object) ['full_url' => 'https://example.test/page']);
 
     $asset = new class($translation, $linkedPage) extends Model
     {
-        use HasFactory;
-
         /**
          * @var array<array-key, mixed>
          */
@@ -136,7 +135,7 @@ it('builds section asset render data from preloaded relations and plain objects'
 
         public function getMeta(string $key): ?string
         {
-            return ['color' => 'primary', 'icon' => 'sparkles'][$key] ?? null;
+            return ['color' => 'primary', 'icon' => 'heroicon-o-sparkles'][$key] ?? null;
         }
     };
 
@@ -150,7 +149,7 @@ it('builds section asset render data from preloaded relations and plain objects'
         ->and($data->url)->toBe('https://example.test/page')
         ->and($data->meta)->toBe(['featured' => true])
         ->and($data->color)->toBe('primary')
-        ->and($data->icon)->toBe('sparkles');
+        ->and($data->icon)->toBe('heroicon-o-sparkles');
 });
 
 it('exposes default section definitions and enum metadata', function (): void {
@@ -165,6 +164,63 @@ it('exposes default section definitions and enum metadata', function (): void {
         ->and(AssetEnum::Section->getLabel())->toBeString()
         ->and(ConfiguratorTypeEnum::Section->getConfigurators())->toContain(SectionConfiguratorEnum::Hero->value)
         ->and(ContentSectionsHealthCheck::compatibleCapellApiVersion())->toBe('^4.0');
+});
+
+it('runs real content sections health diagnostics', function (): void {
+    $results = ContentSectionsHealthCheck::runDiagnostics();
+
+    expect($results)->toHaveCount(5)
+        ->and($results->every(static fn (mixed $result): bool => $result instanceof DoctorCheckResultData))->toBeTrue()
+        ->and($results->every(static fn (DoctorCheckResultData $result): bool => $result->passed))->toBeTrue()
+        ->and(ContentSectionsHealthCheck::passed())->toBeTrue();
+});
+
+it('normalises section icon identifiers for public rendering', function (): void {
+    expect(NormalizeSectionIconAction::run('heroicon-o-sparkles'))->toBe('heroicon-o-sparkles')
+        ->and(NormalizeSectionIconAction::run(' heroicon-m-bolt '))->toBe('heroicon-m-bolt')
+        ->and(NormalizeSectionIconAction::run('../../storage/app/private/secret.svg'))->toBeNull()
+        ->and(NormalizeSectionIconAction::run('<svg onload=alert(1)>'))->toBeNull()
+        ->and(NormalizeSectionIconAction::run(null))->toBeNull();
+});
+
+it('declares content sections manifest surfaces accurately', function (): void {
+    $manifest = json_decode(
+        File::get(__DIR__ . '/../../capell.json'),
+        associative: true,
+        flags: JSON_THROW_ON_ERROR,
+    );
+
+    expect($manifest['database']['requiredTables'] ?? [])->toContain('sections')
+        ->and($manifest['dependencies']['supports'] ?? [])->toContain(
+            'capell-app/publishing-studio',
+            'capell-app/public-actions',
+        )
+        ->and($manifest['permissions'] ?? [])->toContain(
+            'ViewAny:Section',
+            'Update:Section',
+            'ForceDeleteAny:Section',
+            'Reorder:Section',
+        )
+        ->and($manifest['capabilities'] ?? [])->toContain(
+            'content-sections-public-rendering',
+            'content-sections-public-output-sanitisation',
+            'content-sections-layout-builder-payloads',
+        )
+        ->and($manifest['contributes'] ?? [])->toContain([
+            'type' => 'admin-resource',
+            'class' => ContentSectionsPackageContribution::class,
+            'resourceClass' => SectionResource::class,
+            'group' => 'Section',
+        ])
+        ->and($manifest['contributes'] ?? [])->toContain([
+            'type' => 'frontend-component',
+            'class' => ContentSectionsPackageContribution::class,
+            'keys' => ['section.widget', 'section.team-member'],
+        ])
+        ->and($manifest['performance']['cacheSafety']['invalidationSources'] ?? [])->toContain([
+            'model' => 'Capell\\ContentSections\\Models\\Section',
+            'events' => ['created', 'updated', 'deleted', 'restored', 'forceDeleted'],
+        ]);
 });
 
 it('declares section configurator keys for popular section variants', function (object $configurator, string $key): void {

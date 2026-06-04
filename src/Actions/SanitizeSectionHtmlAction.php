@@ -13,7 +13,9 @@ use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
  * anonymous frontend. Section summaries and nested meta values are emitted via
  * Blade `{!! !!}` in the catalog views, so any unsanitised `<script>` or event
  * handler authored by an editor would execute for every visitor. This action
- * strips dangerous markup while preserving safe rich-text elements.
+ * strips dangerous markup while preserving safe rich-text elements. Icon meta
+ * is also normalised here because block-library catalog views pass those keys
+ * to the Blade icon resolver.
  */
 class SanitizeSectionHtmlAction
 {
@@ -25,7 +27,9 @@ class SanitizeSectionHtmlAction
      * Recursively sanitise a string or array of editor-authored values.
      *
      * Non-string scalars (ints, bools, null) and object values are returned
-     * untouched; only strings are passed through the HTML sanitiser.
+     * untouched; only strings are passed through the HTML sanitiser. Array keys
+     * named `icon` are treated as icon identifiers and must match the package's
+     * Heroicon picker format.
      */
     public function handle(mixed $value): mixed
     {
@@ -38,6 +42,12 @@ class SanitizeSectionHtmlAction
         }
 
         foreach ($value as $key => $item) {
+            if (is_string($key) && $key === 'icon') {
+                $value[$key] = NormalizeSectionIconAction::run($item);
+
+                continue;
+            }
+
             $value[$key] = $this->handle($item);
         }
 

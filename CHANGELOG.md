@@ -4,6 +4,8 @@ All notable changes to `capell-app/content-sections` will be documented in this 
 
 ## Unreleased
 
+- Added provider-backed health diagnostics for the sections table, morph alias, admin resource, default section registry, and public payload contributor.
+- Normalised editor-selected section icon keys before public rendering and added manifest coverage for the package's contributions, permissions, capabilities, supported integrations, required table, and section invalidation source.
 - Prepared package metadata and documentation for ongoing Capell 4.x package work.
 
 ## 2026-06-03
