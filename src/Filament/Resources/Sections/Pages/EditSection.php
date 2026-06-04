@@ -8,6 +8,7 @@ use Capell\Admin\Filament\Actions\DeleteAction;
 use Capell\Admin\Filament\Actions\ReplicateAction;
 use Capell\Admin\Filament\Concerns\HasAncestorBreadcrumbs;
 use Capell\Admin\Filament\Concerns\HasBlueprintRelationManagers;
+use Capell\Admin\Filament\Concerns\HasExtensibleRecordHeading;
 use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\ContentSections\Actions\CancelScheduledSectionUnpublishAction;
 use Capell\ContentSections\Actions\ReplicateContentAction;
@@ -22,7 +23,6 @@ use Capell\PublishingStudio\Enums\WorkspaceStatusEnum;
 use Capell\PublishingStudio\Filament\Actions\PublishingRevisionsHeaderAction;
 use Capell\PublishingStudio\Models\Workspace;
 use Capell\PublishingStudio\Publisher;
-use Capell\RecordSwitcher\Concerns\HasRecordSwitcher;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\ForceDeleteAction;
@@ -48,9 +48,7 @@ class EditSection extends EditRecord
 {
     use HasAncestorBreadcrumbs;
     use HasBlueprintRelationManagers;
-    use HasRecordSwitcher {
-        afterSave as recordSwitcherAfterSave;
-    }
+    use HasExtensibleRecordHeading;
 
     #[Override]
     public static function getResource(): string
@@ -127,7 +125,7 @@ class EditSection extends EditRecord
     {
         $this->dispatch('refresh-alerts')->to(LivewireComponentsEnum::ContentAssetsTable->value);
 
-        $this->recordSwitcherAfterSave();
+        $this->notifyEditRecordHeadingSaved();
     }
 
     #[Override]
