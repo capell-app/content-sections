@@ -93,13 +93,14 @@ Translation files exist (`resources/lang/en/*`), but `BuildSectionDemoDataAction
 
 | Item                                                                                     | Bucket | Effort | Impact   | Section ref |
 | ---------------------------------------------------------------------------------------- | ------ | ------ | -------- | ----------- |
-| Sanitise editor HTML at the contributor boundary (kill stored-XSS)                       | Now    | M      | Critical | §2.1 / §4.1 |
-| Add anonymous + non-admin public-safety tests (script in summary/meta is neutralised)    | Now    | M      | Critical | §4.3        |
-| Implement real `ContentSectionsHealthCheck` (table, morph, resource, registry)           | Now    | S      | High     | §2.2 / §4.3 |
-| Validate `svg()` icon meta against an allow-list                                         | Now    | S      | High     | §4.2        |
-| Fix manifest accuracy: `contributes`, `permissions`, `requiredTables`, `surfaces`        | Now    | S      | Med      | §4.7        |
+| Shipped 2026-06-04: sanitise editor HTML at the contributor boundary (kill stored-XSS)   | Done   | M      | Critical | §2.1 / §4.1 |
+| Shipped 2026-06-04: add anonymous public-output sanitisation tests                       | Done   | M      | Critical | §4.3        |
+| Shipped 2026-06-04: implement real `ContentSectionsHealthCheck`                          | Done   | S      | High     | §2.2 / §4.3 |
+| Shipped 2026-06-04: validate `svg()` icon meta against an allow-list                     | Done   | S      | High     | §4.2        |
+| Shipped 2026-06-04: fix manifest accuracy: `contributes`, permissions, tables, surfaces  | Done   | S      | Med      | §4.7        |
 | Benchmark per-section render cost against the declared budget                            | Next   | S      | High     | §2.3 / §4.5 |
 | Declare real `cacheSafety.invalidationSources` / register cache dependency               | Next   | S      | Med      | §4.4        |
+| Add explicit non-admin public-safety assertions for authenticated frontend visitors      | Next   | S      | High     | §4.3        |
 | Remove or wire orphaned `simple-list` widget (and the overview doc line)                 | Next   | S      | Med      | §2.6        |
 | Extract workspace clone + publish-finalize into Actions behind a layout-builder contract | Next   | M      | Med      | §2.4 / §2.5 |
 | Rewrite marketplace `summary` + composer `description`; capture the 5 screenshots        | Next   | M      | High     | §5          |

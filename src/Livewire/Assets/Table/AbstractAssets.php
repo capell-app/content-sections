@@ -9,6 +9,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
+use Override;
 use Ramsey\Uuid\UuidInterface;
 
 abstract class AbstractAssets extends ModalTableSelect
@@ -35,6 +36,7 @@ abstract class AbstractAssets extends ModalTableSelect
 
     abstract public static function getResource(): string;
 
+    #[Override]
     public function getTableRecordKey(Model|array $record): string
     {
         $id = $record instanceof Model ? $record->getKey() : ($record['id'] ?? null);
@@ -44,6 +46,7 @@ abstract class AbstractAssets extends ModalTableSelect
             : (string) $id;
     }
 
+    #[Override]
     public function table(Table $table): Table
     {
         return parent::table($table)
