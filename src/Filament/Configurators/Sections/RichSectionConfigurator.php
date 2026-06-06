@@ -26,7 +26,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Override;
 
-abstract class PopularSectionConfigurator extends DefaultSectionConfigurator
+abstract class RichSectionConfigurator extends DefaultSectionConfigurator
 {
     abstract protected function sectionKey(): string;
 
