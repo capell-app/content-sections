@@ -94,6 +94,34 @@ it('does not emit script markup in the rendered anonymous section html', functio
         ->not->toContain('window.__xss');
 });
 
+it('keeps authenticated non-admin public payloads free of authoring markers and unsafe html', function (): void {
+    test()->actingAs(test()->createUser(['email' => 'frontend-visitor@example.test']));
+
+    $widgetData = placeSectionAndBuildPublicGraph(
+        'hero',
+        '<p>Visitor-safe body</p><script>window.__xss=1</script>',
+        ['alignment' => 'center'],
+    );
+
+    $payload = json_encode($widgetData->data, JSON_THROW_ON_ERROR);
+    $html = $widgetData->html ?? '';
+
+    expect($payload)
+        ->toContain('Visitor-safe body')
+        ->not->toContain('<script')
+        ->not->toContain('window.__xss')
+        ->not->toContain('frontend-authoring')
+        ->not->toContain('signed-editor')
+        ->not->toContain('capell-content-sections')
+        ->and($html)
+        ->toContain('Visitor-safe body')
+        ->not->toContain('<script')
+        ->not->toContain('window.__xss')
+        ->not->toContain('frontend-authoring')
+        ->not->toContain('signed-editor')
+        ->not->toContain('capell-content-sections');
+});
+
 it('sanitises malicious html inside nested section meta values', function (): void {
     $widgetData = placeSectionAndBuildPublicGraph(
         'faq',

@@ -49,7 +49,7 @@ Editor-controlled content is rendered as raw HTML on the anonymous frontend with
 
 ### 4.3 Test gaps (no proof of public safety)
 
-- `tests/` has **no** XSS / escaping / sanitisation test — confirmed by grep (`purif|sanitiz|escape|XSS|script>` → 0 hits in `tests/`). `tests/Feature/SectionRenderingTest.php` (19 tests) and the boundary test exercise rendering and dependency boundaries, but nothing asserts that a `<script>` in summary/meta is neutralised — because it currently is not.
+- **Shipped 2026-06-07: public-output safety coverage now includes authenticated non-admin visitors.** Sanitisation tests assert anonymous payload/html safety and a normal signed-in frontend visitor receives the same safe public graph without scripts, authoring markers, signed editor URLs, or package internals. — `tests/Feature/SectionPublicOutputSanitisationTest.php`
 - The health check is only asserted to _exist_ (`tests/Unit/ContentSectionsCoverageTest.php`), with no behavioural coverage — unsurprising, since it has no behaviour.
 - No test covers the `finalizeSectionPublish` `widget_assets` repoint or the workspace clone path beyond the publishing feature test. The capell skill requires rendering/cache changes to ship with anonymous + non-admin safety tests; this package does not yet meet that bar.
 
@@ -100,7 +100,7 @@ Translation files exist (`resources/lang/en/*`), but `BuildSectionDemoDataAction
 | Shipped 2026-06-04: fix manifest accuracy: `contributes`, permissions, tables, surfaces  | Done   | S      | Med      | §4.7        |
 | Benchmark per-section render cost against the declared budget                            | Next   | S      | High     | §2.3 / §4.5 |
 | Declare real `cacheSafety.invalidationSources` / register cache dependency               | Done   | S      | Med      | §4.4        |
-| Add explicit non-admin public-safety assertions for authenticated frontend visitors      | Next   | S      | High     | §4.3        |
+| Shipped 2026-06-07: Add explicit non-admin public-safety assertions for authenticated frontend visitors | Done   | S      | High     | §4.3        |
 | Closed 2026-06-07: Remove or wire orphaned `simple-list` widget (and the overview doc line) | Done   | S      | Med      | §2.6        |
 | Extract workspace clone + publish-finalize into Actions behind a layout-builder contract | Next   | M      | Med      | §2.4 / §2.5 |
 | Add selector-modal and frontend widget-gallery fixture routes; promote remaining shots   | Next   | M      | High     | §5          |
