@@ -55,7 +55,7 @@ Editor-controlled content is rendered as raw HTML on the anonymous frontend with
 
 ### 4.4 Cache safety vs declared budget
 
-`capell.json` declares `cacheSafety.cacheable: false`, `queueInvalidation: true`, but `invalidationSources: []` — nothing is declared to drive the queued invalidation, and the package registers no `CacheInvalidationRegistry::registerDependency()`. Either declare the real invalidation sources (section save/delete, blueprint change, linked-page URL change) or correct the flags. The `SectionObserver` exists (`src/Observers/SectionObserver.php`) but its invalidation contract is not reflected in the manifest.
+**Closed 2026-06-06:** `capell.json` now declares `content-sections` cache tags and `Section` invalidation sources for created, updated, deleted, restored, and force-deleted events. Blueprint and linked-page URL dependencies remain broader cache-depth follow-up, but the stale `queueInvalidation`/empty-source mismatch is closed for the package-owned section model.
 
 ### 4.5 Performance budget realism
 
@@ -99,7 +99,7 @@ Translation files exist (`resources/lang/en/*`), but `BuildSectionDemoDataAction
 | Shipped 2026-06-04: validate `svg()` icon meta against an allow-list                     | Done   | S      | High     | §4.2        |
 | Shipped 2026-06-04: fix manifest accuracy: `contributes`, permissions, tables, surfaces  | Done   | S      | Med      | §4.7        |
 | Benchmark per-section render cost against the declared budget                            | Next   | S      | High     | §2.3 / §4.5 |
-| Declare real `cacheSafety.invalidationSources` / register cache dependency               | Next   | S      | Med      | §4.4        |
+| Declare real `cacheSafety.invalidationSources` / register cache dependency               | Done   | S      | Med      | §4.4        |
 | Add explicit non-admin public-safety assertions for authenticated frontend visitors      | Next   | S      | High     | §4.3        |
 | Remove or wire orphaned `simple-list` widget (and the overview doc line)                 | Next   | S      | Med      | §2.6        |
 | Extract workspace clone + publish-finalize into Actions behind a layout-builder contract | Next   | M      | Med      | §2.4 / §2.5 |
