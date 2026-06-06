@@ -2,18 +2,54 @@
 
 declare(strict_types=1);
 
+use Capell\ContentSections\Actions\CloneSectionIntoWorkspaceAction;
+use Capell\ContentSections\Actions\FinalizeSectionPublishAction;
 use Capell\ContentSections\Models\Section;
 use Capell\Core\Enums\MediaCollectionEnum;
+use Capell\Core\Models\AssetAttachment;
 use Capell\Core\Models\Media;
+use Capell\Core\Models\Translation;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\PublishingStudio\Actions\ListPublishingRevisionsAction;
 use Capell\PublishingStudio\Actions\SaveRecordDraftAction;
 use Capell\PublishingStudio\Enums\WorkspaceStatusEnum;
+use Capell\PublishingStudio\Models\Workspace;
 use Capell\PublishingStudio\Publisher;
 use Capell\PublishingStudio\WorkspaceRegistry;
 use Capell\Tests\Fixtures\Models\User;
 use Illuminate\Support\Str;
+
+it('clones sections into workspaces through the package action', function (): void {
+    $uuid = (string) Str::uuid();
+    $live = Section::factory()->create([
+        'uuid' => $uuid,
+        'workspace_id' => 0,
+        'name' => 'Live reusable section',
+    ]);
+    $workspace = Workspace::factory()->create();
+
+    Translation::factory()->translatable($live)->create([
+        'title' => 'Translated section',
+        'content' => '<p>Translated copy</p>',
+    ]);
+    AssetAttachment::factory()->related($live)->create();
+    Media::factory()
+        ->model($live)
+        ->collection(MediaCollectionEnum::Image)
+        ->create();
+
+    $draft = CloneSectionIntoWorkspaceAction::run($live, $workspace);
+
+    expect($draft)->toBeInstanceOf(Section::class)
+        ->and($draft->getKey())->not->toBe($live->getKey())
+        ->and($draft->workspace_id)->toBe($workspace->id)
+        ->and($draft->shadowed_by_workspace_id)->toBe(0)
+        ->and($draft->uuid)->toBe($uuid)
+        ->and($draft->translations()->count())->toBe(1)
+        ->and($draft->assets()->count())->toBe(1)
+        ->and($draft->media()->where('collection_name', MediaCollectionEnum::Image->value)->count())->toBe(1);
+});
 
 it('repoints layout builder section usages to the published section draft row', function (): void {
     $uuid = (string) Str::uuid();
@@ -34,7 +70,7 @@ it('repoints layout builder section usages to the published section draft row', 
         ->asset($live)
         ->create();
 
-    WorkspaceRegistry::get(Section::class)->finalizeOnPublish($draft);
+    FinalizeSectionPublishAction::run($draft);
 
     expect((int) $usage->fresh()->asset_id)->toBe($draft->getKey());
 });
