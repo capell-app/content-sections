@@ -20,9 +20,20 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Illuminate\View\ComponentAttributeBag;
+use WeakMap;
 
 final class SectionPublicWidgetPayloadContributor implements PublicWidgetPayloadContributor
 {
+    /**
+     * @var WeakMap<Widget, Collection<int, array<string, mixed>>>
+     */
+    private WeakMap $sectionDataByWidgetObject;
+
+    public function __construct()
+    {
+        $this->sectionDataByWidgetObject = new WeakMap;
+    }
+
     public function priority(): int
     {
         return 10;
@@ -33,8 +44,7 @@ final class SectionPublicWidgetPayloadContributor implements PublicWidgetPayload
      */
     public function data(Widget $widget, Page $page, Language $language, string $containerKey, int $occurrence): array
     {
-        $sections = $this->sectionAssets($widget)
-            ->map(fn (WidgetAsset $widgetAsset): array => $this->sectionData($widgetAsset))
+        $sections = $this->sectionDataForWidget($widget)
             ->values()
             ->all();
 
@@ -47,12 +57,28 @@ final class SectionPublicWidgetPayloadContributor implements PublicWidgetPayload
 
     public function html(Widget $widget, Page $page, Language $language, string $containerKey, int $occurrence): ?string
     {
-        $html = $this->sectionAssets($widget)
-            ->map(fn (WidgetAsset $widgetAsset): string => $this->renderSection($widgetAsset, $this->sectionData($widgetAsset)))
+        $html = $this->sectionDataForWidget($widget)
+            ->map(fn (array $section): string => is_string($section['html'] ?? null) ? $section['html'] : '')
             ->filter(fn (string $html): bool => trim($html) !== '')
             ->implode("\n");
 
         return $html === '' ? null : $html;
+    }
+
+    /**
+     * @return Collection<int, array<string, mixed>>
+     */
+    private function sectionDataForWidget(Widget $widget): Collection
+    {
+        if (isset($this->sectionDataByWidgetObject[$widget])) {
+            return $this->sectionDataByWidgetObject[$widget];
+        }
+
+        $this->sectionDataByWidgetObject[$widget] = $this->sectionAssets($widget)
+            ->map(fn (WidgetAsset $widgetAsset): array => $this->sectionData($widgetAsset))
+            ->values();
+
+        return $this->sectionDataByWidgetObject[$widget];
     }
 
     /**
