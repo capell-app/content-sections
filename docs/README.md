@@ -8,8 +8,7 @@ Start at the [package README](../README.md) when deciding whether to install thi
 
 | Doc                       | Use it for                                                                         |
 | ------------------------- | ---------------------------------------------------------------------------------- |
-| [Mutations](mutations.md) | Focused package workflow, setup, troubleshooting, or implementation details.       |
-| [Overview](overview.md)   | Package boundary, runtime surfaces, install notes, and first troubleshooting path. |
+| [Overview](overview.md) | Package workflow, runtime surfaces, install notes, verification, and public-rendering boundaries. |
 
 ## Read Next
 
