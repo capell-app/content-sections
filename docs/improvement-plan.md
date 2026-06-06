@@ -8,7 +8,7 @@ Content Sections ships a single Eloquent model (`Section`, nested-set, soft-dele
 
 **Section types actually shipped.** `DefaultSectionDefinitionProvider` registers **17** definitions: `content`, `hero`, `testimonial`, `accordion`, `call_to_action`, `comparison`, `counter`, `divider`, `faq`, `features`, `logos`, `pricing`, `stats`, `table`, `tabs`, `team`, `timeline` (`src/Support/DefaultSectionDefinitionProvider.php`). Each maps to a configurator in `SectionConfiguratorEnum` and a Blade view under `resources/views/components/section/widgets/`. Note: `PopularSectionConfigurator` (507 lines, `src/Filament/Configurators/Sections/PopularSectionConfigurator.php`) is **not** a "popular sections" type — it is the shared base class that 14 configurators extend; the name is misleading. Two frontend components (`section.widget`, `section.team-member`) are registered with the frontend component registry; the rest render through the dynamic-component fallback.
 
-**Marketplace summary (verbatim):** "Content Sections provides reusable content sections for Capell admin and frontend surfaces." This is identical to the manifest `description` and is pure boilerplate. **Screenshots:** the marketplace block declares **1** image (`docs/assets/marketplace/extension-card.jpg`, a generic card). `docs/screenshots.json` defines a richer **5-entry** capture contract (index, create, edit-with-assets, selector modal, frontend widget gallery), but `docs/screenshots/` does not exist and none are wired into `marketplace.screenshots` — a clear mismatch between the intended and advertised media.
+**Marketplace summary:** The manifest now leads with the 17 ready-to-use, themeable page sections and Foundation bundle positioning. **Screenshots:** the marketplace block declares **1** image (`docs/assets/marketplace/extension-card.jpg`, a generic card). `docs/screenshots.json` defines a richer **5-entry** capture contract (index, create, edit-with-assets, selector modal, frontend widget gallery), and the admin resource entries now use explicit `/sections` runner URLs. A 2026-06-06 runner attempt proved the screenshot app still seeds **0** section records and has no selector/gallery fixture routes, so no generated PNGs were promoted yet.
 
 ## 2. Improvements (existing functionality)
 
@@ -77,7 +77,7 @@ Translation files exist (`resources/lang/en/*`), but `BuildSectionDemoDataAction
 
 **Role.** Free, foundation-bundled, first-party — correct. This package is platform glue: it is what makes a Capell site able to assemble pages from reusable, themeable content blocks, and it is the producer side of the block-library/layout-builder pairing. That makes it a keystone of the foundation pitch ("compose pages from reusable sections, no markup in content fields"), so its marketing should sell the _catalog_ and _reuse_, not describe itself tautologically.
 
-**Current `summary` / `description` critique.** Both read "Content Sections provides reusable content sections for Capell admin and frontend surfaces." — circular ("content sections provides content sections"), lists no section types, and conveys no benefit. The composer `description` ("Reusable content sections for Capell") is the same problem, shorter.
+**Current `summary` / `description` critique.** The marketplace summary now names the 17-section catalog, reuse workflow, safe Blade rendering, and Foundation bundle fit. Composer copy is still shorter than the ideal positioning below and can be tightened when the screenshot fixture work lands.
 
 **Improved summary (marketplace):** "Seventeen ready-to-use, themeable page sections — hero, FAQ, pricing, stats, testimonials, team, comparison, timeline and more — that editors reuse across pages and developers render through safe, package-owned Blade. Bundled free with Capell Foundation."
 
@@ -103,7 +103,7 @@ Translation files exist (`resources/lang/en/*`), but `BuildSectionDemoDataAction
 | Add explicit non-admin public-safety assertions for authenticated frontend visitors      | Next   | S      | High     | §4.3        |
 | Remove or wire orphaned `simple-list` widget (and the overview doc line)                 | Next   | S      | Med      | §2.6        |
 | Extract workspace clone + publish-finalize into Actions behind a layout-builder contract | Next   | M      | Med      | §2.4 / §2.5 |
-| Rewrite marketplace `summary` + composer `description`; capture the 5 screenshots        | Next   | M      | High     | §5          |
+| Seed screenshot-runner sections + selector/gallery fixtures; promote the 5 screenshots   | Next   | M      | High     | §5          |
 | Fix/relocate stale `docs/mutations.md` + overview editor-workflow bleed                  | Next   | S      | Med      | §4.7        |
 | Add shared section-appearance contract (background/spacing/alignment/heading level)      | Later  | L      | High     | §3          |
 | Add per-section anchor IDs + accessible defaults (ARIA, configurable headings)           | Later  | M      | Med      | §3          |
