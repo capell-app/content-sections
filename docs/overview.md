@@ -79,13 +79,18 @@ Public views should receive hydrated render data from Capell payload builders an
 
 ## Screenshot Coverage
 
-The screenshot contract is stored in [screenshots.json](screenshots.json). The first isolated audit pass found these surfaces that need final capture in an installed demo app:
+The screenshot contract is stored in [screenshots.json](screenshots.json). Marketplace media now promotes Capell runner captures for:
 
 - admin section index;
 - create section form;
-- edit section form with warnings and asset relation manager;
+- edit section form with publishing controls and the asset relation manager shell.
+
+The remaining screenshot fixture states are:
+
 - modal section/widget selector;
 - a frontend page rendering each registered section widget family.
+
+Discard Dashboard or generic demo-page fallbacks for those remaining states; they need dedicated routes or browser actions before promotion.
 
 ## Install And Verify
 

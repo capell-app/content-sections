@@ -8,7 +8,7 @@ Content Sections ships a single Eloquent model (`Section`, nested-set, soft-dele
 
 **Section types actually shipped.** `DefaultSectionDefinitionProvider` registers **17** definitions: `content`, `hero`, `testimonial`, `accordion`, `call_to_action`, `comparison`, `counter`, `divider`, `faq`, `features`, `logos`, `pricing`, `stats`, `table`, `tabs`, `team`, `timeline` (`src/Support/DefaultSectionDefinitionProvider.php`). Each maps to a configurator in `SectionConfiguratorEnum` and a Blade view under `resources/views/components/section/widgets/`. Note: `PopularSectionConfigurator` (507 lines, `src/Filament/Configurators/Sections/PopularSectionConfigurator.php`) is **not** a "popular sections" type — it is the shared base class that 14 configurators extend; the name is misleading. Two frontend components (`section.widget`, `section.team-member`) are registered with the frontend component registry; the rest render through the dynamic-component fallback.
 
-**Marketplace summary:** The manifest now leads with the 17 ready-to-use, themeable page sections and Foundation bundle positioning. **Screenshots:** the marketplace block declares **1** image (`docs/assets/marketplace/extension-card.jpg`, a generic card). `docs/screenshots.json` defines a richer **5-entry** capture contract (index, create, edit-with-assets, selector modal, frontend widget gallery), and the admin resource entries now use explicit `/sections` runner URLs. A 2026-06-06 runner attempt proved the screenshot app still seeds **0** section records and has no selector/gallery fixture routes, so no generated PNGs were promoted yet.
+**Marketplace summary:** The manifest now leads with the 17 ready-to-use, themeable page sections and Foundation bundle positioning. **Screenshots:** the marketplace block now declares the extension card plus four Capell runner PNGs for the admin index, create form, edit form/assets panel, and dark-mode index. `docs/screenshots.json` still defines a richer **5-entry** capture contract; the 2026-06-06 seeded runner pass produced valid admin index/create/edit captures, while the selector-modal and frontend widget gallery entries still need dedicated fixture routes/states because their generated fallback PNGs were discarded.
 
 ## 2. Improvements (existing functionality)
 
@@ -85,7 +85,7 @@ Translation files exist (`resources/lang/en/*`), but `BuildSectionDemoDataAction
 
 **Free/bundle vs premium upsell.** Keep the catalog free — it is foundation table-stakes and drives adoption of the paid layout/publishing tooling. The natural premium upsell line is _advanced_ section types and capabilities (A/B-testable sections, personalised/segmented sections, form/CRM sections, animation presets), which the demo copy already hints at ("Advanced widgets stay in optional packages", "Pro bundle: 0"). Position this package as the on-ramp and reserve those as paid add-on packages.
 
-**Screenshot / media gaps.** The single generic `extension-card.jpg` undersells a visual, 17-type catalog. `docs/screenshots.json` already specifies the right 5 captures (index, create, edit+assets, selector modal, frontend widget gallery); capture them in a seeded demo (with `block-library` + `layout-builder`) and surface at least the widget gallery + admin index in `marketplace.screenshots`. A per-section thumbnail strip would be the single highest-leverage media improvement.
+**Screenshot / media gaps.** The package now promotes real Capell runner admin captures for the section index, create form, edit form/assets panel, and dark-mode index. The remaining highest-leverage media gap is the visual catalog itself: add dedicated selector-modal and anonymous frontend widget-gallery fixture routes/states so the remaining `docs/screenshots.json` entries do not fall back to Dashboard or the generic demo page. A per-section thumbnail strip would be the single highest-leverage media improvement.
 
 **Suggested keywords/tags (8–12):** `page-sections`, `content-blocks`, `reusable-content`, `hero`, `pricing-section`, `faq`, `testimonials`, `cms-sections`, `block-library`, `layout-builder`, `filament`, `foundation`.
 
@@ -103,7 +103,7 @@ Translation files exist (`resources/lang/en/*`), but `BuildSectionDemoDataAction
 | Add explicit non-admin public-safety assertions for authenticated frontend visitors      | Next   | S      | High     | §4.3        |
 | Remove or wire orphaned `simple-list` widget (and the overview doc line)                 | Next   | S      | Med      | §2.6        |
 | Extract workspace clone + publish-finalize into Actions behind a layout-builder contract | Next   | M      | Med      | §2.4 / §2.5 |
-| Seed screenshot-runner sections + selector/gallery fixtures; promote the 5 screenshots   | Next   | M      | High     | §5          |
+| Add selector-modal and frontend widget-gallery fixture routes; promote remaining shots   | Next   | M      | High     | §5          |
 | Fix/relocate stale `docs/mutations.md` + overview editor-workflow bleed                  | Next   | S      | Med      | §4.7        |
 | Add shared section-appearance contract (background/spacing/alignment/heading level)      | Later  | L      | High     | §3          |
 | Add per-section anchor IDs + accessible defaults (ARIA, configurable headings)           | Later  | M      | Med      | §3          |

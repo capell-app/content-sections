@@ -155,6 +155,26 @@
                 "path": "docs/assets/marketplace/extension-card.jpg",
                 "alt": "Content Sections extension preview image",
                 "caption": "Content Sections extension preview"
+            },
+            {
+                "path": "docs/screenshots/sections-index.png",
+                "alt": "Content Sections admin index with reusable section records",
+                "caption": "Editors can review reusable hero, FAQ, and pricing sections from a dedicated Capell admin resource."
+            },
+            {
+                "path": "docs/screenshots/sections-create.png",
+                "alt": "Create Section form with blueprint selector and content editor",
+                "caption": "The create form starts from a section blueprint and gives editors translated content fields without storing layout markup."
+            },
+            {
+                "path": "docs/screenshots/sections-edit-with-assets.png",
+                "alt": "Edit Section form with publishing controls and assets panel",
+                "caption": "A reusable section edit screen combines content, publishing actions, site context, and the assets panel."
+            },
+            {
+                "path": "docs/screenshots/sections-index-dark.png",
+                "alt": "Dark mode Content Sections admin index",
+                "caption": "The reusable sections index is also captured in Capell Admin dark mode for marketplace parity."
             }
         ],
         "categories": ["admin", "foundation", "frontend"]
