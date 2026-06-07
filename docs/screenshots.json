@@ -53,10 +53,10 @@
             "title": "Section selector modal.",
             "package": "content-sections",
             "surface": "admin",
-            "targetType": "admin-component",
-            "target": "ModalTableSelect",
+            "targetType": "admin-route",
+            "target": "/screenshot-fixtures/content-sections/section-selector-modal",
             "required": true,
-            "notes": "Requires a host admin workflow that opens ModalTableSelect, such as attaching section assets from a widget or layout field.",
+            "notes": "Capture the dedicated route-backed selector fixture. Do not fall back to Dashboard or a generic demo page for this state.",
             "screenshotPath": "packages/content-sections/docs/screenshots/section-selector-modal.png",
             "useCase": "An editor searches existing reusable sections from the modal before attaching one to another content surface."
         },
@@ -65,10 +65,10 @@
             "title": "Frontend section widget gallery.",
             "package": "content-sections",
             "surface": "frontend",
-            "targetType": "frontend-render",
-            "target": "capell-block-library::blocks.catalog.*",
+            "targetType": "frontend-route",
+            "target": "/screenshot-fixtures/content-sections/section-widget-gallery",
             "required": true,
-            "notes": "Seed one public page that renders each registered section widget family. Anonymous output must not expose authoring markers, editor URLs, internal IDs, or package internals.",
+            "notes": "Capture the dedicated anonymous route-backed gallery fixture. Do not fall back to Dashboard or a generic placeholder page.",
             "screenshotPath": "packages/content-sections/docs/screenshots/section-widget-gallery.png",
             "useCase": "A maintainer verifies the public section gallery renders every Block Library-backed widget safely for anonymous visitors."
         }

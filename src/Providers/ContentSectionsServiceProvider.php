@@ -79,6 +79,7 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
     {
         $package->name(self::$name)
             ->hasConfigFile()
+            ->hasRoute('web')
             ->hasViews(self::$name)
             ->hasTranslations();
     }
