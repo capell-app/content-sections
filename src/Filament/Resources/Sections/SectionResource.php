@@ -46,6 +46,8 @@ class SectionResource extends Resource
 
     protected static string $tableConfigurator = SectionsTable::class;
 
+    protected static ?int $navigationSort = 4;
+
     #[Override]
     public static function form(Schema $configurator): Schema
     {
