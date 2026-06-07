@@ -6,6 +6,6 @@ use Capell\ContentSections\Filament\Resources\Sections\SectionResource;
 
 it('nests reusable sections below top-level pages navigation', function (): void {
     expect(SectionResource::getNavigationGroup())->toBeNull()
-        ->and(SectionResource::getNavigationParentItem())->toBe((string) __('capell-admin::navigation.pages'))
-        ->and(SectionResource::getNavigationSort())->toBe(4);
+        ->and(SectionResource::getNavigationParentItem())->toBe((string) __('capell-admin::navigation.website'))
+        ->and(SectionResource::getNavigationSort())->toBe(5);
 });
