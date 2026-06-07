@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Capell\ContentSections\Livewire\Assets\Table;
 
 use Capell\ContentSections\Livewire\Filament\ModalTableSelect;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
+use Override;
 use Ramsey\Uuid\UuidInterface;
 
 abstract class AbstractAssets extends ModalTableSelect
@@ -34,6 +36,7 @@ abstract class AbstractAssets extends ModalTableSelect
 
     abstract public static function getResource(): string;
 
+    #[Override]
     public function getTableRecordKey(Model|array $record): string
     {
         $id = $record instanceof Model ? $record->getKey() : ($record['id'] ?? null);
@@ -41,6 +44,13 @@ abstract class AbstractAssets extends ModalTableSelect
         return $id instanceof UuidInterface
             ? $id->toString()
             : (string) $id;
+    }
+
+    #[Override]
+    public function table(Table $table): Table
+    {
+        return parent::table($table)
+            ->persistFiltersInSession();
     }
 
     public function selectRecords(): void
@@ -59,10 +69,5 @@ abstract class AbstractAssets extends ModalTableSelect
         $this->resetPage();
 
         $this->dispatch('close-modal', id: $this->actionModalId);
-    }
-
-    protected function shouldPersistTableFiltersInSession(): bool
-    {
-        return true;
     }
 }

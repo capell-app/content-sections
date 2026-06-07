@@ -10,6 +10,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Testing\TestResponse;
+use Illuminate\View\ComponentAttributeBag;
 use Sinnbeck\DomAssertions\Asserts\AssertElement;
 
 beforeEach(function (): void {
@@ -18,8 +19,37 @@ beforeEach(function (): void {
 
     $registry = new SectionRegistry;
 
+    view()->addNamespace('capell-block-library', __DIR__ . '/../../../block-library/resources/views');
     view()->addNamespace('capell-content-sections', __DIR__ . '/../../resources/views');
+
+    resolve(Translator::class)->addNamespace('capell-block-library', __DIR__ . '/../../../block-library/resources/lang');
     resolve(Translator::class)->addNamespace('capell-content-sections', __DIR__ . '/../../resources/lang');
+    Blade::anonymousComponentPath(__DIR__ . '/../../../block-library/resources/views', 'capell-block-library');
+    foreach ([
+        'accordion',
+        'call-to-action',
+        'comparison',
+        'content',
+        'counter',
+        'divider',
+        'faq',
+        'features',
+        'hero',
+        'logos',
+        'pricing',
+        'stats',
+        'table',
+        'tabs',
+        'team',
+        'testimonial',
+        'timeline',
+    ] as $component) {
+        Blade::component(
+            'capell-block-library::blocks.catalog.' . $component,
+            'capell-block-library::blocks.catalog.' . $component,
+        );
+    }
+
     Blade::anonymousComponentPath(__DIR__ . '/../Fixtures/components', 'capell');
 
     RegisterDefaultSectionsAction::run($registry);
@@ -30,10 +60,10 @@ function renderSectionForDomAssertions(string $key): TestResponse
 {
     $data = BuildSectionDemoDataAction::run($key);
     $data['meta'] = removeSectionIconValues($data['meta']);
-    $html = Blade::render(
-        '<x-dynamic-component :component="$definition->component" :asset="$asset" :meta="$meta" :summary="$summary" :title="$title" :link-text="$linkText" :url="$url" />',
-        $data,
-    );
+    $html = view()->make($data['definition']->component, [
+        ...$data,
+        'attributes' => new ComponentAttributeBag,
+    ])->render();
 
     return TestResponse::fromBaseResponse(
         new Response('<!DOCTYPE html><html><body>' . $html . '</body></html>'),
@@ -71,11 +101,11 @@ function removeSectionIconValues(array $meta): array
 it('renders accordion panels as disclosure widgets', function (): void {
     renderSectionForDomAssertions('accordion')
         ->assertContainsElement('section.section-accordion', ['text' => 'Accordion'])
-        ->assertContainsElement('section.section-accordion details[open]')
-        ->assertContainsElement('section.section-accordion summary', ['text' => 'How quickly can editors update content?'])
+        ->assertContainsElement('section.section-accordion[x-data]')
+        ->assertContainsElement('section.section-accordion button', ['text' => 'How quickly can editors update content?'])
         ->assertContainsElement('section.section-accordion .prose p', ['text' => 'Editors can update reusable panels once and reuse them across pages.']);
 
-    assertSectionDomWidgetCount(renderSectionForDomAssertions('accordion'), 'section.section-accordion details', 2);
+    assertSectionDomWidgetCount(renderSectionForDomAssertions('accordion'), 'section.section-accordion article', 2);
 });
 
 it('renders call to action headings copy and actions', function (): void {
@@ -101,10 +131,10 @@ it('renders public action buttons through the public actions component when avai
         ],
     ];
 
-    $html = Blade::render(
-        '<x-dynamic-component :component="$definition->component" :asset="$asset" :meta="$meta" :summary="$summary" :title="$title" :link-text="$linkText" :url="$url" />',
-        $data,
-    );
+    $html = view()->make($data['definition']->component, [
+        ...$data,
+        'attributes' => new ComponentAttributeBag,
+    ])->render();
 
     TestResponse::fromBaseResponse(new Response('<!DOCTYPE html><html><body>' . $html . '</body></html>'))
         ->assertContainsElement('section.section-call-to-action form', ['action' => 'http://localhost/actions/request-preview'])
@@ -139,10 +169,10 @@ it('renders counter cards with formatted values and labels', function (): void {
 
 it('renders configured section icons through blade icons', function (): void {
     $data = BuildSectionDemoDataAction::run('counter');
-    $html = Blade::render(
-        '<x-dynamic-component :component="$definition->component" :asset="$asset" :meta="$meta" :summary="$summary" :title="$title" :link-text="$linkText" :url="$url" />',
-        $data,
-    );
+    $html = view()->make($data['definition']->component, [
+        ...$data,
+        'attributes' => new ComponentAttributeBag,
+    ])->render();
 
     expect($html)
         ->toContain('<svg');
@@ -156,11 +186,11 @@ it('renders divider dots when configured', function (): void {
 
 it('renders FAQ questions as disclosure widgets', function (): void {
     renderSectionForDomAssertions('faq')
-        ->assertContainsElement('section.section-faq details[open]')
-        ->assertContainsElement('section.section-faq summary', ['text' => 'Can FAQ content be reused?'])
+        ->assertContainsElement('section.section-faq[x-data]')
+        ->assertContainsElement('section.section-faq button', ['text' => 'Can FAQ content be reused?'])
         ->assertContainsElement('section.section-faq .prose p', ['text' => 'Yes. The widget stores reusable question and answer pairs.']);
 
-    assertSectionDomWidgetCount(renderSectionForDomAssertions('faq'), 'section.section-faq details', 2);
+    assertSectionDomWidgetCount(renderSectionForDomAssertions('faq'), 'section.section-faq article', 2);
 });
 
 it('renders feature cards with links', function (): void {
@@ -219,8 +249,8 @@ it('renders structured table captions headers and cells', function (): void {
 it('renders tabs with a tablist and linked panels', function (): void {
     renderSectionForDomAssertions('tabs')
         ->assertContainsElement('section.section-tabs [role="tablist"]')
-        ->assertContainsElement('section.section-tabs [role="tablist"] a', ['href' => '#section-tabs-', 'text' => 'Plan'])
-        ->assertContainsElement('section.section-tabs article[id^="section-tabs-"]', ['text' => 'Build'])
+        ->assertContainsElement('section.section-tabs [role="tab"]', ['text' => 'Plan'])
+        ->assertContainsElement('section.section-tabs article[id^="section-tabs-"][role="tabpanel"]', ['text' => 'Build'])
         ->assertContainsElement('section.section-tabs article .prose p', ['text' => 'Preview, approve, and ship the page with confidence.']);
 });
 

@@ -40,9 +40,13 @@ class SectionResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    protected static bool $isGloballySearchable = true;
+
     protected static string $formConfigurator = SectionForm::class;
 
     protected static string $tableConfigurator = SectionsTable::class;
+
+    protected static ?int $navigationSort = 5;
 
     #[Override]
     public static function form(Schema $configurator): Schema
@@ -128,13 +132,13 @@ class SectionResource extends Resource
     #[Override]
     public static function getNavigationGroup(): ?string
     {
-        return (string) (__('capell-admin::navigation.group_content'));
+        return null;
     }
 
     #[Override]
     public static function getNavigationParentItem(): ?string
     {
-        return (string) __('capell-admin::navigation.pages');
+        return (string) __('capell-admin::navigation.website');
     }
 
     #[Override]

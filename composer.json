@@ -1,6 +1,6 @@
 {
     "name": "capell-app/content-sections",
-    "description": "Reusable content sections for Capell",
+    "description": "A free catalog of 17 reusable, blueprint-backed page sections (hero, FAQ, pricing, stats, team, comparison, timeline, and more) for Capell, rendered through layout-builder and block-library.",
     "keywords": [
         "capell",
         "content-sections",
@@ -23,7 +23,8 @@
         "capell-app/block-library": "^4.0 || 4.x-dev",
         "capell-app/core": "^4.0 || 4.x-dev",
         "capell-app/frontend": "^4.0 || 4.x-dev",
-        "capell-app/layout-builder": "^4.0 || 4.x-dev"
+        "capell-app/layout-builder": "^4.0 || 4.x-dev",
+        "symfony/html-sanitizer": "^7.0 || ^8.0"
     },
     "suggest": {
         "capell-app/public-actions": "Enables CMS action buttons that submit reusable public actions.",

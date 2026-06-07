@@ -6,7 +6,7 @@
     "kind": "package",
     "capellApiVersion": "^4.0",
     "version": "4.x-dev",
-    "description": "Content Sections provides reusable content sections for Capell admin and frontend surfaces.",
+    "description": "Seventeen ready-to-use, themeable page sections — hero, FAQ, pricing, stats, testimonials, team, comparison, timeline and more — that editors reuse across pages and developers render through safe, package-owned Blade. Bundled free with Capell Foundation.",
     "product": {
         "group": "Capell Foundation",
         "tier": "free",
@@ -22,7 +22,10 @@
             "capell-app/frontend",
             "capell-app/layout-builder"
         ],
-        "supports": [],
+        "supports": [
+            "capell-app/publishing-studio",
+            "capell-app/public-actions"
+        ],
         "conflicts": []
     },
     "providers": {
@@ -34,11 +37,46 @@
         "admin": [],
         "frontend": []
     },
-    "contributes": [],
+    "contributes": [
+        {
+            "type": "admin-resource",
+            "class": "Capell\\ContentSections\\Manifest\\ContentSectionsPackageContribution",
+            "resourceClass": "Capell\\ContentSections\\Filament\\Resources\\Sections\\SectionResource",
+            "group": "Section"
+        },
+        {
+            "type": "configurator",
+            "class": "Capell\\ContentSections\\Manifest\\ContentSectionsPackageContribution",
+            "configuratorEnum": "Capell\\ContentSections\\Enums\\SectionConfiguratorEnum",
+            "groups": ["Sections"]
+        },
+        {
+            "type": "asset",
+            "class": "Capell\\ContentSections\\Manifest\\ContentSectionsPackageContribution",
+            "asset": "section",
+            "modelClass": "Capell\\ContentSections\\Models\\Section"
+        },
+        {
+            "type": "page-type",
+            "class": "Capell\\ContentSections\\Manifest\\ContentSectionsPackageContribution",
+            "pageType": "section",
+            "modelClass": "Capell\\ContentSections\\Models\\Section"
+        },
+        {
+            "type": "model",
+            "class": "Capell\\ContentSections\\Manifest\\ContentSectionsPackageContribution",
+            "modelClass": "Capell\\ContentSections\\Models\\Section"
+        },
+        {
+            "type": "frontend-component",
+            "class": "Capell\\ContentSections\\Manifest\\ContentSectionsPackageContribution",
+            "keys": ["section.widget", "section.team-member"]
+        }
+    ],
     "database": {
         "migrations": true,
         "settings": false,
-        "requiredTables": []
+        "requiredTables": ["sections"]
     },
     "commands": {
         "install": null,
@@ -47,8 +85,31 @@
         "doctor": null
     },
     "settings": [],
-    "permissions": [],
-    "capabilities": [],
+    "permissions": [
+        "ViewAny:Section",
+        "View:Section",
+        "Create:Section",
+        "Update:Section",
+        "Delete:Section",
+        "DeleteAny:Section",
+        "Restore:Section",
+        "RestoreAny:Section",
+        "ForceDelete:Section",
+        "ForceDeleteAny:Section",
+        "Replicate:Section",
+        "Reorder:Section"
+    ],
+    "capabilities": [
+        "content-sections",
+        "content-sections-admin",
+        "content-sections-public-rendering",
+        "content-sections-section-registry",
+        "content-sections-block-library-bridge",
+        "content-sections-layout-builder-payloads",
+        "content-sections-public-output-sanitisation",
+        "content-sections-publishing-studio-bridge",
+        "content-sections-public-actions-bridge"
+    ],
     "performance": {
         "frontendRenderBudgetMs": 20,
         "adminQueryBudget": 40,
@@ -57,7 +118,18 @@
             "cacheable": false,
             "variesBy": ["site", "locale"],
             "sensitiveOutput": false,
-            "invalidationSources": [],
+            "invalidationSources": [
+                {
+                    "model": "Capell\\ContentSections\\Models\\Section",
+                    "events": [
+                        "created",
+                        "updated",
+                        "deleted",
+                        "restored",
+                        "forceDeleted"
+                    ]
+                }
+            ],
             "queueInvalidation": true
         }
     },
@@ -77,12 +149,32 @@
         "privateDocsRequested": false
     },
     "marketplace": {
-        "summary": "Content Sections provides reusable content sections for Capell admin and frontend surfaces.",
+        "summary": "Seventeen ready-to-use, themeable page sections — hero, FAQ, pricing, stats, testimonials, team, comparison, timeline and more — that editors reuse across pages and developers render through safe, package-owned Blade. Bundled free with Capell Foundation.",
         "screenshots": [
             {
                 "path": "docs/assets/marketplace/extension-card.jpg",
                 "alt": "Content Sections extension preview image",
                 "caption": "Content Sections extension preview"
+            },
+            {
+                "path": "docs/screenshots/sections-index.png",
+                "alt": "Content Sections admin index with reusable section records",
+                "caption": "Editors can review reusable hero, FAQ, and pricing sections from a dedicated Capell admin resource."
+            },
+            {
+                "path": "docs/screenshots/sections-create.png",
+                "alt": "Create Section form with blueprint selector and content editor",
+                "caption": "The create form starts from a section blueprint and gives editors translated content fields without storing layout markup."
+            },
+            {
+                "path": "docs/screenshots/sections-edit-with-assets.png",
+                "alt": "Edit Section form with publishing controls and assets panel",
+                "caption": "A reusable section edit screen combines content, publishing actions, site context, and the assets panel."
+            },
+            {
+                "path": "docs/screenshots/sections-index-dark.png",
+                "alt": "Dark mode Content Sections admin index",
+                "caption": "The reusable sections index is also captured in Capell Admin dark mode for marketplace parity."
             }
         ],
         "categories": ["admin", "foundation", "frontend"]

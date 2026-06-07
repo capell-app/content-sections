@@ -12,10 +12,13 @@
             "surface": "admin",
             "targetType": "admin-resource",
             "target": "SectionResource:index",
+            "url": "/sections",
+            "waitFor": "table",
             "required": true,
             "notes": "Capture after installing content-sections with block-library and layout-builder, with at least three seeded sections across different blueprints so table filters, columns, and navigation state are visible.",
             "screenshotPath": "packages/content-sections/docs/screenshots/sections-index.png",
-            "useCase": "An editor reviews reusable sections before choosing which shared content block to update."
+            "useCase": "An editor reviews reusable sections before choosing which shared content block to update.",
+            "darkScreenshotPath": "packages/content-sections/docs/screenshots/sections-index-dark.png"
         },
         {
             "id": "sections-create",
@@ -24,6 +27,8 @@
             "surface": "admin",
             "targetType": "admin-resource",
             "target": "SectionResource:create",
+            "url": "/sections/create",
+            "waitFor": "form",
             "required": true,
             "notes": "Capture with the blueprint selector visible. The form depends on Layout Builder blueprints registered by the installed package.",
             "screenshotPath": "packages/content-sections/docs/screenshots/sections-create.png",
@@ -36,6 +41,8 @@
             "surface": "admin",
             "targetType": "admin-resource",
             "target": "SectionResource:edit",
+            "url": "/sections/{first-record}/edit",
+            "waitFor": "form",
             "required": true,
             "notes": "Requires a seeded section with translations and at least one related widget asset so the relation manager tab is not empty.",
             "screenshotPath": "packages/content-sections/docs/screenshots/sections-edit-with-assets.png",
@@ -46,10 +53,10 @@
             "title": "Section selector modal.",
             "package": "content-sections",
             "surface": "admin",
-            "targetType": "admin-component",
-            "target": "ModalTableSelect",
+            "targetType": "admin-route",
+            "target": "/screenshot-fixtures/content-sections/section-selector-modal",
             "required": true,
-            "notes": "Requires a host admin workflow that opens ModalTableSelect, such as attaching section assets from a widget or layout field.",
+            "notes": "Capture the dedicated route-backed selector fixture. Do not fall back to Dashboard or a generic demo page for this state.",
             "screenshotPath": "packages/content-sections/docs/screenshots/section-selector-modal.png",
             "useCase": "An editor searches existing reusable sections from the modal before attaching one to another content surface."
         },
@@ -58,12 +65,12 @@
             "title": "Frontend section widget gallery.",
             "package": "content-sections",
             "surface": "frontend",
-            "targetType": "frontend-render",
-            "target": "capell-content-sections::components.section.widgets.*",
+            "targetType": "frontend-route",
+            "target": "/screenshot-fixtures/content-sections/section-widget-gallery",
             "required": true,
-            "notes": "Seed one public page that renders each registered section widget family. Anonymous output must not expose authoring markers, editor URLs, internal IDs, or package internals.",
+            "notes": "Capture the dedicated anonymous route-backed gallery fixture. Do not fall back to Dashboard or a generic placeholder page.",
             "screenshotPath": "packages/content-sections/docs/screenshots/section-widget-gallery.png",
-            "useCase": "A maintainer verifies the public section gallery renders every package-owned widget safely for anonymous visitors."
+            "useCase": "A maintainer verifies the public section gallery renders every Block Library-backed widget safely for anonymous visitors."
         }
     ]
 }

@@ -53,7 +53,7 @@ it('contributes section assets to public layout widget payloads', function (): v
         ->toMatchArray([
             'id' => $section->getKey(),
             'key' => 'hero',
-            'component' => 'capell-content-sections::section.widgets.hero',
+            'component' => 'capell-block-library::blocks.catalog.hero',
             'title' => 'Hero Copy',
             'summary' => '<p>Hero summary</p>',
             'meta' => ['alignment' => 'start'],
@@ -100,6 +100,40 @@ it('contributes section assets without public-render lazy loading', function ():
     $widgetData = $graph->containers[0]->widgets[0];
 
     expect($widgetData->data['sections'][0]['title'])->toBe('Lazy-safe Hero');
+});
+
+it('reuses section render payloads for top-level public widget html', function (): void {
+    $language = Language::factory()->create();
+    $site = Site::factory()->create(['language_id' => $language->id]);
+    $blueprint = EnsureSectionBlueprintForKeyAction::run('content');
+    $section = Section::factory()
+        ->site($site)
+        ->blueprint($blueprint)
+        ->withTranslations($language, [
+            'title' => 'Budget Copy',
+            'content' => '<p>Rendered once for the widget payload.</p>',
+        ])
+        ->create([
+            'name' => 'Budget section',
+            'visible_until' => now()->addDay(),
+        ]);
+
+    $widget = Widget::factory()->create(['key' => 'budget-widget']);
+    $layout = Layout::factory()->site($site)->create([
+        'containers' => [
+            'main' => ['widgets' => [['widget_key' => $widget->key, 'occurrence' => 1]]],
+        ],
+    ]);
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
+
+    WidgetAsset::factory()->widget($widget)->asset($section)->create(['order' => 1]);
+
+    $graph = BuildPublicLayoutGraphAction::run($layout, $page, $language, includeHtml: true);
+    $widgetData = $graph->containers[0]->widgets[0];
+
+    expect($widgetData->data['sections'][0]['html'])
+        ->toBe($widgetData->html)
+        ->toContain('Rendered once for the widget payload.');
 });
 
 it('does not expose pending or expired section assets in public layout widget payloads', function (): void {

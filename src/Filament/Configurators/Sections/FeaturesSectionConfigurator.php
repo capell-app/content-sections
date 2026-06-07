@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\ContentSections\Filament\Configurators\Sections;
 
-class FeaturesSectionConfigurator extends PopularSectionConfigurator
+class FeaturesSectionConfigurator extends RichSectionConfigurator
 {
     protected function sectionKey(): string
     {

@@ -47,7 +47,7 @@ it('registers the main sections', function (): void {
 it('exposes registered sections as typed content blocks', function (): void {
     $widgets = resolve(BlockRegistry::class);
 
-    expect($widgets->get('section.accordion')?->view)->toBe('capell-content-sections::section.widgets.accordion')
+    expect($widgets->get('section.accordion')?->view)->toBe('capell-block-library::blocks.catalog.accordion')
         ->and($widgets->get('section.accordion')?->category)->toBe('main')
         ->and($widgets->get('section.call_to_action')?->safeForPublicOutput)->toBeTrue();
 });
@@ -171,6 +171,7 @@ it('renders every registered section demo component', function (): void {
 
     RegisterDefaultSectionsAction::run($registry);
     app()->instance(SectionRegistry::class, $registry);
+    view()->addNamespace('capell-block-library', __DIR__ . '/../../../block-library/resources/views');
     view()->addNamespace('capell-content-sections', __DIR__ . '/../../resources/views');
     Blade::anonymousComponentPath(__DIR__ . '/../Fixtures/components', 'capell');
 

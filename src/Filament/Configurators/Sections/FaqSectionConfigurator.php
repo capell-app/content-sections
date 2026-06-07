@@ -6,7 +6,7 @@ namespace Capell\ContentSections\Filament\Configurators\Sections;
 
 use Override;
 
-class FaqSectionConfigurator extends PopularSectionConfigurator
+class FaqSectionConfigurator extends RichSectionConfigurator
 {
     protected function sectionKey(): string
     {

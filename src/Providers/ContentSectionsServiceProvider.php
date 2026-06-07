@@ -10,6 +10,8 @@ use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Enums\ConfiguratorTypeEnum as AdminConfiguratorTypeEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\BlockLibrary\Contracts\BlockDefinitionProvider;
+use Capell\ContentSections\Actions\CloneSectionIntoWorkspaceAction;
+use Capell\ContentSections\Actions\FinalizeSectionPublishAction;
 use Capell\ContentSections\Actions\RegisterDefaultSectionsAction;
 use Capell\ContentSections\Actions\RegisterSectionDefinitionProviderAction;
 use Capell\ContentSections\Contracts\SectionDefinitionProvider;
@@ -28,13 +30,9 @@ use Capell\ContentSections\Support\SectionRegistry;
 use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
 use Capell\Core\Data\AssetData;
 use Capell\Core\Data\PageTypeData;
-use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Facades\CapellCore;
-use Capell\Core\Models\AssetAttachment;
 use Capell\Core\Models\Blueprint;
-use Capell\Core\Models\Media;
 use Capell\Core\Models\Site;
-use Capell\Core\Models\Translation;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Contracts\AssetsRegistryInterface;
 use Capell\Frontend\Contracts\FrontendComponentRegistryInterface;
@@ -46,9 +44,7 @@ use Composer\InstalledVersions;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Str;
 use Livewire\Livewire;
 use Override;
 use Spatie\LaravelPackageTools\Package;
@@ -83,6 +79,7 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
     {
         $package->name(self::$name)
             ->hasConfigFile()
+            ->hasRoute('web')
             ->hasViews(self::$name)
             ->hasTranslations();
     }
@@ -396,82 +393,10 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
 
         WorkspaceRegistry::register(
             Section::class,
-            cloneUsing: $this->cloneSectionIntoWorkspace(...),
-            finalizeOnPublish: $this->finalizeSectionPublish(...),
+            cloneUsing: fn (Model $source, Workspace $workspace): Model => CloneSectionIntoWorkspaceAction::run($source, $workspace),
+            finalizeOnPublish: fn (Model $record): Model => FinalizeSectionPublishAction::run($record),
         );
 
         return $this;
-    }
-
-    private function cloneSectionIntoWorkspace(Model $source, Workspace $workspace): Model
-    {
-        if (! $source instanceof Section) {
-            $clone = $source->replicate();
-            $clone->setAttribute('workspace_id', $workspace->id);
-
-            return $clone;
-        }
-
-        $clone = $source->replicate();
-        $clone->workspace_id = $workspace->id;
-        $clone->shadowed_by_workspace_id = 0;
-        $clone->uuid = $source->uuid;
-        $clone->save();
-
-        $source->translations()->get()->each(function (Translation $translation) use ($clone): void {
-            $translationClone = $translation->replicate();
-            $translationClone->translatable_id = $clone->getKey();
-            $translationClone->save();
-        });
-
-        $source->assets()->get()->each(function (AssetAttachment $attachment) use ($clone): void {
-            $attachmentClone = $attachment->replicate();
-            $attachmentClone->related_id = $clone->getKey();
-            $attachmentClone->save();
-        });
-
-        $source->media()
-            ->where('collection_name', MediaCollectionEnum::Image->value)
-            ->get()
-            ->each(function (Model $media) use ($clone): void {
-                if (! $media instanceof Media) {
-                    return;
-                }
-
-                $mediaClone = $media->replicate();
-                $mediaClone->model_id = $clone->getKey();
-                $mediaClone->uuid = (string) Str::uuid();
-                $mediaClone->save();
-            });
-
-        return $clone;
-    }
-
-    private function finalizeSectionPublish(Model $record): Model
-    {
-        if (! $record instanceof Section || blank($record->uuid)) {
-            return $record;
-        }
-
-        if (! DB::getSchemaBuilder()->hasTable('widget_assets')) {
-            return $record;
-        }
-
-        $liveSectionId = Section::query()
-            ->withoutGlobalScopes()
-            ->where('workspace_id', 0)
-            ->where('uuid', $record->uuid)
-            ->value('id');
-
-        if ($liveSectionId === null) {
-            return $record;
-        }
-
-        DB::table('widget_assets')
-            ->where('asset_type', $record->getMorphClass())
-            ->where('asset_id', $liveSectionId)
-            ->update(['asset_id' => $record->getKey()]);
-
-        return $record;
     }
 }
