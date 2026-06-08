@@ -24,6 +24,7 @@ it('only depends on the layout-builder package through public contracts', functi
     }
 
     expect($violations)->toEqualCanonicalizing([
+        'packages/content-sections/src/Actions/FinalizeSectionPublishAction.php',
         'packages/content-sections/src/Providers/ContentSectionsServiceProvider.php',
         'packages/content-sections/src/Support/SectionPublicWidgetPayloadContributor.php',
     ]);

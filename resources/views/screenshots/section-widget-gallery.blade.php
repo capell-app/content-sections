@@ -102,7 +102,7 @@
                     <p>
                         Anonymous-safe fixture showing the breadth of
                         package-owned reusable sections without admin chrome or
-                        signed authoring metadata.
+                        editor-link metadata.
                     </p>
                 </div>
             </header>

@@ -442,7 +442,7 @@ it('declares section resource metadata', function (): void {
         ->and(SectionResource::getResourceType())->toBe(ConfiguratorTypeEnum::Section)
         ->and(SectionResource::shouldRegisterNavigation())->toBeTrue()
         ->and(SectionResource::getGloballySearchableAttributes())->toBe(['name', 'translations.title'])
-        ->and(SectionResource::getNavigationGroup())->toBeString()
+        ->and(SectionResource::getNavigationGroup())->toBeNull()
         ->and(SectionResource::getNavigationParentItem())->toBeString()
         ->and(SectionResource::getNavigationLabel())->toBeString()
         ->and(SectionResource::getModelLabel())->toBeString()
