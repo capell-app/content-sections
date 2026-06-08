@@ -20,6 +20,7 @@ use Capell\Core\Models\Blueprint;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\View\DynamicComponent;
 
 it('registers the main sections', function (): void {
     $registry = new SectionRegistry;
@@ -173,6 +174,8 @@ it('renders every registered section demo component', function (): void {
     app()->instance(SectionRegistry::class, $registry);
     view()->addNamespace('capell-block-library', __DIR__ . '/../../../block-library/resources/views');
     view()->addNamespace('capell-content-sections', __DIR__ . '/../../resources/views');
+    Blade::anonymousComponentPath(__DIR__ . '/../../../block-library/resources/views', 'capell-block-library');
+    registerBlockLibraryCatalogComponentsForDynamicRendering();
     Blade::anonymousComponentPath(__DIR__ . '/../Fixtures/components', 'capell');
 
     foreach (array_keys($registry->all()) as $key) {
@@ -185,3 +188,44 @@ it('renders every registered section demo component', function (): void {
         expect($html)->toContain('section');
     }
 });
+
+function registerBlockLibraryCatalogComponentsForDynamicRendering(): void
+{
+    foreach ([
+        'accordion',
+        'call-to-action',
+        'comparison',
+        'content',
+        'counter',
+        'divider',
+        'faq',
+        'features',
+        'hero',
+        'logos',
+        'pricing',
+        'stats',
+        'table',
+        'tabs',
+        'team',
+        'testimonial',
+        'timeline',
+    ] as $component) {
+        Blade::component(
+            'capell-block-library::blocks.catalog.' . $component,
+            'capell-block-library::blocks.catalog.' . $component,
+        );
+    }
+
+    clearContentSectionsDynamicComponentResolverCache();
+}
+
+function clearContentSectionsDynamicComponentResolverCache(): void
+{
+    $dynamicComponent = new ReflectionClass(DynamicComponent::class);
+
+    $compiler = $dynamicComponent->getProperty('compiler');
+    $compiler->setValue(null);
+
+    $componentClasses = $dynamicComponent->getProperty('componentClasses');
+    $componentClasses->setValue([]);
+}
