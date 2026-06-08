@@ -175,6 +175,34 @@ it('normalises untrusted icon meta before public section rendering', function ()
         ->and($widgetData->html)->not->toContain('../../storage');
 });
 
+it('removes unsafe section meta urls before public section rendering', function (): void {
+    $widgetData = placeSectionAndBuildPublicGraph(
+        'features',
+        '<p>Feature intro</p>',
+        [
+            'features' => [
+                [
+                    'heading' => 'Unsafe link feature',
+                    'description' => 'Unsafe link copy.',
+                    'url' => 'javascript:alert(1)',
+                ],
+                [
+                    'heading' => 'Safe link feature',
+                    'description' => 'Safe link copy.',
+                    'url' => '/safe-feature',
+                ],
+            ],
+        ],
+    );
+
+    $features = $widgetData->data['sections'][0]['meta']['features'];
+
+    expect($features[0]['url'])->toBeNull()
+        ->and($features[1]['url'])->toBe('/safe-feature')
+        ->and($widgetData->html)->toContain('/safe-feature')
+        ->not->toContain('javascript:alert');
+});
+
 it('preserves legitimate rich-text markup in section summary', function (): void {
     $widgetData = placeSectionAndBuildPublicGraph(
         'content',

@@ -16,7 +16,6 @@ use Capell\PublishingStudio\Actions\SaveRecordDraftAction;
 use Capell\PublishingStudio\Enums\WorkspaceStatusEnum;
 use Capell\PublishingStudio\Models\Workspace;
 use Capell\PublishingStudio\Publisher;
-use Capell\PublishingStudio\WorkspaceRegistry;
 use Capell\Tests\Fixtures\Models\User;
 use Illuminate\Support\Str;
 
