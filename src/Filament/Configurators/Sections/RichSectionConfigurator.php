@@ -19,6 +19,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -50,7 +51,7 @@ abstract class RichSectionConfigurator extends DefaultSectionConfigurator
                 ->hiddenOn('edit')
                 ->columnSpanFull()
                 ->columns()
-                ->schema(DetailsSchema::make($configurator))
+                ->schema($this->detailsSchema($configurator))
                 ->contained(fn (string $operation): bool => $operation === 'create'),
             FixedWidthSidebar::make()
                 ->mainSchema([
@@ -62,8 +63,8 @@ abstract class RichSectionConfigurator extends DefaultSectionConfigurator
                         ->gridContainer()
                         ->columns(['default' => 1, '@lg' => 2])
                         ->schema([
-                            ...($configurator->getOperation() !== 'create' ? DetailsSchema::make($configurator) : []),
-                            ...SettingsSchema::make($configurator),
+                            ...($configurator->getOperation() !== 'create' ? $this->detailsSchema($configurator) : []),
+                            ...$this->settingsSchema($configurator),
                         ]),
                     PublishSection::make(),
                 ]),
@@ -99,7 +100,7 @@ abstract class RichSectionConfigurator extends DefaultSectionConfigurator
     }
 
     /**
-     * @return array<int, mixed>
+     * @return array<int, Component>
      */
     protected function translationFields(): array
     {
@@ -107,7 +108,7 @@ abstract class RichSectionConfigurator extends DefaultSectionConfigurator
     }
 
     /**
-     * @return array<int, mixed>
+     * @return array<int, Component>
      */
     protected function metaFields(Schema $configurator): array
     {
@@ -131,7 +132,29 @@ abstract class RichSectionConfigurator extends DefaultSectionConfigurator
     }
 
     /**
-     * @return array<int, mixed>
+     * @return array<int, Component>
+     */
+    private function detailsSchema(Schema $configurator): array
+    {
+        return array_values(array_filter(
+            DetailsSchema::make($configurator),
+            static fn (mixed $component): bool => $component instanceof Component,
+        ));
+    }
+
+    /**
+     * @return array<int, Component>
+     */
+    private function settingsSchema(Schema $configurator): array
+    {
+        return array_values(array_filter(
+            SettingsSchema::make($configurator),
+            static fn (mixed $component): bool => $component instanceof Component,
+        ));
+    }
+
+    /**
+     * @return array<int, Component>
      */
     private function accordionFields(): array
     {
@@ -151,7 +174,7 @@ abstract class RichSectionConfigurator extends DefaultSectionConfigurator
     }
 
     /**
-     * @return array<int, mixed>
+     * @return array<int, Component>
      */
     private function callToActionFields(): array
     {
@@ -168,7 +191,7 @@ abstract class RichSectionConfigurator extends DefaultSectionConfigurator
     }
 
     /**
-     * @return array<int, mixed>
+     * @return array<int, Component>
      */
     private function comparisonFields(): array
     {
@@ -196,7 +219,7 @@ abstract class RichSectionConfigurator extends DefaultSectionConfigurator
     }
 
     /**
-     * @return array<int, mixed>
+     * @return array<int, Component>
      */
     private function counterFields(): array
     {
@@ -229,7 +252,7 @@ abstract class RichSectionConfigurator extends DefaultSectionConfigurator
     }
 
     /**
-     * @return array<int, mixed>
+     * @return array<int, Component>
      */
     private function dividerFields(): array
     {
@@ -254,7 +277,7 @@ abstract class RichSectionConfigurator extends DefaultSectionConfigurator
     }
 
     /**
-     * @return array<int, mixed>
+     * @return array<int, Component>
      */
     private function faqFields(): array
     {
@@ -274,7 +297,7 @@ abstract class RichSectionConfigurator extends DefaultSectionConfigurator
     }
 
     /**
-     * @return array<int, mixed>
+     * @return array<int, Component>
      */
     private function featuresFields(): array
     {
@@ -299,7 +322,7 @@ abstract class RichSectionConfigurator extends DefaultSectionConfigurator
     }
 
     /**
-     * @return array<int, mixed>
+     * @return array<int, Component>
      */
     private function logosFields(): array
     {
@@ -321,7 +344,7 @@ abstract class RichSectionConfigurator extends DefaultSectionConfigurator
     }
 
     /**
-     * @return array<int, mixed>
+     * @return array<int, Component>
      */
     private function pricingFields(): array
     {
@@ -353,7 +376,7 @@ abstract class RichSectionConfigurator extends DefaultSectionConfigurator
     }
 
     /**
-     * @return array<int, mixed>
+     * @return array<int, Component>
      */
     private function statsFields(): array
     {
@@ -377,7 +400,7 @@ abstract class RichSectionConfigurator extends DefaultSectionConfigurator
     }
 
     /**
-     * @return array<int, mixed>
+     * @return array<int, Component>
      */
     private function tableFields(): array
     {
@@ -400,7 +423,7 @@ abstract class RichSectionConfigurator extends DefaultSectionConfigurator
     }
 
     /**
-     * @return array<int, mixed>
+     * @return array<int, Component>
      */
     private function tabsFields(): array
     {
@@ -418,7 +441,7 @@ abstract class RichSectionConfigurator extends DefaultSectionConfigurator
     }
 
     /**
-     * @return array<int, mixed>
+     * @return array<int, Component>
      */
     private function teamFields(): array
     {
@@ -445,7 +468,7 @@ abstract class RichSectionConfigurator extends DefaultSectionConfigurator
     }
 
     /**
-     * @return array<int, mixed>
+     * @return array<int, Component>
      */
     private function timelineFields(): array
     {
@@ -465,7 +488,7 @@ abstract class RichSectionConfigurator extends DefaultSectionConfigurator
     }
 
     /**
-     * @param  array<int, mixed>  $schema
+     * @param  array<int, Component>  $schema
      */
     private function itemsRepeater(string $name, string $label, array $schema): Repeater
     {

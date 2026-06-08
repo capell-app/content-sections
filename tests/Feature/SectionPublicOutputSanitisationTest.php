@@ -62,7 +62,7 @@ it('strips script tags from section summary in the anonymous public payload', fu
         '<p>Welcome</p><script>alert(document.cookie)</script>',
     );
 
-    $summary = $widgetData->data['sections'][0]['summary'];
+    $summary = publicSectionSummary($widgetData);
 
     expect($summary)
         ->toContain('<p>Welcome</p>')
@@ -76,7 +76,7 @@ it('strips inline event handlers from section summary in the anonymous public pa
         '<p onclick="steal()">Editorial copy</p><img src=x onerror="steal()">',
     );
 
-    $summary = $widgetData->data['sections'][0]['summary'];
+    $summary = publicSectionSummary($widgetData);
 
     expect($summary)
         ->toContain('Editorial copy')
@@ -98,7 +98,11 @@ it('does not emit script markup in the rendered anonymous section html', functio
 });
 
 it('keeps authenticated non-admin public payloads free of authoring markers and unsafe html', function (): void {
-    test()->actingAs(test()->createUser(['email' => 'frontend-visitor@example.test']));
+    $user = test()->createUser(['email' => 'frontend-visitor@example.test']);
+
+    throw_unless(is_object($user), RuntimeException::class, 'Expected test user.');
+
+    test()->actingAs($user);
 
     $widgetData = placeSectionAndBuildPublicGraph(
         'hero',
@@ -139,9 +143,10 @@ it('sanitises malicious html inside nested section meta values', function (): vo
         ],
     );
 
-    $meta = $widgetData->data['sections'][0]['meta'];
+    $questions = publicSectionMetaItems($widgetData, 'questions');
+    $answer = is_string($questions[0]['answer'] ?? null) ? $questions[0]['answer'] : '';
 
-    expect($meta['questions'][0]['answer'])
+    expect($answer)
         ->toContain('<p>Yes.</p>')
         ->not->toContain('<script')
         ->and($widgetData->html)
@@ -169,10 +174,12 @@ it('normalises untrusted icon meta before public section rendering', function ()
         ],
     );
 
-    $features = $widgetData->data['sections'][0]['meta']['features'];
+    $features = publicSectionMetaItems($widgetData, 'features');
+    $safeIcon = is_string($features[0]['icon'] ?? null) ? $features[0]['icon'] : null;
+    $unsafeIcon = is_string($features[1]['icon'] ?? null) ? $features[1]['icon'] : null;
 
-    expect($features[0]['icon'])->toBe('heroicon-o-sparkles')
-        ->and($features[1]['icon'])->toBeNull()
+    expect($safeIcon)->toBe('heroicon-o-sparkles')
+        ->and($unsafeIcon)->toBeNull()
         ->and($widgetData->html)->toContain('Safe feature')
         ->and($widgetData->html)->toContain('Unsafe feature')
         ->and($widgetData->html)->not->toContain('../../storage');
@@ -198,10 +205,12 @@ it('removes unsafe section meta urls before public section rendering', function 
         ],
     );
 
-    $features = $widgetData->data['sections'][0]['meta']['features'];
+    $features = publicSectionMetaItems($widgetData, 'features');
+    $unsafeUrl = is_string($features[0]['url'] ?? null) ? $features[0]['url'] : null;
+    $safeUrl = is_string($features[1]['url'] ?? null) ? $features[1]['url'] : null;
 
-    expect($features[0]['url'])->toBeNull()
-        ->and($features[1]['url'])->toBe('/safe-feature')
+    expect($unsafeUrl)->toBeNull()
+        ->and($safeUrl)->toBe('/safe-feature')
         ->and($widgetData->html)->toContain('/safe-feature')
         ->not->toContain('javascript:alert');
 });
@@ -212,8 +221,71 @@ it('preserves legitimate rich-text markup in section summary', function (): void
         '<p>Lead paragraph with <strong>bold</strong> and <a href="/about">a link</a>.</p><ul><li>One</li></ul>',
     );
 
-    expect($widgetData->data['sections'][0]['summary'])
+    expect(publicSectionSummary($widgetData))
         ->toContain('<strong>bold</strong>')
         ->toContain('<a href="/about">a link</a>')
         ->toContain('<li>One</li>');
 });
+
+function publicSectionSummary(PublicLayoutWidgetData $widgetData): string
+{
+    $section = publicSectionPayload($widgetData);
+    $summary = $section['summary'] ?? '';
+
+    return is_string($summary) ? $summary : '';
+}
+
+/**
+ * @return list<array<string, mixed>>
+ */
+function publicSectionMetaItems(PublicLayoutWidgetData $widgetData, string $key): array
+{
+    $section = publicSectionPayload($widgetData);
+    $meta = $section['meta'] ?? [];
+    $items = is_array($meta) ? ($meta[$key] ?? []) : [];
+
+    if (! is_array($items)) {
+        return [];
+    }
+
+    $normalizedItems = [];
+
+    foreach ($items as $item) {
+        if (! is_array($item)) {
+            continue;
+        }
+
+        $normalizedItem = [];
+
+        foreach ($item as $itemKey => $itemValue) {
+            if (is_string($itemKey)) {
+                $normalizedItem[$itemKey] = $itemValue;
+            }
+        }
+
+        $normalizedItems[] = $normalizedItem;
+    }
+
+    return $normalizedItems;
+}
+
+/**
+ * @return array<string, mixed>
+ */
+function publicSectionPayload(PublicLayoutWidgetData $widgetData): array
+{
+    $sections = $widgetData->data['sections'] ?? [];
+    $section = is_array($sections) ? ($sections[0] ?? null) : null;
+
+    throw_unless(is_array($section), RuntimeException::class, 'Expected public section payload.');
+
+    $payload = [];
+
+    foreach ($section as $key => $value) {
+        if (is_string($key)) {
+            $payload[$key] = $value;
+        }
+    }
+
+    return $payload;
+}

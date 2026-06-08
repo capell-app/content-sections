@@ -9,6 +9,9 @@ use Capell\LayoutBuilder\Actions\RepointWidgetAssetReferencesAction;
 use Illuminate\Database\Eloquent\Model;
 use Lorisleiva\Actions\Concerns\AsAction;
 
+/**
+ * @method static Model run(Model $record)
+ */
 final class FinalizeSectionPublishAction
 {
     use AsAction;

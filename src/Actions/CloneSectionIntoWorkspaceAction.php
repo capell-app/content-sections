@@ -13,7 +13,11 @@ use Capell\PublishingStudio\Models\Workspace;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
+use RuntimeException;
 
+/**
+ * @method static Model run(Model $source, Workspace $workspace)
+ */
 final class CloneSectionIntoWorkspaceAction
 {
     use AsAction;
@@ -35,13 +39,13 @@ final class CloneSectionIntoWorkspaceAction
 
         $source->translations()->get()->each(function (Translation $translation) use ($clone): void {
             $translationClone = $translation->replicate();
-            $translationClone->translatable_id = $clone->getKey();
+            $translationClone->translatable_id = $this->sectionKey($clone);
             $translationClone->save();
         });
 
         $source->assets()->get()->each(function (AssetAttachment $attachment) use ($clone): void {
             $attachmentClone = $attachment->replicate();
-            $attachmentClone->related_id = $clone->getKey();
+            $attachmentClone->related_id = (string) $this->sectionKey($clone);
             $attachmentClone->save();
         });
 
@@ -54,11 +58,26 @@ final class CloneSectionIntoWorkspaceAction
                 }
 
                 $mediaClone = $media->replicate();
-                $mediaClone->model_id = $clone->getKey();
+                $mediaClone->model_id = $this->sectionKey($clone);
                 $mediaClone->uuid = (string) Str::uuid();
                 $mediaClone->save();
             });
 
         return $clone;
+    }
+
+    private function sectionKey(Section $section): int
+    {
+        $key = $section->getKey();
+
+        if (is_int($key)) {
+            return $key;
+        }
+
+        if (is_string($key) && ctype_digit($key)) {
+            return (int) $key;
+        }
+
+        throw new RuntimeException('Section key must be an integer.');
     }
 }

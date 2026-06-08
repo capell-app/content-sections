@@ -6,8 +6,8 @@ Start at the [package README](../README.md) when deciding whether to install thi
 
 ## Guides
 
-| Doc                       | Use it for                                                                         |
-| ------------------------- | ---------------------------------------------------------------------------------- |
+| Doc                     | Use it for                                                                                        |
+| ----------------------- | ------------------------------------------------------------------------------------------------- |
 | [Overview](overview.md) | Package workflow, runtime surfaces, install notes, verification, and public-rendering boundaries. |
 
 ## Read Next
@@ -16,4 +16,4 @@ Start at the [package README](../README.md) when deciding whether to install thi
 | ------------------------------------------------------- | ----------------------------------------------------- |
 | [Repository package docs](../../../docs/README.md)      | Cross-package workflow index and install-order notes. |
 | [Layout Builder](../../layout-builder/docs/overview.md) | Neighboring package in the same Capell workflow.      |
-| [Block Library](../../block-library/docs/overview.md) | Neighboring package in the same Capell workflow.      |
+| [Block Library](../../block-library/docs/overview.md)   | Neighboring package in the same Capell workflow.      |

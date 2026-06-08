@@ -40,6 +40,8 @@ it('clones sections into workspaces through the package action', function (): vo
 
     $draft = CloneSectionIntoWorkspaceAction::run($live, $workspace);
 
+    throw_unless($draft instanceof Section, RuntimeException::class, 'Expected cloned section draft.');
+
     expect($draft)->toBeInstanceOf(Section::class)
         ->and($draft->getKey())->not->toBe($live->getKey())
         ->and($draft->workspace_id)->toBe($workspace->id)

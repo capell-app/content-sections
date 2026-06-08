@@ -92,7 +92,9 @@ it('builds section asset render data from preloaded relations and plain objects'
 
             public function all(): Collection
             {
-                return capell_test_collect();
+                return collect([
+                    'section.widget' => new FrontendComponentData(key: 'section.widget', component: 'resolved-section.widget'),
+                ]);
             }
         };
     });
@@ -197,8 +199,15 @@ it('declares content sections manifest surfaces accurately', function (): void {
         flags: JSON_THROW_ON_ERROR,
     );
 
-    expect($manifest['database']['requiredTables'] ?? [])->toContain('sections')
-        ->and($manifest['dependencies']['supports'] ?? [])->toContain(
+    throw_unless(is_array($manifest), RuntimeException::class, 'Expected content-sections manifest to decode as an array.');
+
+    $database = is_array($manifest['database'] ?? null) ? $manifest['database'] : [];
+    $dependencies = is_array($manifest['dependencies'] ?? null) ? $manifest['dependencies'] : [];
+    $performance = is_array($manifest['performance'] ?? null) ? $manifest['performance'] : [];
+    $cacheSafety = is_array($performance['cacheSafety'] ?? null) ? $performance['cacheSafety'] : [];
+
+    expect($database['requiredTables'] ?? [])->toContain('sections')
+        ->and($dependencies['supports'] ?? [])->toContain(
             'capell-app/publishing-studio',
             'capell-app/public-actions',
         )
@@ -224,7 +233,8 @@ it('declares content sections manifest surfaces accurately', function (): void {
             'class' => ContentSectionsPackageContribution::class,
             'keys' => ['section.widget', 'section.team-member'],
         ])
-        ->and($manifest['performance']['cacheSafety']['invalidationSources'] ?? [])->toContain([
+        ->and($cacheSafety['cacheable'] ?? false)->toBeTrue()
+        ->and($cacheSafety['invalidationSources'] ?? [])->toContain([
             'model' => Section::class,
             'events' => ['created', 'updated', 'deleted', 'restored', 'forceDeleted'],
         ]);
