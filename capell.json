@@ -115,7 +115,7 @@
         "adminQueryBudget": 40,
         "cacheTags": ["content-sections"],
         "cacheSafety": {
-            "cacheable": false,
+            "cacheable": true,
             "variesBy": ["site", "locale"],
             "sensitiveOutput": false,
             "invalidationSources": [

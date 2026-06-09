@@ -16,7 +16,6 @@ use Capell\PublishingStudio\Actions\SaveRecordDraftAction;
 use Capell\PublishingStudio\Enums\WorkspaceStatusEnum;
 use Capell\PublishingStudio\Models\Workspace;
 use Capell\PublishingStudio\Publisher;
-use Capell\PublishingStudio\WorkspaceRegistry;
 use Capell\Tests\Fixtures\Models\User;
 use Illuminate\Support\Str;
 
@@ -40,6 +39,8 @@ it('clones sections into workspaces through the package action', function (): vo
         ->create();
 
     $draft = CloneSectionIntoWorkspaceAction::run($live, $workspace);
+
+    throw_unless($draft instanceof Section, RuntimeException::class, 'Expected cloned section draft.');
 
     expect($draft)->toBeInstanceOf(Section::class)
         ->and($draft->getKey())->not->toBe($live->getKey())

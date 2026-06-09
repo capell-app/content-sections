@@ -19,7 +19,7 @@ Reusable content sections for Capell.
 ## Best Used With
 
 - [Layout Builder](../layout-builder/README.md)
-- [Widget Library](../widget-library/README.md)
+- [Block Library](../block-library/README.md)
 - [Foundation Theme](../foundation-theme/README.md)
 
 ## What It Adds

@@ -38,6 +38,8 @@ class SectionResource extends Resource
     use HasConfiguredTable;
     use HasNavigationBadge;
 
+    protected static ?string $slug = 'content-sections/sections';
+
     protected static ?string $recordTitleAttribute = 'name';
 
     protected static bool $isGloballySearchable = true;

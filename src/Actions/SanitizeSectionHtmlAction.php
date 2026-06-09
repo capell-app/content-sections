@@ -48,10 +48,46 @@ class SanitizeSectionHtmlAction
                 continue;
             }
 
+            if (is_string($key) && $this->isUrlKey($key)) {
+                $value[$key] = $this->sanitizeUrl($item);
+
+                continue;
+            }
+
             $value[$key] = $this->handle($item);
         }
 
         return $value;
+    }
+
+    private function isUrlKey(string $key): bool
+    {
+        $normalized = strtolower((string) preg_replace('/[^a-z0-9]/i', '', $key));
+
+        return $normalized === 'href'
+            || $normalized === 'redirect'
+            || str_ends_with($normalized, 'url');
+    }
+
+    private function sanitizeUrl(mixed $value): ?string
+    {
+        if (! is_string($value)) {
+            return null;
+        }
+
+        $url = trim($value);
+
+        if ($url === '' || preg_match('/[\x00-\x1F\x7F]/', $url) === 1) {
+            return null;
+        }
+
+        if (preg_match('/^\s*([a-z][a-z0-9+.\-]*)\s*:/i', $url, $matches) !== 1) {
+            return $url;
+        }
+
+        $scheme = strtolower($matches[1]);
+
+        return in_array($scheme, ['http', 'https', 'mailto', 'tel'], true) ? $url : null;
     }
 
     private function sanitizer(): HtmlSanitizer

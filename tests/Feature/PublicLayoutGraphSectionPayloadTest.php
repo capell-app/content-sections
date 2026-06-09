@@ -9,6 +9,7 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Actions\BuildPublicLayoutGraphAction;
+use Capell\LayoutBuilder\Data\PublicLayoutWidgetData;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Model;
@@ -48,8 +49,9 @@ it('contributes section assets to public layout widget payloads', function (): v
 
     $graph = BuildPublicLayoutGraphAction::run($layout, $page, $language, includeHtml: true);
     $widgetData = $graph->containers[0]->widgets[0];
+    $sectionPayload = publicLayoutGraphSectionPayload($widgetData);
 
-    expect($widgetData->data['sections'][0])
+    expect($sectionPayload)
         ->toMatchArray([
             'id' => $section->getKey(),
             'key' => 'hero',
@@ -98,8 +100,9 @@ it('contributes section assets without public-render lazy loading', function ():
     }
 
     $widgetData = $graph->containers[0]->widgets[0];
+    $sectionPayload = publicLayoutGraphSectionPayload($widgetData);
 
-    expect($widgetData->data['sections'][0]['title'])->toBe('Lazy-safe Hero');
+    expect($sectionPayload['title'] ?? null)->toBe('Lazy-safe Hero');
 });
 
 it('reuses section render payloads for top-level public widget html', function (): void {
@@ -130,11 +133,33 @@ it('reuses section render payloads for top-level public widget html', function (
 
     $graph = BuildPublicLayoutGraphAction::run($layout, $page, $language, includeHtml: true);
     $widgetData = $graph->containers[0]->widgets[0];
+    $sectionPayload = publicLayoutGraphSectionPayload($widgetData);
 
-    expect($widgetData->data['sections'][0]['html'])
+    expect($sectionPayload['html'] ?? null)
         ->toBe($widgetData->html)
         ->toContain('Rendered once for the widget payload.');
 });
+
+/**
+ * @return array<string, mixed>
+ */
+function publicLayoutGraphSectionPayload(PublicLayoutWidgetData $widgetData): array
+{
+    $sections = $widgetData->data['sections'] ?? [];
+    $section = is_array($sections) ? ($sections[0] ?? null) : null;
+
+    throw_unless(is_array($section), RuntimeException::class, 'Expected public layout section payload.');
+
+    $payload = [];
+
+    foreach ($section as $key => $value) {
+        if (is_string($key)) {
+            $payload[$key] = $value;
+        }
+    }
+
+    return $payload;
+}
 
 it('does not expose pending or expired section assets in public layout widget payloads', function (): void {
     $language = Language::factory()->create();
