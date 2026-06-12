@@ -180,10 +180,7 @@
         ],
         "cacheSafety": {
             "cacheable": true,
-            "variesBy": [
-                "site",
-                "locale"
-            ],
+            "variesBy": [],
             "sensitiveOutput": false,
             "invalidationSources": [
                 {
