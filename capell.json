@@ -110,6 +110,55 @@
         "content-sections-publishing-studio-bridge",
         "content-sections-public-actions-bridge"
     ],
+    "security": {
+        "riskTier": "standard",
+        "publicSurface": {
+            "routeNames": [
+                "capell-content-sections.screenshot-fixtures.section-selector-modal",
+                "capell-content-sections.screenshot-fixtures.section-widget-gallery"
+            ],
+            "auth": "public",
+            "csrfExemptRoutes": [],
+            "signedRoutes": [],
+            "tokenizedRoutes": [],
+            "webhookRoutes": [],
+            "throttledRoutes": []
+        },
+        "sensitiveData": {
+            "encryptedFields": [],
+            "hashedTokenFields": [],
+            "redactedOutputClasses": [],
+            "plaintextJustifications": []
+        },
+        "publicOutput": {
+            "cacheSafe": true,
+            "forbidAuthoringSurface": true,
+            "forbidSecrets": true,
+            "forbidPublicBladeQueries": true
+        },
+        "externalHttpClients": {
+            "requiresTimeouts": false,
+            "requiresSecretRedaction": false,
+            "clients": []
+        },
+        "adminSurface": {
+            "authorization": "permissions",
+            "permissions": [
+                "ViewAny:Section",
+                "View:Section",
+                "Create:Section",
+                "Update:Section",
+                "Delete:Section",
+                "DeleteAny:Section",
+                "Restore:Section",
+                "RestoreAny:Section",
+                "ForceDelete:Section",
+                "ForceDeleteAny:Section",
+                "Replicate:Section",
+                "Reorder:Section"
+            ]
+        }
+    },
     "performance": {
         "frontendRenderBudgetMs": 20,
         "adminQueryBudget": 40,
