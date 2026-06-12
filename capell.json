@@ -108,15 +108,37 @@
         "content-sections-layout-builder-payloads",
         "content-sections-public-output-sanitisation",
         "content-sections-publishing-studio-bridge",
-        "content-sections-public-actions-bridge"
+        "content-sections-public-actions-bridge",
+        "requires-livewire"
     ],
+    "security": {
+        "riskTier": "standard",
+        "publicSurface": {
+            "routeNames": [
+                "screenshot-fixtures.section-selector-modal",
+                "screenshot-fixtures.section-widget-gallery"
+            ],
+            "auth": "public",
+            "csrfExemptRoutes": [],
+            "signedRoutes": [],
+            "tokenizedRoutes": [],
+            "webhookRoutes": [],
+            "throttledRoutes": []
+        },
+        "publicOutput": {
+            "cacheSafe": false,
+            "forbidAuthoringSurface": true,
+            "forbidSecrets": true,
+            "forbidPublicBladeQueries": true
+        }
+    },
     "performance": {
         "frontendRenderBudgetMs": 20,
         "adminQueryBudget": 40,
         "cacheTags": ["content-sections"],
         "cacheSafety": {
             "cacheable": true,
-            "variesBy": ["site", "locale"],
+            "variesBy": [],
             "sensitiveOutput": false,
             "invalidationSources": [
                 {
