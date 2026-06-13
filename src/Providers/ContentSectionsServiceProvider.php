@@ -222,7 +222,7 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
     private function registerPageTypes(): self
     {
         foreach (LayoutTypeEnum::cases() as $layoutType) {
-            CapellCore::registerPageType(
+            $this->surface()->pageType(
                 new PageTypeData(
                     name: $layoutType->value,
                     model: $layoutType->getModel(),
