@@ -13,10 +13,7 @@
         "bundle": "foundation"
     },
     "namespace": "Capell\\ContentSections",
-    "surfaces": [
-        "admin",
-        "frontend"
-    ],
+    "surfaces": ["admin", "frontend"],
     "dependencies": {
         "requires": [
             "capell-app/admin",
@@ -51,9 +48,7 @@
             "type": "configurator",
             "class": "Capell\\ContentSections\\Manifest\\ContentSectionsPackageContribution",
             "configuratorEnum": "Capell\\ContentSections\\Enums\\SectionConfiguratorEnum",
-            "groups": [
-                "Sections"
-            ]
+            "groups": ["Sections"]
         },
         {
             "type": "asset",
@@ -75,18 +70,13 @@
         {
             "type": "frontend-component",
             "class": "Capell\\ContentSections\\Manifest\\ContentSectionsPackageContribution",
-            "keys": [
-                "section.widget",
-                "section.team-member"
-            ]
+            "keys": ["section.widget", "section.team-member"]
         }
     ],
     "database": {
         "migrations": true,
         "settings": false,
-        "requiredTables": [
-            "sections"
-        ]
+        "requiredTables": ["sections"]
     },
     "commands": {
         "install": null,
@@ -175,9 +165,7 @@
     "performance": {
         "frontendRenderBudgetMs": 20,
         "adminQueryBudget": 40,
-        "cacheTags": [
-            "content-sections"
-        ],
+        "cacheTags": ["content-sections"],
         "cacheSafety": {
             "cacheable": true,
             "variesBy": [],
@@ -241,11 +229,7 @@
                 "caption": "The reusable sections index is also captured in Capell Admin dark mode for marketplace parity."
             }
         ],
-        "categories": [
-            "admin",
-            "foundation",
-            "frontend"
-        ]
+        "categories": ["admin", "foundation", "frontend"]
     },
     "contributionTraceability": {
         "deferredContributions": [
