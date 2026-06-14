@@ -134,7 +134,7 @@ class SectionsTable implements TableConfigurator
                 ->linkRecord(),
             PageNameColumn::make('linkedPage.name')
                 ->label(__('capell-admin::table.page'))
-                // TODO does not work with json morph column
+                // Filament cannot search this JSON morph column reliably; keep it display-only.
                 ->searchable(false)
                 ->withParents()
                 ->toggleable(isToggledHiddenByDefault: true),

@@ -1,113 +1,107 @@
----
-title: 'Content Sections Overview'
-description: 'How the Capell Content Sections package adds reusable section records, admin editing, and frontend section rendering.'
----
+# Content Sections
 
-# Content Sections Overview
+<!-- prettier-ignore-start -->
 
-Content Sections adds reusable page sections that can be edited in the Capell admin and rendered through Block Library Blade components on the public frontend.
+## What This Plugin Adds
 
-Use it when a site needs shared heroes, FAQs, pricing widgets, statistics, testimonials, timelines, tables, teams, logos, and similar structured page sections without storing presentation markup in page content fields.
+Content Sections is an **Available**, **Schema-owning** Capell package in the **Capell Foundation** product group. It ships as `capell-app/content-sections` and extends these surfaces: admin, frontend.
 
-## Hard Dependencies
+Seventeen ready-to-use, themeable page sections - hero, FAQ, pricing, stats, testimonials, team, comparison, timeline and more - that editors reuse across pages and developers render through safe, package-owned Blade. Bundled free with Capell Foundation.
 
-- `capell-app/admin`
-- `capell-app/block-library`
-- `capell-app/core`
-- `capell-app/frontend`
-- `capell-app/layout-builder`
+After install, admins get package-owned management surfaces and public users may see package-owned frontend output or routes.
 
-## What It Adds
+Status details:
 
-- `SectionResource` in the admin content navigation under Pages.
-- Create, edit, and list pages for reusable section records.
-- A section assets relation manager for records with attached assets.
-- Section blueprint/configurator support for common marketing and editorial widgets.
-- Frontend payload wiring for rendered Block Library section widgets.
-- Livewire helpers used by admin asset and widget selection workflows.
-- Public-output sanitisation for editor-authored rich text, nested meta HTML, and icon keys before section data reaches anonymous frontend Blade.
-- Real package diagnostics for storage, morph registration, admin resource availability, registry population, and the Layout Builder public payload contributor.
+- Status: Available
+- Tier: free
+- Bundle: foundation
+- Composer package: `capell-app/content-sections`
+- Namespace: `Capell\ContentSections`
+- Theme key: not applicable
 
-## Admin Surfaces
+## Why It Matters
 
-| Surface                        | Purpose                                                                             |
-| ------------------------------ | ----------------------------------------------------------------------------------- |
-| `SectionResource` index        | Browse and filter reusable sections.                                                |
-| `CreateSection`                | Create a section from a registered blueprint.                                       |
-| `EditSection`                  | Edit section details, translations, related content, settings, actions, and assets. |
-| `SectionAssetsRelationManager` | Manage assets attached to a section.                                                |
-| `SectionAlertsWidget`          | Shows section-level warnings when editing records.                                  |
-| `ModalTableSelect`             | Admin selection modal used when linking section content.                            |
+**For developers:** The package gives developers package-owned service providers, Actions, Data objects, models, Laravel routes, Filament classes, and Blade views instead of pushing this behaviour into core or application code.
 
-## Editor Workflow
+**For teams:** Seventeen ready-to-use, themeable page sections - hero, FAQ, pricing, stats, testimonials, team, comparison, timeline and more - that editors reuse across pages and developers render through safe, package-owned Blade. Bundled free with Capell Foundation.
 
-Editors create a reusable section record from a registered blueprint, fill the section translation and structured meta fields, then attach assets when the section type supports them.
+## Screens And Workflow
 
-Layout Builder and Block Library own placement, layout modes, breakpoints, and undo/redo behavior. Content Sections owns the reusable records, section configurators, safe public render payloads, and publishing hooks that keep attached widget assets pointed at the current published section.
+Screenshot contract: `screenshots.json`.
 
-When a section is used in a layout, the public payload contributor receives preloaded widget assets and renders the matching section view without querying from Blade or exposing editor state.
+- Reusable sections index (admin, required).
+- Create reusable section form (admin, required).
+- Edit reusable section with assets (admin, required).
+- Section selector modal (frontend, required).
+- Frontend section widget gallery (frontend, required).
 
-## Frontend Surfaces
+## Technical Shape
 
-Content Sections renders section records through Block Library views under `capell-block-library::blocks.catalog.*`.
+- Service providers: `Capell\ContentSections\Providers\ContentSectionsServiceProvider`.
+- Config files: `packages/content-sections/config/capell-content-sections.php`.
+- Migrations: `packages/content-sections/database/migrations/2026_05_10_190844_01_create_sections_table.php`.
+- Models: `ComposhipsJsonRelationshipsTrait`, `Section`.
+- Filament classes: `CreateContentAction`, `ActionsRepeater`, `AssetsRepeater`, `BlueprintSelect`, `DetailsSchema`, `RelatedRepeater`, `SettingsSchema`, `TranslationsRepeater`, `ContentSelect`, `CustomColorInput`, `ContentNameColumn`, `HasAssetsRelationManager`, `and 28 more`.
+- Livewire components: `AbstractAssets`, `SectionAssets`, `ModalTableSelect`.
+- Route files: `packages/content-sections/routes/web.php`.
+- Policies: `SectionPolicy`.
+- Actions: `BuildSectionAssetRenderDataAction`, `BuildSectionDemoDataAction`, `CancelScheduledSectionUnpublishAction`, `CloneSectionIntoWorkspaceAction`, `CreateContentAction`, `CreateHeroContentBlueprintAction`, `EnsureSectionBlueprintForKeyAction`, `FinalizeSectionPublishAction`, `ModifyContentSelectCreateAction`, `MutateContentDataBeforeFillAction`, `NormalizeSectionIconAction`, `RegisterDefaultSectionsAction`, `and 6 more`.
+- Data objects: `SectionAssetRenderData`, `SectionDefinitionData`, `SectionVisibilityActionResultData`.
+- Manifest contributions: `admin-resource: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `asset: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `configurator: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `frontend-component: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `model: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `page-type: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`.
+- Health checks: `Capell\ContentSections\Health\ContentSectionsHealthCheck`.
+- Blade views: `packages/content-sections/resources/views/components/section/asset.blade.php`, `packages/content-sections/resources/views/components/section/team-member.blade.php`, `packages/content-sections/resources/views/components/section/widget.blade.php`, `packages/content-sections/resources/views/livewire/filament/widgets-table-select.blade.php`, `packages/content-sections/resources/views/screenshots/section-selector-modal.blade.php`, `packages/content-sections/resources/views/screenshots/section-widget-gallery.blade.php`, `packages/content-sections/resources/views/section/demo.blade.php`.
+- Cache tags: `content-sections`.
 
-Section summaries and nested meta are sanitised at the payload-contributor boundary, so Block Library views can preserve safe rich text without exposing scripts, event handlers, or untrusted icon identifiers.
+## Data Model
 
-The package-owned public widget views include:
+- Required tables: `sections`.
+- Models: `ComposhipsJsonRelationshipsTrait`, `Section`.
+- Migration files: `2026_05_10_190844_01_create_sections_table.php`.
+- Migration impact: run host migrations through the package install flow before opening package surfaces.
+- Deletion/retention behaviour: Docs gap unless the package has an explicit pruning command, retention setting, or tested cascade path.
 
-- accordion
-- call to action
-- comparison
-- content
-- counter
-- divider
-- FAQ
-- features
-- hero
-- logos
-- pricing
-- stats
-- table
-- tabs
-- team
-- testimonial
-- timeline
+## Install Impact
 
-Public views should receive hydrated render data from Capell payload builders and components. They should not query the database or expose admin/editor state.
+- Admin navigation: adds package-owned Filament classes when registered.
+- Permissions: `ViewAny:Section`, `View:Section`, `Create:Section`, `Update:Section`, `Delete:Section`, `DeleteAny:Section`, `Restore:Section`, `RestoreAny:Section`, `ForceDelete:Section`, `ForceDeleteAny:Section`, `Replicate:Section`, `Reorder:Section`.
+- Public routes: route files exist and must be reviewed before public enablement.
+- Database changes: package migrations are declared.
+- Settings: no package settings declared.
+- Queues or schedules: none detected in standard package paths.
+- Cache tags: `content-sections`.
+- Commands: none declared.
 
-## Screenshot Coverage
+## Common Pitfalls
 
-The screenshot contract is stored in [screenshots.json](screenshots.json). Marketplace media now promotes Capell runner captures for:
+- Run migrations before opening package resources or public routes.
+- Review route middleware, throttling, signed URLs, and public-output safety before exposing routes.
+- Keep public Blade and cached HTML free of authoring markers, model IDs, permissions, signed editor URLs, and lazy database queries.
+- Keep `composer.json`, `composer.local.json`, `capell.json`, docs, screenshots, and tests aligned when the package surface changes.
 
-- admin section index;
-- create section form;
-- edit section form with publishing controls and the asset relation manager shell.
+## Troubleshooting
 
-The remaining screenshot fixture states are:
+| Symptom | Likely cause | Check | Fix |
+| --- | --- | --- | --- |
+| Package surface is missing after install | Provider or manifest is not loaded | Confirm `capell.json`, package `composer.json`, and provider registration | Reinstall the package, refresh Composer autoload, and clear host caches |
+| Admin screen or command fails on missing table | Package migrations have not run | Check the tables listed in `Data Model` | Run host migrations and rerun the focused package test |
+| Route returns unexpected output | Route cache, middleware, or signed URL setup does not match the package route file | Check the route files listed in `Technical Shape` | Clear route cache and verify middleware before exposing public routes |
+| Public output leaks unexpected state | Render data, cache variation, or authoring boundary has regressed | Check public Blade, cache tags, and public-output safety tests | Move data loading out of Blade and rerun the package public-output tests |
 
-- modal section/widget selector;
-- a frontend page rendering each registered section widget family.
+## Quick Start
 
-Discard Dashboard or generic demo-page fallbacks for those remaining states; they need dedicated routes or browser actions before promotion.
+1. Install the package: `composer require capell-app/content-sections`.
+2. Run the required setup: `php artisan migrate`.
+3. Open the related Capell admin surface and verify Content Sections appears.
 
-## Install And Verify
+## Next Steps
 
-Install in a Capell app with only the hard dependencies listed above:
+- [Package docs index](README.md)
+- [Screenshot contract](screenshots.json)
+- [Marketplace assets](assets/marketplace/)
+- [Capell content language plan](../../../docs/CONTENT_LANGUAGE_PLAN.md)
+- [Capell documentation design system](../../../docs/DESIGN_SYSTEM.md)
+- [Capell and package ERD notes](../../../docs/erd/capell-and-package-erds.md)
+- Related packages: [Block Library](../../block-library/README.md), [Layout Builder](../../layout-builder/README.md), [Publishing Studio](../../publishing-studio/README.md), [Public Actions](../../public-actions/README.md).
+- Focused tests: `vendor/bin/pest packages/content-sections/tests --configuration=phpunit.xml`.
 
-```bash
-composer require capell-app/content-sections
-```
-
-Then run the package tests from this repository:
-
-```bash
-vendor/bin/pest packages/content-sections/tests --configuration=phpunit.xml
-```
-
-## Developer Docs
-
-Package behavior is documented in this overview and the repository improvement plan. Layout editor mutations are owned by `capell-app/layout-builder`.
-
-## Known Audit Notes
-
-Content Sections has both admin and frontend surfaces. Final visual screenshots should be captured from a seeded app that includes `layout-builder` and `block-library`, because those are hard dependencies for editing and rendering section widgets.
+<!-- prettier-ignore-end -->

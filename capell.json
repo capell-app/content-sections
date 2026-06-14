@@ -108,15 +108,65 @@
         "content-sections-layout-builder-payloads",
         "content-sections-public-output-sanitisation",
         "content-sections-publishing-studio-bridge",
-        "content-sections-public-actions-bridge"
+        "content-sections-public-actions-bridge",
+        "requires-livewire"
     ],
+    "security": {
+        "riskTier": "standard",
+        "publicSurface": {
+            "routeNames": [
+                "capell-content-sections.screenshot-fixtures.section-selector-modal",
+                "capell-content-sections.screenshot-fixtures.section-widget-gallery"
+            ],
+            "auth": "public",
+            "csrfExemptRoutes": [],
+            "signedRoutes": [],
+            "tokenizedRoutes": [],
+            "webhookRoutes": [],
+            "throttledRoutes": []
+        },
+        "sensitiveData": {
+            "encryptedFields": [],
+            "hashedTokenFields": [],
+            "redactedOutputClasses": [],
+            "plaintextJustifications": []
+        },
+        "publicOutput": {
+            "cacheSafe": true,
+            "forbidAuthoringSurface": true,
+            "forbidSecrets": true,
+            "forbidPublicBladeQueries": true
+        },
+        "externalHttpClients": {
+            "requiresTimeouts": false,
+            "requiresSecretRedaction": false,
+            "clients": []
+        },
+        "adminSurface": {
+            "authorization": "permissions",
+            "permissions": [
+                "ViewAny:Section",
+                "View:Section",
+                "Create:Section",
+                "Update:Section",
+                "Delete:Section",
+                "DeleteAny:Section",
+                "Restore:Section",
+                "RestoreAny:Section",
+                "ForceDelete:Section",
+                "ForceDeleteAny:Section",
+                "Replicate:Section",
+                "Reorder:Section"
+            ]
+        }
+    },
     "performance": {
         "frontendRenderBudgetMs": 20,
         "adminQueryBudget": 40,
         "cacheTags": ["content-sections"],
         "cacheSafety": {
             "cacheable": true,
-            "variesBy": ["site", "locale"],
+            "variesBy": [],
             "sensitiveOutput": false,
             "invalidationSources": [
                 {
