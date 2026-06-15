@@ -73,6 +73,12 @@
             "keys": ["section.widget", "section.team-member"]
         },
         {
+            "type": "schema-extender",
+            "class": "Capell\\ContentSections\\Manifest\\ContentSectionsSchemaExtendersContribution",
+            "tag": "capell-content-sections:section-schema-extenders",
+            "extends": "section configurator meta schemas"
+        },
+        {
             "type": "route",
             "class": "Capell\\ContentSections\\Manifest\\ContentSectionsRoutesContribution",
             "routes": [

@@ -38,9 +38,11 @@ use Capell\ContentSections\Livewire\Assets\Table\SectionAssets;
 use Capell\ContentSections\Livewire\Filament\ModalTableSelect;
 use Capell\ContentSections\Manifest\ContentSectionsPackageContribution;
 use Capell\ContentSections\Manifest\ContentSectionsRoutesContribution;
+use Capell\ContentSections\Manifest\ContentSectionsSchemaExtendersContribution;
 use Capell\ContentSections\Models\Section;
 use Capell\ContentSections\Observers\SectionObserver;
 use Capell\ContentSections\Support\DefaultSectionDefinitionProvider;
+use Capell\Core\Contracts\Extensions\ExtensionContribution;
 use Capell\Core\Contracts\Extensions\RegistersExtensionRoute;
 use Capell\Core\Data\Diagnostics\DoctorCheckResultData;
 use Capell\Core\Enums\PublishStatusEnum;
@@ -218,8 +220,10 @@ it('declares content sections manifest surfaces accurately', function (): void {
 
     $contributions = collect($contributes);
     $routeContribution = $contributions->firstWhere('class', ContentSectionsRoutesContribution::class);
+    $schemaExtenderContribution = $contributions->firstWhere('class', ContentSectionsSchemaExtendersContribution::class);
 
     throw_unless(is_array($routeContribution), RuntimeException::class, 'Expected content-sections route contribution to be an array.');
+    throw_unless(is_array($schemaExtenderContribution), RuntimeException::class, 'Expected content-sections schema extender contribution to be an array.');
 
     expect($database['requiredTables'] ?? [])->toContain('sections')
         ->and($dependencies['supports'] ?? [])->toContain(
@@ -245,6 +249,7 @@ it('declares content sections manifest surfaces accurately', function (): void {
             'model',
             'page-type',
             'route',
+            'schema-extender',
         )
         ->and($contributionTraceability['deferredContributions'])->toBe([])
         ->and($contributions->all())->toContain([
@@ -258,6 +263,13 @@ it('declares content sections manifest surfaces accurately', function (): void {
             'class' => ContentSectionsPackageContribution::class,
             'keys' => ['section.widget', 'section.team-member'],
         ])
+        ->and($schemaExtenderContribution)->toBe([
+            'type' => 'schema-extender',
+            'class' => ContentSectionsSchemaExtendersContribution::class,
+            'tag' => 'capell-content-sections:section-schema-extenders',
+            'extends' => 'section configurator meta schemas',
+        ])
+        ->and(class_implements(ContentSectionsSchemaExtendersContribution::class))->toContain(ExtensionContribution::class)
         ->and($routeContribution['routes'])->toBe($security['publicSurface']['routeNames'])
         ->and(class_implements(ContentSectionsRoutesContribution::class))->toContain(RegistersExtensionRoute::class)
         ->and($cacheSafety['cacheable'] ?? false)->toBeTrue()
