@@ -8,7 +8,10 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Admin\Providers\Filament\AdminPanelProvider;
 use Capell\BlockLibrary\Providers\BlockLibraryServiceProvider;
+use Capell\ContentSections\Enums\LayoutTypeEnum;
+use Capell\ContentSections\Models\Section;
 use Capell\ContentSections\Providers\ContentSectionsServiceProvider;
+use Capell\Core\Data\PageTypeData;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Media;
 use Capell\FoundationTheme\Providers\FoundationThemeServiceProvider;
@@ -31,6 +34,11 @@ class ContentSectionsTestCase extends AbstractTestCase
         parent::setUp();
 
         Blade::anonymousComponentPath(__DIR__ . '/../../foundation-theme/resources/views/components', 'capell');
+        CapellCore::registerPageType(new PageTypeData(
+            name: LayoutTypeEnum::Section->value,
+            model: Section::class,
+            label: LayoutTypeEnum::Section->getLabel(),
+        ));
 
         if (! class_exists(SettingsMigrator::class)) {
             return;
