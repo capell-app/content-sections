@@ -207,8 +207,19 @@ it('declares content sections manifest surfaces accurately', function (): void {
     $dependencies = is_array($manifest['dependencies'] ?? null) ? $manifest['dependencies'] : [];
     $performance = is_array($manifest['performance'] ?? null) ? $manifest['performance'] : [];
     $cacheSafety = is_array($performance['cacheSafety'] ?? null) ? $performance['cacheSafety'] : [];
-    $contributions = collect($manifest['contributes'] ?? []);
+    $contributionTraceability = $manifest['contributionTraceability'] ?? null;
+    $security = $manifest['security'] ?? null;
+    $contributes = $manifest['contributes'] ?? [];
+
+    throw_unless(is_array($contributes), RuntimeException::class, 'Expected content-sections contributions to be an array.');
+    throw_unless(is_array($contributionTraceability), RuntimeException::class, 'Expected content-sections contribution traceability to be an array.');
+    throw_unless(is_array($security), RuntimeException::class, 'Expected content-sections security metadata to be an array.');
+    throw_unless(is_array($security['publicSurface'] ?? null), RuntimeException::class, 'Expected content-sections public surface metadata to be an array.');
+
+    $contributions = collect($contributes);
     $routeContribution = $contributions->firstWhere('class', ContentSectionsRoutesContribution::class);
+
+    throw_unless(is_array($routeContribution), RuntimeException::class, 'Expected content-sections route contribution to be an array.');
 
     expect($database['requiredTables'] ?? [])->toContain('sections')
         ->and($dependencies['supports'] ?? [])->toContain(
@@ -235,7 +246,7 @@ it('declares content sections manifest surfaces accurately', function (): void {
             'page-type',
             'route',
         )
-        ->and($manifest['contributionTraceability']['deferredContributions'])->toBe([])
+        ->and($contributionTraceability['deferredContributions'])->toBe([])
         ->and($contributions->all())->toContain([
             'type' => 'admin-resource',
             'class' => ContentSectionsPackageContribution::class,
@@ -247,7 +258,7 @@ it('declares content sections manifest surfaces accurately', function (): void {
             'class' => ContentSectionsPackageContribution::class,
             'keys' => ['section.widget', 'section.team-member'],
         ])
-        ->and($routeContribution['routes'])->toBe($manifest['security']['publicSurface']['routeNames'])
+        ->and($routeContribution['routes'])->toBe($security['publicSurface']['routeNames'])
         ->and(class_implements(ContentSectionsRoutesContribution::class))->toContain(RegistersExtensionRoute::class)
         ->and($cacheSafety['cacheable'] ?? false)->toBeTrue()
         ->and($cacheSafety['invalidationSources'] ?? [])->toContain([
