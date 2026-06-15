@@ -71,6 +71,16 @@
             "type": "frontend-component",
             "class": "Capell\\ContentSections\\Manifest\\ContentSectionsPackageContribution",
             "keys": ["section.widget", "section.team-member"]
+        },
+        {
+            "type": "route",
+            "class": "Capell\\ContentSections\\Manifest\\ContentSectionsRoutesContribution",
+            "routes": [
+                "capell-content-sections.screenshot-fixtures.section-selector-modal",
+                "capell-content-sections.screenshot-fixtures.section-widget-gallery"
+            ],
+            "prefix": "screenshot-fixtures/content-sections",
+            "middleware": ["web"]
         }
     ],
     "database": {
@@ -230,14 +240,6 @@
         "categories": ["admin", "foundation", "frontend"]
     },
     "contributionTraceability": {
-        "deferredContributions": [
-            "admin-resource",
-            "asset",
-            "configurator",
-            "model",
-            "page-type",
-            "route",
-            "schema-extender"
-        ]
+        "deferredContributions": []
     }
 }
