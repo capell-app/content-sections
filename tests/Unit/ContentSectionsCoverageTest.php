@@ -37,9 +37,11 @@ use Capell\ContentSections\Health\ContentSectionsHealthCheck;
 use Capell\ContentSections\Livewire\Assets\Table\SectionAssets;
 use Capell\ContentSections\Livewire\Filament\ModalTableSelect;
 use Capell\ContentSections\Manifest\ContentSectionsPackageContribution;
+use Capell\ContentSections\Manifest\ContentSectionsRoutesContribution;
 use Capell\ContentSections\Models\Section;
 use Capell\ContentSections\Observers\SectionObserver;
 use Capell\ContentSections\Support\DefaultSectionDefinitionProvider;
+use Capell\Core\Contracts\Extensions\RegistersExtensionRoute;
 use Capell\Core\Data\Diagnostics\DoctorCheckResultData;
 use Capell\Core\Enums\PublishStatusEnum;
 use Capell\Core\Models\Blueprint;
@@ -205,6 +207,8 @@ it('declares content sections manifest surfaces accurately', function (): void {
     $dependencies = is_array($manifest['dependencies'] ?? null) ? $manifest['dependencies'] : [];
     $performance = is_array($manifest['performance'] ?? null) ? $manifest['performance'] : [];
     $cacheSafety = is_array($performance['cacheSafety'] ?? null) ? $performance['cacheSafety'] : [];
+    $contributions = collect($manifest['contributes'] ?? []);
+    $routeContribution = $contributions->firstWhere('class', ContentSectionsRoutesContribution::class);
 
     expect($database['requiredTables'] ?? [])->toContain('sections')
         ->and($dependencies['supports'] ?? [])->toContain(
@@ -222,17 +226,29 @@ it('declares content sections manifest surfaces accurately', function (): void {
             'content-sections-public-output-sanitisation',
             'content-sections-layout-builder-payloads',
         )
-        ->and($manifest['contributes'] ?? [])->toContain([
+        ->and($contributions->pluck('type')->all())->toContain(
+            'admin-resource',
+            'asset',
+            'configurator',
+            'frontend-component',
+            'model',
+            'page-type',
+            'route',
+        )
+        ->and($manifest['contributionTraceability']['deferredContributions'])->toBe([])
+        ->and($contributions->all())->toContain([
             'type' => 'admin-resource',
             'class' => ContentSectionsPackageContribution::class,
             'resourceClass' => SectionResource::class,
             'group' => 'Section',
         ])
-        ->and($manifest['contributes'] ?? [])->toContain([
+        ->and($contributions->all())->toContain([
             'type' => 'frontend-component',
             'class' => ContentSectionsPackageContribution::class,
             'keys' => ['section.widget', 'section.team-member'],
         ])
+        ->and($routeContribution['routes'])->toBe($manifest['security']['publicSurface']['routeNames'])
+        ->and(class_implements(ContentSectionsRoutesContribution::class))->toContain(RegistersExtensionRoute::class)
         ->and($cacheSafety['cacheable'] ?? false)->toBeTrue()
         ->and($cacheSafety['invalidationSources'] ?? [])->toContain([
             'model' => Section::class,
