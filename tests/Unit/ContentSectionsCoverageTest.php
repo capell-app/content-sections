@@ -38,9 +38,11 @@ use Capell\ContentSections\Livewire\Assets\Table\SectionAssets;
 use Capell\ContentSections\Livewire\Filament\ModalTableSelect;
 use Capell\ContentSections\Manifest\ContentSectionsPackageContribution;
 use Capell\ContentSections\Manifest\ContentSectionsRoutesContribution;
+use Capell\ContentSections\Manifest\ContentSectionsSchemaExtendersContribution;
 use Capell\ContentSections\Models\Section;
 use Capell\ContentSections\Observers\SectionObserver;
 use Capell\ContentSections\Support\DefaultSectionDefinitionProvider;
+use Capell\Core\Contracts\Extensions\ExtensionContribution;
 use Capell\Core\Contracts\Extensions\RegistersExtensionRoute;
 use Capell\Core\Data\Diagnostics\DoctorCheckResultData;
 use Capell\Core\Enums\PublishStatusEnum;
@@ -207,8 +209,21 @@ it('declares content sections manifest surfaces accurately', function (): void {
     $dependencies = is_array($manifest['dependencies'] ?? null) ? $manifest['dependencies'] : [];
     $performance = is_array($manifest['performance'] ?? null) ? $manifest['performance'] : [];
     $cacheSafety = is_array($performance['cacheSafety'] ?? null) ? $performance['cacheSafety'] : [];
-    $contributions = collect($manifest['contributes'] ?? []);
+    $contributionTraceability = $manifest['contributionTraceability'] ?? null;
+    $security = $manifest['security'] ?? null;
+    $contributes = $manifest['contributes'] ?? [];
+
+    throw_unless(is_array($contributes), RuntimeException::class, 'Expected content-sections contributions to be an array.');
+    throw_unless(is_array($contributionTraceability), RuntimeException::class, 'Expected content-sections contribution traceability to be an array.');
+    throw_unless(is_array($security), RuntimeException::class, 'Expected content-sections security metadata to be an array.');
+    throw_unless(is_array($security['publicSurface'] ?? null), RuntimeException::class, 'Expected content-sections public surface metadata to be an array.');
+
+    $contributions = collect($contributes);
     $routeContribution = $contributions->firstWhere('class', ContentSectionsRoutesContribution::class);
+    $schemaExtenderContribution = $contributions->firstWhere('class', ContentSectionsSchemaExtendersContribution::class);
+
+    throw_unless(is_array($routeContribution), RuntimeException::class, 'Expected content-sections route contribution to be an array.');
+    throw_unless(is_array($schemaExtenderContribution), RuntimeException::class, 'Expected content-sections schema extender contribution to be an array.');
 
     expect($database['requiredTables'] ?? [])->toContain('sections')
         ->and($dependencies['supports'] ?? [])->toContain(
@@ -234,8 +249,9 @@ it('declares content sections manifest surfaces accurately', function (): void {
             'model',
             'page-type',
             'route',
+            'schema-extender',
         )
-        ->and($manifest['contributionTraceability']['deferredContributions'])->toBe([])
+        ->and($contributionTraceability['deferredContributions'])->toBe([])
         ->and($contributions->all())->toContain([
             'type' => 'admin-resource',
             'class' => ContentSectionsPackageContribution::class,
@@ -247,7 +263,14 @@ it('declares content sections manifest surfaces accurately', function (): void {
             'class' => ContentSectionsPackageContribution::class,
             'keys' => ['section.widget', 'section.team-member'],
         ])
-        ->and($routeContribution['routes'])->toBe($manifest['security']['publicSurface']['routeNames'])
+        ->and($schemaExtenderContribution)->toBe([
+            'type' => 'schema-extender',
+            'class' => ContentSectionsSchemaExtendersContribution::class,
+            'tag' => 'capell-content-sections:section-schema-extenders',
+            'extends' => 'section configurator meta schemas',
+        ])
+        ->and(class_implements(ContentSectionsSchemaExtendersContribution::class))->toContain(ExtensionContribution::class)
+        ->and($routeContribution['routes'])->toBe($security['publicSurface']['routeNames'])
         ->and(class_implements(ContentSectionsRoutesContribution::class))->toContain(RegistersExtensionRoute::class)
         ->and($cacheSafety['cacheable'] ?? false)->toBeTrue()
         ->and($cacheSafety['invalidationSources'] ?? [])->toContain([
