@@ -20,6 +20,7 @@ use Capell\Core\Models\Blueprint;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Lang;
 use Illuminate\View\DynamicComponent;
 
 it('registers the main sections', function (): void {
@@ -187,6 +188,29 @@ it('renders every registered section demo component', function (): void {
 
         expect($html)->toContain('section');
     }
+});
+
+it('localises section demo payload copy', function (): void {
+    Lang::addLines([
+        'demo.call_to_action.link_text' => 'Iniciar proyecto',
+        'demo.call_to_action.actions.primary' => 'Iniciar proyecto',
+        'demo.call_to_action.actions.secondary' => 'Ver ejemplos',
+        'demo.accordion.items.publishing.heading' => '¿Con qué rapidez pueden actualizar contenido los editores?',
+        'demo.accordion.items.publishing.content' => '<p>Los editores pueden actualizar paneles reutilizables una sola vez.</p>',
+    ], 'es', 'capell-content-sections');
+
+    app()->setLocale('es');
+
+    $callToAction = BuildSectionDemoDataAction::run('call_to_action');
+    $accordion = BuildSectionDemoDataAction::run('accordion');
+
+    app()->setLocale('en');
+
+    expect($callToAction['linkText'])->toBe('Iniciar proyecto')
+        ->and($callToAction['meta']['actions'][0]['label'])->toBe('Iniciar proyecto')
+        ->and($callToAction['meta']['actions'][1]['label'])->toBe('Ver ejemplos')
+        ->and($accordion['meta']['items'][0]['heading'])->toBe('¿Con qué rapidez pueden actualizar contenido los editores?')
+        ->and($accordion['meta']['items'][0]['content'])->toBe('<p>Los editores pueden actualizar paneles reutilizables una sola vez.</p>');
 });
 
 function registerBlockLibraryCatalogComponentsForDynamicRendering(): void
