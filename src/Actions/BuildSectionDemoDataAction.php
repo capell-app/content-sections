@@ -46,7 +46,7 @@ class BuildSectionDemoDataAction
             'title' => $label,
             'summary' => $description,
             'meta' => $this->meta($definition->key),
-            'linkText' => $definition->key === 'call_to_action' ? 'Start a project' : null,
+            'linkText' => $definition->key === 'call_to_action' ? $this->demoText('call_to_action.link_text', 'Start a project') : null,
             'url' => $definition->key === 'call_to_action' ? '#' : null,
         ];
     }
@@ -73,8 +73,8 @@ class BuildSectionDemoDataAction
         }
 
         return match ($key) {
-            'content' => 'Reusable rich text content.',
-            'hero' => 'Introductory content for a page or section.',
+            'content' => $this->demoText('content.summary', 'Reusable rich text content.'),
+            'hero' => $this->demoText('hero.summary', 'Introductory content for a page or section.'),
             default => '',
         };
     }
@@ -87,8 +87,8 @@ class BuildSectionDemoDataAction
         return match ($key) {
             'accordion' => [
                 'items' => [
-                    ['heading' => 'How quickly can editors update content?', 'content' => '<p>Editors can update reusable panels once and reuse them across pages.</p>'],
-                    ['heading' => 'Can panels be reordered?', 'content' => '<p>Yes. Repeaters support cloning, collapsing, and manual ordering.</p>'],
+                    ['heading' => $this->demoText('accordion.items.publishing.heading', 'How quickly can editors update content?'), 'content' => $this->demoText('accordion.items.publishing.content', '<p>Editors can update reusable panels once and reuse them across pages.</p>')],
+                    ['heading' => $this->demoText('accordion.items.ordering.heading', 'Can panels be reordered?'), 'content' => $this->demoText('accordion.items.ordering.content', '<p>Yes. Repeaters support cloning, collapsing, and manual ordering.</p>')],
                 ],
                 'first_open' => true,
             ],
@@ -195,8 +195,8 @@ class BuildSectionDemoDataAction
                 'alignment' => 'center',
                 'color' => 'primary',
                 'actions' => [
-                    ['label' => 'Start a project', 'url' => '#', 'style' => 'primary'],
-                    ['label' => 'View examples', 'url' => '#', 'style' => 'secondary'],
+                    ['label' => $this->demoText('call_to_action.actions.primary', 'Start a project'), 'url' => '#', 'style' => 'primary'],
+                    ['label' => $this->demoText('call_to_action.actions.secondary', 'View examples'), 'url' => '#', 'style' => 'secondary'],
                 ],
             ],
             'hero' => [
@@ -210,5 +210,13 @@ class BuildSectionDemoDataAction
             ],
             default => [],
         };
+    }
+
+    private function demoText(string $key, string $fallback): string
+    {
+        $translationKey = 'capell-content-sections::demo.' . $key;
+        $value = __($translationKey);
+
+        return is_string($value) && $value !== $translationKey ? $value : $fallback;
     }
 }
