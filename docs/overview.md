@@ -35,50 +35,6 @@ Screenshot contract: `screenshots.json`.
 - Section selector modal (frontend, required).
 - Frontend section widget gallery (frontend, required).
 
-## Screenshot Evidence
-
-These captures are the package-owned visual contract for the admin pages, public pages, actions, workflows, and feature surfaces described above. Keep this section aligned with `docs/screenshots.json` whenever the package surface changes.
-
-### Reusable sections index
-
-![Reusable sections index](screenshots/sections-index.png)
-
-- Surface: admin · Target: SectionResource:index.
-- Documents: An editor reviews reusable sections before choosing which shared content block to update.
-- Capture notes: Capture after installing content-sections with block-library and layout-builder, with at least three seeded sections across different blueprints so table filters, columns, and navigation state are visible.
-
-### Create reusable section form
-
-![Create reusable section form](screenshots/sections-create.png)
-
-- Surface: admin · Target: SectionResource:create.
-- Documents: An editor starts a new reusable section and chooses the section blueprint that controls the available fields.
-- Capture notes: Capture with the blueprint selector visible. The form depends on Layout Builder blueprints registered by the installed package.
-
-### Edit reusable section with assets
-
-![Edit reusable section with assets](screenshots/sections-edit-with-assets.png)
-
-- Surface: admin · Target: SectionResource:edit.
-- Documents: An editor updates shared section copy and checks which widget assets are attached before saving.
-- Capture notes: Requires a seeded section with translations and at least one related widget asset so the relation manager tab is not empty.
-
-### Section selector modal
-
-![Section selector modal](screenshots/section-selector-modal.png)
-
-- Surface: frontend · Target: /screenshot-fixtures/content-sections/section-selector-modal.
-- Documents: An editor searches existing reusable sections from the modal before attaching one to another content surface.
-- Capture notes: Capture the dedicated route-backed selector fixture. Do not fall back to Dashboard or a generic demo page for this state.
-
-### Frontend section widget gallery
-
-![Frontend section widget gallery](screenshots/section-widget-gallery.png)
-
-- Surface: frontend · Target: /screenshot-fixtures/content-sections/section-widget-gallery.
-- Documents: A maintainer verifies the public section gallery renders every Block Library-backed widget safely for anonymous visitors.
-- Capture notes: Capture the dedicated anonymous route-backed gallery fixture. Do not fall back to Dashboard or a generic placeholder page.
-
 ## Technical Shape
 
 - Service providers: `Capell\ContentSections\Providers\ContentSectionsServiceProvider`.
@@ -91,7 +47,7 @@ These captures are the package-owned visual contract for the admin pages, public
 - Policies: `SectionPolicy`.
 - Actions: `BuildSectionAssetRenderDataAction`, `BuildSectionDemoDataAction`, `CancelScheduledSectionUnpublishAction`, `CloneSectionIntoWorkspaceAction`, `CreateContentAction`, `CreateHeroContentBlueprintAction`, `EnsureSectionBlueprintForKeyAction`, `FinalizeSectionPublishAction`, `ModifyContentSelectCreateAction`, `MutateContentDataBeforeFillAction`, `NormalizeSectionIconAction`, `RegisterDefaultSectionsAction`, `and 6 more`.
 - Data objects: `SectionAssetRenderData`, `SectionDefinitionData`, `SectionVisibilityActionResultData`.
-- Manifest contributions: `admin-resource: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `asset: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `configurator: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `frontend-component: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `model: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `page-type: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `schema-extender: Capell\ContentSections\Manifest\ContentSectionsSchemaExtendersContribution`.
+- Manifest contributions: `admin-resource: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `asset: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `configurator: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `frontend-component: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `model: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `page-type: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `route: Capell\ContentSections\Manifest\ContentSectionsRoutesContribution`, `schema-extender: Capell\ContentSections\Manifest\ContentSectionsSchemaExtendersContribution`.
 - Health checks: `Capell\ContentSections\Health\ContentSectionsHealthCheck`.
 - Blade views: `packages/content-sections/resources/views/components/section/asset.blade.php`, `packages/content-sections/resources/views/components/section/team-member.blade.php`, `packages/content-sections/resources/views/components/section/widget.blade.php`, `packages/content-sections/resources/views/livewire/filament/widgets-table-select.blade.php`, `packages/content-sections/resources/views/screenshots/section-selector-modal.blade.php`, `packages/content-sections/resources/views/screenshots/section-widget-gallery.blade.php`, `packages/content-sections/resources/views/section/demo.blade.php`.
 - Cache tags: `content-sections`.
