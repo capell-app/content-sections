@@ -18,7 +18,13 @@
             "notes": "Capture after installing content-sections with block-library and layout-builder, with at least three seeded sections across different blueprints so table filters, columns, and navigation state are visible.",
             "screenshotPath": "packages/content-sections/docs/screenshots/sections-index.png",
             "useCase": "An editor reviews reusable sections before choosing which shared content block to update.",
-            "darkScreenshotPath": "packages/content-sections/docs/screenshots/sections-index-dark.png"
+            "darkScreenshotPath": "packages/content-sections/docs/screenshots/sections-index-dark.png",
+            "covers": [
+                "packages/content-sections/src/Filament/Components/Forms/AssetsRepeater.php",
+                "packages/content-sections/src/Filament/Resources/Sections/Pages/EditSection.php",
+                "packages/content-sections/src/Filament/Resources/Sections/Pages/ListSections.php",
+                "packages/content-sections/src/Livewire/Filament/ModalTableSelect.php"
+            ]
         },
         {
             "id": "sections-create",
