@@ -96,19 +96,23 @@ final class SectionPublicLayoutWidgetPayloadContributor implements PublicLayoutW
             return collect();
         }
 
-        return $assets
-            ->filter(function (mixed $widgetAsset): bool {
-                if (! $widgetAsset instanceof WidgetAsset) {
-                    return false;
-                }
+        $visibleAssets = [];
 
-                $section = $this->loadedSection($widgetAsset);
+        foreach ($assets as $widgetAsset) {
+            if (! $widgetAsset instanceof WidgetAsset) {
+                continue;
+            }
 
-                return $section instanceof Section
-                    && ! $section->isPending()
-                    && ! $section->isExpired();
-            })
-            ->values();
+            $section = $this->loadedSection($widgetAsset);
+
+            if ($section instanceof Section
+                && ! $section->isPending()
+                && ! $section->isExpired()) {
+                $visibleAssets[] = $widgetAsset;
+            }
+        }
+
+        return collect($visibleAssets);
     }
 
     /**
