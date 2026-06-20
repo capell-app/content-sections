@@ -25,7 +25,7 @@ use Capell\ContentSections\Models\Section;
 use Capell\ContentSections\Policies\SectionPolicy;
 use Capell\ContentSections\Support\ContentSectionsBlockDefinitionProvider;
 use Capell\ContentSections\Support\ContentSectionsModelRegistrar;
-use Capell\ContentSections\Support\SectionPublicWidgetPayloadContributor;
+use Capell\ContentSections\Support\SectionPublicLayoutWidgetPayloadContributor;
 use Capell\ContentSections\Support\SectionRegistry;
 use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
 use Capell\Core\Data\AssetData;
@@ -37,7 +37,7 @@ use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Contracts\AssetsRegistryInterface;
 use Capell\Frontend\Contracts\FrontendComponentRegistryInterface;
 use Capell\Frontend\Data\FrontendAssetData;
-use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
+use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadContributor;
 use Capell\PublishingStudio\Models\Workspace;
 use Capell\PublishingStudio\WorkspaceRegistry;
 use Composer\InstalledVersions;
@@ -57,7 +57,7 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
 
     private const string BLOCK_DEFINITION_PROVIDER = BlockDefinitionProvider::class;
 
-    private const string PUBLIC_ELEMENT_PAYLOAD_CONTRIBUTOR = PublicWidgetPayloadContributor::class;
+    private const string PUBLIC_ELEMENT_PAYLOAD_CONTRIBUTOR = PublicLayoutWidgetPayloadContributor::class;
 
     public static string $name = 'capell-content-sections';
 
@@ -132,7 +132,7 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
             ->registerConfigurators()
             ->registerPageTypes()
             ->registerAssets()
-            ->registerPublicWidgetPayloadContributor()
+            ->registerPublicLayoutWidgetPayloadContributor()
             ->registerFrontendComponents()
             ->registerEvents()
             ->registerBladeComponents()
@@ -268,10 +268,10 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
         return $this;
     }
 
-    private function registerPublicWidgetPayloadContributor(): self
+    private function registerPublicLayoutWidgetPayloadContributor(): self
     {
         if (interface_exists(self::PUBLIC_ELEMENT_PAYLOAD_CONTRIBUTOR)) {
-            $this->app->tag([SectionPublicWidgetPayloadContributor::class], self::PUBLIC_ELEMENT_PAYLOAD_CONTRIBUTOR::TAG);
+            $this->app->tag([SectionPublicLayoutWidgetPayloadContributor::class], self::PUBLIC_ELEMENT_PAYLOAD_CONTRIBUTOR::TAG);
         }
 
         return $this;

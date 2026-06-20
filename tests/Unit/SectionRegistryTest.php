@@ -207,10 +207,10 @@ it('localises section demo payload copy', function (): void {
     app()->setLocale('en');
 
     expect($callToAction['linkText'])->toBe('Iniciar proyecto')
-        ->and($callToAction['meta']['actions'][0]['label'])->toBe('Iniciar proyecto')
-        ->and($callToAction['meta']['actions'][1]['label'])->toBe('Ver ejemplos')
-        ->and($accordion['meta']['items'][0]['heading'])->toBe('¿Con qué rapidez pueden actualizar contenido los editores?')
-        ->and($accordion['meta']['items'][0]['content'])->toBe('<p>Los editores pueden actualizar paneles reutilizables una sola vez.</p>');
+        ->and(data_get($callToAction, 'meta.actions.0.label'))->toBe('Iniciar proyecto')
+        ->and(data_get($callToAction, 'meta.actions.1.label'))->toBe('Ver ejemplos')
+        ->and(data_get($accordion, 'meta.items.0.heading'))->toBe('¿Con qué rapidez pueden actualizar contenido los editores?')
+        ->and(data_get($accordion, 'meta.items.0.content'))->toBe('<p>Los editores pueden actualizar paneles reutilizables una sola vez.</p>');
 });
 
 function registerBlockLibraryCatalogComponentsForDynamicRendering(): void
