@@ -6,7 +6,7 @@ namespace Capell\ContentSections\Health;
 
 use Capell\ContentSections\Filament\Resources\Sections\SectionResource;
 use Capell\ContentSections\Models\Section;
-use Capell\ContentSections\Support\SectionPublicWidgetPayloadContributor;
+use Capell\ContentSections\Support\SectionPublicLayoutWidgetPayloadContributor;
 use Capell\ContentSections\Support\SectionRegistry;
 use Capell\Core\Contracts\Extensions\ChecksExtensionHealth;
 use Capell\Core\Data\Diagnostics\DoctorCheckResultData;
@@ -112,9 +112,9 @@ final class ContentSectionsHealthCheck implements ChecksExtensionHealth
 
     public function publicPayloadContributorCheck(): DoctorCheckResultData
     {
-        $contract = sprintf('Capell\\%s\\Contracts\\PublicWidgetPayloadContributor', 'LayoutBuilder');
+        $contract = sprintf('Capell\\%s\\Contracts\\PublicLayoutWidgetPayloadContributor', 'LayoutBuilder');
         $passed = interface_exists($contract)
-            && is_subclass_of(SectionPublicWidgetPayloadContributor::class, $contract);
+            && is_subclass_of(SectionPublicLayoutWidgetPayloadContributor::class, $contract);
 
         return new DoctorCheckResultData(
             label: (string) __('capell-content-sections::generic.health_public_payload_contributor_label'),

@@ -11,7 +11,7 @@ use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Translation;
-use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
+use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadContributor;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -22,7 +22,7 @@ use Illuminate\Support\Str;
 use Illuminate\View\ComponentAttributeBag;
 use WeakMap;
 
-final class SectionPublicWidgetPayloadContributor implements PublicWidgetPayloadContributor
+final class SectionPublicLayoutWidgetPayloadContributor implements PublicLayoutWidgetPayloadContributor
 {
     /**
      * @var WeakMap<Widget, Collection<int, array<string, mixed>>>
