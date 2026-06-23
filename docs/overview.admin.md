@@ -1,7 +1,3 @@
-# Content Sections
-
-<!-- prettier-ignore-start -->
-
 ## What it does for you
 
 Content Sections lets you design a block of content once, save it, and drop it into any page. Edit the section in one place and every page that uses it updates automatically. It is the way to keep repeated content, like a call-to-action or a feature list, consistent across your site.
@@ -28,10 +24,3 @@ Go to **Sections** in the admin to build and manage sections. Insert them from t
 - Design a section once, then drop it into any page.
 - Editing a section updates it everywhere it is used, so check where it appears before you change it.
 - Give each section a clear name so the right one is easy to pick.
-
----
-
-For how to use Content Sections, see the [admin guide](admin-guide.md).
-For developers: see the [README](../README.md).
-
-<!-- prettier-ignore-end -->
