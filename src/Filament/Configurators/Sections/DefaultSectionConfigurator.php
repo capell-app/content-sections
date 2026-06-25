@@ -12,15 +12,17 @@ use Capell\Admin\Filament\Components\Forms\IconPicker;
 use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;
 use Capell\Admin\Filament\Components\Forms\PageSelect;
 use Capell\Admin\Filament\Components\Forms\PublishSchema;
-use Capell\Admin\Filament\Components\Forms\PublishSection;
 use Capell\Admin\Filament\Concerns\HasConfigurator;
+use Capell\Admin\Filament\Livewire\PublishStatusPanel;
 use Capell\ContentSections\Enums\ConfiguratorTypeEnum;
 use Capell\ContentSections\Enums\SchemaExtenderEnum;
 use Capell\ContentSections\Filament\Components\Forms\Content\DetailsSchema;
 use Capell\ContentSections\Filament\Components\Forms\Content\SettingsSchema;
 use Capell\ContentSections\Filament\Components\Forms\Content\TranslationsRepeater;
 use Capell\ContentSections\Filament\Components\Forms\CustomColorInput;
+use Capell\ContentSections\Models\Section as SectionModel;
 use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -114,6 +116,7 @@ class DefaultSectionConfigurator implements ConfiguratorInterface
                         ]),
                 ])
                 ->sidebarSchema([
+                    ...$this->publishPanel($configurator),
                     Section::make()
                         ->gridContainer()
                         ->columns(['default' => 1, '@lg' => 2])
@@ -121,8 +124,33 @@ class DefaultSectionConfigurator implements ConfiguratorInterface
                             ...($configurator->getOperation() !== 'create' ? DetailsSchema::make($configurator) : []),
                             ...SettingsSchema::make($configurator),
                         ]),
-                    PublishSection::make(),
+                    ...($configurator->getOperation() !== 'edit' ? [PublishSchema::make($configurator)] : []),
                 ]),
+        ];
+    }
+
+    /**
+     * The shared WordPress-style publish panel, pinned to the top of the section
+     * editor sidebar. Edit only — on create/option there is no record to act on
+     * yet, so the slim inline publish-date field covers that case.
+     *
+     * @return array<int, Livewire>
+     */
+    protected function publishPanel(Schema $configurator): array
+    {
+        $record = $configurator->getRecord();
+
+        if ($configurator->getOperation() !== 'edit' || ! $record instanceof SectionModel) {
+            return [];
+        }
+
+        $key = $record->getKey();
+
+        return [
+            Livewire::make(PublishStatusPanel::class, [
+                'recordClass' => SectionModel::class,
+                'recordId' => is_scalar($key) ? (int) $key : 0,
+            ]),
         ];
     }
 
