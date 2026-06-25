@@ -9,7 +9,7 @@ use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Components\Forms\IconPicker;
 use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;
 use Capell\Admin\Filament\Components\Forms\PageSelect;
-use Capell\Admin\Filament\Components\Forms\PublishSection;
+use Capell\Admin\Filament\Components\Forms\PublishSchema;
 use Capell\ContentSections\Filament\Components\Forms\ActionsRepeater;
 use Capell\ContentSections\Filament\Components\Forms\AssetsRepeater;
 use Capell\ContentSections\Filament\Components\Forms\Content\DetailsSchema;
@@ -74,7 +74,7 @@ class HeroSectionConfigurator extends DefaultSectionConfigurator
                         ...($configurator->getOperation() !== 'create' ? DetailsSchema::make($configurator) : []),
                     ]),
                 ]),
-            PublishSection::make(),
+            PublishSchema::make($configurator),
         ];
     }
 
@@ -103,6 +103,7 @@ class HeroSectionConfigurator extends DefaultSectionConfigurator
                         ]),
                 ])
                 ->sidebarSchema([
+                    ...$this->publishPanel($configurator),
                     Section::make()
                         ->gridContainer()
                         ->columns(['default' => 1, '@lg' => 2])
@@ -110,7 +111,7 @@ class HeroSectionConfigurator extends DefaultSectionConfigurator
                             ...($configurator->getOperation() !== 'create' ? DetailsSchema::make($configurator) : []),
                             ...SettingsSchema::make($configurator),
                         ]),
-                    PublishSection::make(),
+                    ...($configurator->getOperation() !== 'edit' ? [PublishSchema::make($configurator)] : []),
                 ]),
         ];
     }
