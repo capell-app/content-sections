@@ -6,7 +6,7 @@ namespace Capell\ContentSections\Filament\Configurators\Sections;
 
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;
-use Capell\Admin\Filament\Components\Forms\PublishSection;
+use Capell\Admin\Filament\Components\Forms\PublishSchema;
 use Capell\ContentSections\Filament\Components\Forms\Content\DetailsSchema;
 use Capell\ContentSections\Filament\Components\Forms\Content\SettingsSchema;
 use Capell\ContentSections\Filament\Components\Forms\Content\TranslationsRepeater;
@@ -89,13 +89,13 @@ class TestimonialSectionConfigurator extends DefaultSectionConfigurator
                         ->schema($this->getMetaSchema()),
                 ])
                 ->sidebarSchema([
+                    ...$this->publishPanel($configurator),
                     Section::make()
                         ->columns(1)
                         ->schema([
                             ...DetailsSchema::make($configurator),
                             ...SettingsSchema::make($configurator),
                         ]),
-                    PublishSection::make(),
                 ]),
         ];
 
@@ -121,7 +121,7 @@ class TestimonialSectionConfigurator extends DefaultSectionConfigurator
                 ->schema([
                     ...DetailsSchema::make($configurator),
                     ...SettingsSchema::make($configurator),
-                    PublishSection::make(),
+                    PublishSchema::make($configurator),
                 ]),
         ];
     }

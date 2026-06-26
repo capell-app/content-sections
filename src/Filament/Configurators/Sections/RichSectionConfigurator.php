@@ -8,7 +8,7 @@ use Capell\Admin\Filament\Components\Forms\ContentEditor;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Components\Forms\IconPicker;
 use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;
-use Capell\Admin\Filament\Components\Forms\PublishSection;
+use Capell\Admin\Filament\Components\Forms\PublishSchema;
 use Capell\ContentSections\Filament\Components\Forms\ActionsRepeater;
 use Capell\ContentSections\Filament\Components\Forms\Content\DetailsSchema;
 use Capell\ContentSections\Filament\Components\Forms\Content\SettingsSchema;
@@ -39,7 +39,7 @@ abstract class RichSectionConfigurator extends DefaultSectionConfigurator
             Tabs::make()
                 ->columnSpanFull()
                 ->tabs($this->tabs($configurator)),
-            PublishSection::make(),
+            PublishSchema::make($configurator),
         ];
     }
 
@@ -59,6 +59,7 @@ abstract class RichSectionConfigurator extends DefaultSectionConfigurator
                         ->tabs($this->tabs($configurator)),
                 ])
                 ->sidebarSchema([
+                    ...$this->publishPanel($configurator),
                     Section::make()
                         ->gridContainer()
                         ->columns(['default' => 1, '@lg' => 2])
@@ -66,7 +67,7 @@ abstract class RichSectionConfigurator extends DefaultSectionConfigurator
                             ...($configurator->getOperation() !== 'create' ? $this->detailsSchema($configurator) : []),
                             ...$this->settingsSchema($configurator),
                         ]),
-                    PublishSection::make(),
+                    ...($configurator->getOperation() !== 'edit' ? [PublishSchema::make($configurator)] : []),
                 ]),
         ];
     }

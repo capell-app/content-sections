@@ -49,7 +49,7 @@ use Livewire\Livewire;
 use Override;
 use Spatie\LaravelPackageTools\Package;
 
-class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
+final class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
 {
     private const string ADMIN_CREATED_MODEL_ACTION = 'Capell\\Admin\\Actions\\CreatedModelAction';
 
@@ -106,7 +106,7 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
     #[Override]
     protected function isPackageInstalled(): bool
     {
-        return CapellCore::getPackage(static::$packageName)->isInstalled();
+        return CapellCore::getPackage(self::$packageName)->isInstalled();
     }
 
     #[Override]
