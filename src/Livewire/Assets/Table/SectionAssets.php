@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Capell\ContentSections\Livewire\Assets\Table;
 
 use Capell\Admin\Support\AdminSurfaceLookup;
+use Capell\ContentSections\Actions\GetDefaultLanguageIdAction;
 use Capell\ContentSections\Enums\ResourceEnum;
 use Capell\ContentSections\Filament\Resources\Sections\Tables\SectionSelectionTable;
 use Capell\ContentSections\Models\Section;
-use Capell\Core\Models\Language;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Locked;
@@ -36,10 +36,7 @@ class SectionAssets extends AbstractAssets
         if (isset($this->getTableFilterState('filter')['language_id'])) {
             $language_id = $this->getTableFilterState('filter')['language_id'];
         } else {
-            /** @var class-string<Language> $model */
-            $model = Language::class;
-
-            $language_id = $model::query()->default()->value('id');
+            $language_id = GetDefaultLanguageIdAction::run();
         }
 
         $query->with([
