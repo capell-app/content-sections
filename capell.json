@@ -118,11 +118,8 @@
     "capabilities": [
         "content-sections",
         "content-sections-admin",
-        "content-sections-public-rendering",
-        "content-sections-section-registry",
         "content-sections-block-library-bridge",
         "content-sections-layout-builder-payloads",
-        "content-sections-public-output-sanitisation",
         "content-sections-publishing-studio-bridge",
         "content-sections-public-actions-bridge",
         "requires-livewire"
