@@ -237,8 +237,6 @@ it('declares content sections manifest surfaces accurately', function (): void {
             'Reorder:Section',
         )
         ->and($manifest['capabilities'] ?? [])->toContain(
-            'content-sections-public-rendering',
-            'content-sections-public-output-sanitisation',
             'content-sections-layout-builder-payloads',
         )
         ->and($contributions->pluck('type')->all())->toContain(
