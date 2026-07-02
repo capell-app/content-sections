@@ -33,7 +33,7 @@ class ContentSectionsTestCase extends AbstractTestCase
     {
         parent::setUp();
 
-        Blade::anonymousComponentPath(__DIR__ . '/../../theme-foundation/resources/views/components', 'capell');
+        Blade::anonymousComponentPath(__DIR__ . '/../../foundation-theme/resources/views/components', 'capell');
         CapellCore::registerPageType(new PageTypeData(
             name: LayoutTypeEnum::Section->value,
             model: Section::class,
@@ -93,7 +93,7 @@ class ContentSectionsTestCase extends AbstractTestCase
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(LayoutBuilderServiceProvider::$packageName);
         CapellCore::forcePackageInstalled('capell-app/publishing-studio');
-        CapellCore::forcePackageInstalled('capell-app/theme-foundation');
+        CapellCore::forcePackageInstalled('capell-app/foundation-theme');
         CapellCore::forcePackageInstalled(ContentSectionsServiceProvider::$packageName);
 
         $app->make(Repository::class)->set('media-library.media_model', Media::class);
