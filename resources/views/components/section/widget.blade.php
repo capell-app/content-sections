@@ -1,4 +1,4 @@
-@props([
+@props ([
     'color' => null,
     'icon' => null,
     'image' => null,
@@ -11,7 +11,7 @@
     'url' => null,
 ])
 <div
-    @class([
+    @class ([
         'capell-section-widget',
         'md:p-y-16 flex flex-col items-center space-y-6 p-10 text-center',
         match ($color) {
