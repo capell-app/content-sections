@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Capell\ContentSections\Filament\Actions;
 
 use Capell\Admin\Filament\Actions\CreateAction;
-use Capell\ContentSections\Actions\MutateContentDataBeforeFillAction;
+use Capell\ContentSections\Actions\BuildSectionCreateFormDataAction;
 use Filament\Support\Enums\Width;
 use Override;
 
@@ -22,6 +22,6 @@ class CreateContentAction extends CreateAction
     #[Override]
     protected function mutateFormData(array $data): array
     {
-        return MutateContentDataBeforeFillAction::run($data);
+        return BuildSectionCreateFormDataAction::run($data);
     }
 }

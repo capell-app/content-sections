@@ -2,7 +2,7 @@
     use Capell\Core\Enums\MediaConversionEnum;
 @endphp
 
-@props([
+@props ([
     'color' => null,
     'icon' => null,
     'image' => null,

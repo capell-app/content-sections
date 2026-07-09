@@ -6,8 +6,8 @@ namespace Capell\ContentSections\Enums;
 
 use BackedEnum;
 use Capell\Admin\Filament\Contracts\FormConfigurator;
-use Capell\ContentSections\Actions\CreateContentAction;
-use Capell\ContentSections\Actions\MutateContentDataBeforeFillAction;
+use Capell\ContentSections\Actions\BuildSectionCreateFormDataAction;
+use Capell\ContentSections\Actions\CreateSectionContentAction;
 use Capell\ContentSections\Filament\Resources\Sections\Schemas\SectionForm;
 use Capell\ContentSections\Models\Section;
 use Capell\Core\Contracts\Actionable;
@@ -75,7 +75,7 @@ enum AssetEnum: string implements HasColor, HasIcon, HasLabel
     public function getCreateActionClass(): string
     {
         return match ($this) {
-            self::Section => CreateContentAction::class,
+            self::Section => CreateSectionContentAction::class,
         };
     }
 
@@ -85,7 +85,7 @@ enum AssetEnum: string implements HasColor, HasIcon, HasLabel
     public function getDefaultDataActionClass(): string
     {
         return match ($this) {
-            self::Section => MutateContentDataBeforeFillAction::class,
+            self::Section => BuildSectionCreateFormDataAction::class,
         };
     }
 

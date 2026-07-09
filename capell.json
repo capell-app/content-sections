@@ -233,11 +233,6 @@
                 "path": "docs/screenshots/sections-edit-with-assets.png",
                 "alt": "Edit Section form with publishing controls and assets panel",
                 "caption": "A reusable section edit screen combines content, publishing actions, site context, and the assets panel."
-            },
-            {
-                "path": "docs/screenshots/sections-index-dark.png",
-                "alt": "Dark mode Content Sections admin index",
-                "caption": "The reusable sections index is also captured in Capell Admin dark mode for marketplace parity."
             }
         ],
         "categories": ["admin", "foundation", "frontend"]

@@ -9,6 +9,8 @@ use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Components\Forms\IconPicker;
 use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;
 use Capell\Admin\Filament\Components\Forms\PublishSchema;
+use Capell\ContentSections\Enums\DividerSpacing;
+use Capell\ContentSections\Enums\DividerStyle;
 use Capell\ContentSections\Filament\Components\Forms\ActionsRepeater;
 use Capell\ContentSections\Filament\Components\Forms\Content\DetailsSchema;
 use Capell\ContentSections\Filament\Components\Forms\Content\SettingsSchema;
@@ -260,20 +262,12 @@ abstract class RichSectionConfigurator extends DefaultSectionConfigurator
         return [
             Select::make('style')
                 ->label(__('capell-content-sections::form.style'))
-                ->options([
-                    'line' => __('capell-content-sections::generic.divider_line'),
-                    'space' => __('capell-content-sections::generic.divider_space'),
-                    'dots' => __('capell-content-sections::generic.divider_dots'),
-                ])
-                ->default('line'),
+                ->options(DividerStyle::class)
+                ->default(DividerStyle::Line->value),
             Select::make('spacing')
                 ->label(__('capell-content-sections::form.spacing'))
-                ->options([
-                    'sm' => __('capell-content-sections::generic.spacing_sm'),
-                    'md' => __('capell-content-sections::generic.spacing_md'),
-                    'lg' => __('capell-content-sections::generic.spacing_lg'),
-                ])
-                ->default('md'),
+                ->options(DividerSpacing::class)
+                ->default(DividerSpacing::Medium->value),
         ];
     }
 

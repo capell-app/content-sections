@@ -11,7 +11,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
 /**
  * @method static Section run(array<array-key, mixed> $data)
  */
-class CreateContentAction implements Actionable
+class CreateSectionContentAction implements Actionable
 {
     use AsObject;
 
