@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Capell\ContentSections\Actions\CreateContentAction;
 use Capell\ContentSections\Actions\CreateHeroContentBlueprintAction;
+use Capell\ContentSections\Actions\CreateSectionContentAction;
 use Capell\ContentSections\Actions\ReplicateContentAction;
 use Capell\ContentSections\Models\Section;
 use Capell\Core\Models\Blueprint;
@@ -16,7 +16,7 @@ it('creates section content with translated title fallback for the section name'
         'name' => null,
     ]);
 
-    $section = CreateContentAction::run([
+    $section = CreateSectionContentAction::run([
         'blueprint_id' => $sectionData->blueprint_id,
         'site_id' => $sectionData->site_id,
         'meta' => ['label' => 'Homepage hero'],

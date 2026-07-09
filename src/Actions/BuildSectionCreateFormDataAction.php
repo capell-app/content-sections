@@ -13,7 +13,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
 /**
  * @method static array<array-key, mixed> run(array<array-key, mixed> $data = [])
  */
-class MutateContentDataBeforeFillAction implements Actionable
+class BuildSectionCreateFormDataAction implements Actionable
 {
     use AsObject;
 
