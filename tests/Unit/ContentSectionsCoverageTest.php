@@ -5,9 +5,13 @@ declare(strict_types=1);
 use Capell\ContentSections\Actions\BuildSectionAssetRenderDataAction;
 use Capell\ContentSections\Actions\ModifyContentSelectCreateAction;
 use Capell\ContentSections\Actions\NormalizeSectionIconAction;
+use Capell\ContentSections\Enums\ActionColor;
 use Capell\ContentSections\Enums\ActionLinkEnum;
+use Capell\ContentSections\Enums\ActionTarget;
 use Capell\ContentSections\Enums\AssetEnum;
 use Capell\ContentSections\Enums\ConfiguratorTypeEnum;
+use Capell\ContentSections\Enums\DividerSpacing;
+use Capell\ContentSections\Enums\DividerStyle;
 use Capell\ContentSections\Enums\LayoutTypeEnum;
 use Capell\ContentSections\Enums\LivewireComponentsEnum;
 use Capell\ContentSections\Enums\SectionConfiguratorEnum;
@@ -64,6 +68,17 @@ use Illuminate\Support\Facades\File;
 use Livewire\Livewire;
 
 uses(CreatesAdminUser::class);
+
+it('labels persisted content section action and divider options through enums', function (): void {
+    expect(ActionColor::Primary->value)->toBe('primary')
+        ->and(ActionColor::Primary->getLabel())->toBe(__('capell-admin::generic.primary'))
+        ->and(ActionTarget::Blank->value)->toBe('_blank')
+        ->and(ActionTarget::Blank->getLabel())->toBe(__('capell-admin::generic.new_tab'))
+        ->and(DividerStyle::Line->value)->toBe('line')
+        ->and(DividerStyle::Dots->getLabel())->toBe(__('capell-content-sections::generic.divider_dots'))
+        ->and(DividerSpacing::Medium->value)->toBe('md')
+        ->and(DividerSpacing::Large->getLabel())->toBe(__('capell-content-sections::generic.spacing_lg'));
+});
 
 it('builds section asset render data from preloaded relations and plain objects', function (): void {
     app()->bind(FrontendComponentRegistryInterface::class, function (): object {
