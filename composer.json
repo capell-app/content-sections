@@ -36,6 +36,11 @@
             "Capell\\ContentSections\\Database\\Factories\\": "database/factories"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Capell\\ContentSections\\Tests\\": "tests/"
+        }
+    },
     "extra": {
         "laravel": {
             "providers": [
