@@ -11,13 +11,14 @@ use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Translation;
+use Capell\Core\Support\Security\PublicHtmlSanitizer;
+use Capell\Frontend\Support\SafeHtml;
 use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadContributor;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Illuminate\View\ComponentAttributeBag;
 use WeakMap;
@@ -167,7 +168,10 @@ final class SectionPublicLayoutWidgetPayloadContributor implements PublicLayoutW
         $viewData = [
             'asset' => $section,
             'meta' => $data['meta'],
-            'summary' => new HtmlString((string) ($data['summary'] ?? '')),
+            'summary' => SafeHtml::sanitize(
+                (string) ($data['summary'] ?? ''),
+                static fn (string $html): string => resolve(PublicHtmlSanitizer::class)->sanitize($html),
+            ),
             'title' => $data['title'],
             'linkText' => $data['linkText'],
             'url' => $data['url'],
