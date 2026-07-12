@@ -4,8 +4,8 @@
     "slug": "content-sections",
     "displayName": "Content Sections",
     "kind": "package",
-    "capellApiVersion": "^4.0",
-    "version": "0.0.x-dev",
+    "capellApiVersion": "^1.0",
+    "version": "1.x-dev",
     "description": "Seventeen ready-to-use, themeable page sections — hero, FAQ, pricing, stats, testimonials, team, comparison, timeline and more — that editors reuse across pages and developers render through safe, package-owned Blade. Bundled free with Capell Foundation.",
     "product": {
         "group": "Capell Foundation",
