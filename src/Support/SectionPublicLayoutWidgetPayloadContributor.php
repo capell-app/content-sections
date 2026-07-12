@@ -6,6 +6,7 @@ namespace Capell\ContentSections\Support;
 
 use Capell\ContentSections\Actions\ResolveSectionComponentAction;
 use Capell\ContentSections\Actions\SanitizeSectionHtmlAction;
+use Capell\ContentSections\Data\SectionPublicRenderData;
 use Capell\ContentSections\Models\Section;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
@@ -130,20 +131,15 @@ final class SectionPublicLayoutWidgetPayloadContributor implements PublicLayoutW
         $translation = $this->translationFor($section);
         $component = $this->componentFor($section);
 
-        return [
-            'id' => $section->getKey(),
-            'key' => $this->blueprintKey($section),
-            'component' => $component,
-            'title' => $translation->label ?? $section->name,
-            'summary' => $this->summaryFor($translation),
-            'meta' => $this->metaFor($section, $widgetAsset),
-            'linkText' => $translation?->link_text,
-            'url' => $this->linkedPageUrl($section),
-            'widgetAsset' => [
-                'id' => $widgetAsset->getKey(),
-                'meta' => $widgetAsset->meta ?? [],
-            ],
-            'html' => $this->renderSection($widgetAsset, [
+        $data = new SectionPublicRenderData(
+            key: $this->blueprintKey($section),
+            component: $component,
+            title: $translation->label ?? $section->name,
+            summary: $this->summaryFor($translation),
+            meta: $this->metaFor($section, $widgetAsset),
+            linkText: $translation?->link_text,
+            url: $this->linkedPageUrl($section),
+            html: $this->renderSection($widgetAsset, [
                 'component' => $component,
                 'meta' => $this->metaFor($section, $widgetAsset),
                 'summary' => $this->summaryFor($translation),
@@ -151,7 +147,9 @@ final class SectionPublicLayoutWidgetPayloadContributor implements PublicLayoutW
                 'linkText' => $translation?->link_text,
                 'url' => $this->linkedPageUrl($section),
             ]),
-        ];
+        );
+
+        return $data->toArray();
     }
 
     /**

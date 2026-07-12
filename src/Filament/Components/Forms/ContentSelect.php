@@ -213,7 +213,7 @@ class ContentSelect extends Select
         $siteId = self::normalizeSiteId($data['site_id']);
 
         throw_unless(
-            SectionSiteScope::actorCanUseSiteId(auth()->user(), $siteId),
+            SectionSiteScope::actorCanMutateSiteId(auth()->user(), $siteId),
             AuthorizationException::class,
         );
     }

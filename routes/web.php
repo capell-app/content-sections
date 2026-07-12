@@ -5,6 +5,10 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use Illuminate\View\View;
 
+if (! app()->environment('testing')) {
+    return;
+}
+
 Route::prefix('screenshot-fixtures/content-sections')
     ->name('capell-content-sections.screenshot-fixtures.')
     ->group(function (): void {

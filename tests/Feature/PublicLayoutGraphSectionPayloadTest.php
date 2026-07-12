@@ -53,13 +53,14 @@ it('contributes section assets to public layout widget payloads', function (): v
 
     expect($sectionPayload)
         ->toMatchArray([
-            'id' => $section->getKey(),
             'key' => 'hero',
             'component' => 'capell-block-library::blocks.catalog.hero',
             'title' => 'Hero Copy',
             'summary' => '<p>Hero summary</p>',
             'meta' => ['alignment' => 'start'],
-        ]);
+        ])
+        ->not->toHaveKey('id')
+        ->not->toHaveKey('widgetAsset');
 });
 
 it('contributes section assets without public-render lazy loading', function (): void {

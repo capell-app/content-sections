@@ -97,4 +97,13 @@ final class SectionSiteScope
 
         return $actor->getAssignedSiteIds()->contains((int) $siteId);
     }
+
+    public static function actorCanMutateSiteId(?Authenticatable $actor, int|string|null $siteId): bool
+    {
+        if ($siteId === null || $siteId === '' || (int) $siteId === 0) {
+            return $actor instanceof Authenticatable && SiteScope::isGlobalActor($actor);
+        }
+
+        return self::actorCanUseSiteId($actor, $siteId);
+    }
 }
