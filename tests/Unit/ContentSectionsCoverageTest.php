@@ -191,7 +191,7 @@ it('exposes default section definitions and enum metadata', function (): void {
         ->and(AssetEnum::Section->getColor())->toBeString()
         ->and(AssetEnum::Section->getLabel())->toBeString()
         ->and(ConfiguratorTypeEnum::Section->getConfigurators())->toContain(SectionConfiguratorEnum::Hero->value)
-        ->and(ContentSectionsHealthCheck::compatibleCapellApiVersion())->toBe('^0.0');
+        ->and(ContentSectionsHealthCheck::compatibleCapellApiVersion())->toBe('^4.0');
 });
 
 it('runs real content sections health diagnostics', function (): void {
