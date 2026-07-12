@@ -171,7 +171,7 @@ trait HasAssetsRelationManager
                 'ancestors',
                 'site',
             ])
-            ->whereHas('type', self::applySelectablePageTypeQuery(...))
+            ->whereHas('blueprint', self::applySelectablePageTypeQuery(...))
             ->orderBy('site_id');
     }
 
