@@ -1,0 +1,73 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Capell\ContentSections\Livewire\Assets\Table;
+
+use Capell\ContentSections\Livewire\Filament\ModalTableSelect;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Livewire\Attributes\Locked;
+use Livewire\Attributes\Url;
+use Override;
+use Ramsey\Uuid\UuidInterface;
+
+abstract class AbstractAssets extends ModalTableSelect
+{
+    /**
+     * @var array{containerKey?: string, widgetIndex?: int, hasPageAssets?: bool}
+     */
+    #[Locked]
+    public array $tableArguments = [];
+
+    /**
+     * @var array<array-key, mixed>
+     */
+    public array $existingRecords = [];
+
+    #[Locked]
+    public string $type;
+
+    #[Locked]
+    public int $widgetIndex;
+
+    #[Url(as: 'tab')]
+    public ?string $activeTab = null;
+
+    abstract public static function getResource(): string;
+
+    #[Override]
+    public function getTableRecordKey(Model|array $record): string
+    {
+        $id = $record instanceof Model ? $record->getKey() : ($record['id'] ?? null);
+
+        return $id instanceof UuidInterface
+            ? $id->toString()
+            : (string) $id;
+    }
+
+    #[Override]
+    public function table(Table $table): Table
+    {
+        return parent::table($table)
+            ->persistFiltersInSession();
+    }
+
+    public function selectRecords(): void
+    {
+        if (! $this->canSubmitSelectedRecords()) {
+            return;
+        }
+
+        $this->dispatch(
+            'sync-selected-assets',
+            arguments: $this->tableArguments,
+            type: $this->type,
+            assets: $this->selectedTableRecords,
+        );
+
+        $this->resetPage();
+
+        $this->dispatch('close-modal', id: $this->actionModalId);
+    }
+}

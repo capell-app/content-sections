@@ -1,0 +1,81 @@
+{
+    "package": "content-sections",
+    "composerName": "capell-app/content-sections",
+    "generatedFor": "deployment-screenshot-runner",
+    "requiresInstalledPackage": true,
+    "outputDirectory": "packages/content-sections/docs/screenshots",
+    "entries": [
+        {
+            "id": "sections-index",
+            "title": "Reusable sections index.",
+            "package": "content-sections",
+            "surface": "admin",
+            "targetType": "admin-resource",
+            "target": "SectionResource:index",
+            "url": "/screenshot-fixtures/content-sections/sections-index",
+            "waitFor": "table",
+            "required": true,
+            "notes": "Capture after installing content-sections with block-library and layout-builder, with at least three seeded sections across different blueprints so table filters, columns, and navigation state are visible.",
+            "screenshotPath": "packages/content-sections/docs/screenshots/sections-index.png",
+            "useCase": "An editor reviews reusable sections before choosing which shared content block to update."
+        },
+        {
+            "id": "sections-create",
+            "title": "Create reusable section form.",
+            "package": "content-sections",
+            "surface": "admin",
+            "targetType": "admin-resource",
+            "target": "SectionResource:create",
+            "url": "/screenshot-fixtures/content-sections/sections-create",
+            "waitFor": ".form-grid",
+            "required": true,
+            "notes": "Capture with the blueprint selector visible. The form depends on Layout Builder blueprints registered by the installed package.",
+            "screenshotPath": "packages/content-sections/docs/screenshots/sections-create.png",
+            "useCase": "An editor starts a new reusable section and chooses the section blueprint that controls the available fields."
+        },
+        {
+            "id": "sections-edit-with-assets",
+            "title": "Edit reusable section with assets.",
+            "package": "content-sections",
+            "surface": "admin",
+            "targetType": "admin-resource",
+            "target": "SectionResource:edit",
+            "url": "/screenshot-fixtures/content-sections/sections-edit-with-assets",
+            "waitFor": ".form-grid",
+            "required": true,
+            "notes": "Requires a seeded section with translations and at least one related widget asset so the relation manager tab is not empty.",
+            "screenshotPath": "packages/content-sections/docs/screenshots/sections-edit-with-assets.png",
+            "useCase": "An editor updates shared section copy and checks which widget assets are attached before saving."
+        },
+        {
+            "id": "section-selector-modal",
+            "title": "Section selector modal.",
+            "package": "content-sections",
+            "surface": "frontend",
+            "targetType": "frontend-route",
+            "target": "/screenshot-fixtures/content-sections/section-selector-modal",
+            "scenario": "frontend-page",
+            "url": "/screenshot-fixtures/content-sections/section-selector-modal",
+            "waitFor": "body",
+            "required": true,
+            "notes": "Capture the dedicated route-backed selector fixture. Do not fall back to Dashboard or a generic demo page for this state.",
+            "screenshotPath": "packages/content-sections/docs/screenshots/section-selector-modal.png",
+            "useCase": "An editor searches existing reusable sections from the modal before attaching one to another content surface."
+        },
+        {
+            "id": "section-widget-gallery",
+            "title": "Frontend section widget gallery.",
+            "package": "content-sections",
+            "surface": "frontend",
+            "targetType": "frontend-route",
+            "target": "/screenshot-fixtures/content-sections/section-widget-gallery",
+            "scenario": "frontend-page",
+            "url": "/screenshot-fixtures/content-sections/section-widget-gallery",
+            "waitFor": "body",
+            "required": true,
+            "notes": "Capture the dedicated anonymous route-backed gallery fixture. Do not fall back to Dashboard or a generic placeholder page.",
+            "screenshotPath": "packages/content-sections/docs/screenshots/section-widget-gallery.png",
+            "useCase": "A maintainer verifies the public section gallery renders every Block Library-backed widget safely for anonymous visitors."
+        }
+    ]
+}

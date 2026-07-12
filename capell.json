@@ -1,0 +1,243 @@
+{
+    "manifest-version": 3,
+    "name": "capell-app/content-sections",
+    "slug": "content-sections",
+    "displayName": "Content Sections",
+    "kind": "package",
+    "capellApiVersion": "^0.0.1",
+    "version": "0.0.x-dev",
+    "description": "Seventeen ready-to-use, themeable page sections — hero, FAQ, pricing, stats, testimonials, team, comparison, timeline and more — that editors reuse across pages and developers render through safe, package-owned Blade. Bundled free with Capell Foundation.",
+    "product": {
+        "group": "Capell Foundation",
+        "tier": "free",
+        "bundle": "foundation"
+    },
+    "namespace": "Capell\\ContentSections",
+    "surfaces": ["admin", "frontend"],
+    "dependencies": {
+        "requires": [
+            "capell-app/admin",
+            "capell-app/block-library",
+            "capell-app/core",
+            "capell-app/frontend",
+            "capell-app/layout-builder"
+        ],
+        "supports": [
+            "capell-app/publishing-studio",
+            "capell-app/public-actions"
+        ],
+        "conflicts": []
+    },
+    "providers": {
+        "metadata": [],
+        "install": [],
+        "runtime": [
+            "Capell\\ContentSections\\Providers\\ContentSectionsServiceProvider"
+        ],
+        "admin": [],
+        "frontend": []
+    },
+    "contributes": [
+        {
+            "type": "admin-resource",
+            "class": "Capell\\ContentSections\\Manifest\\ContentSectionsPackageContribution",
+            "resourceClass": "Capell\\ContentSections\\Filament\\Resources\\Sections\\SectionResource",
+            "group": "Section"
+        },
+        {
+            "type": "configurator",
+            "class": "Capell\\ContentSections\\Manifest\\ContentSectionsPackageContribution",
+            "configuratorEnum": "Capell\\ContentSections\\Enums\\SectionConfiguratorEnum",
+            "groups": ["Sections"]
+        },
+        {
+            "type": "asset",
+            "class": "Capell\\ContentSections\\Manifest\\ContentSectionsPackageContribution",
+            "asset": "section",
+            "modelClass": "Capell\\ContentSections\\Models\\Section"
+        },
+        {
+            "type": "page-type",
+            "class": "Capell\\ContentSections\\Manifest\\ContentSectionsPackageContribution",
+            "pageType": "section",
+            "modelClass": "Capell\\ContentSections\\Models\\Section"
+        },
+        {
+            "type": "model",
+            "class": "Capell\\ContentSections\\Manifest\\ContentSectionsPackageContribution",
+            "modelClass": "Capell\\ContentSections\\Models\\Section"
+        },
+        {
+            "type": "frontend-component",
+            "class": "Capell\\ContentSections\\Manifest\\ContentSectionsPackageContribution",
+            "keys": ["section.widget", "section.team-member"]
+        },
+        {
+            "type": "schema-extender",
+            "class": "Capell\\ContentSections\\Manifest\\ContentSectionsSchemaExtendersContribution",
+            "tag": "capell-content-sections:section-schema-extenders",
+            "extends": "section configurator meta schemas"
+        },
+        {
+            "type": "route",
+            "class": "Capell\\ContentSections\\Manifest\\ContentSectionsRoutesContribution",
+            "routes": [
+                "capell-content-sections.screenshot-fixtures.section-selector-modal",
+                "capell-content-sections.screenshot-fixtures.section-widget-gallery"
+            ],
+            "prefix": "screenshot-fixtures/content-sections",
+            "middleware": ["web"]
+        }
+    ],
+    "database": {
+        "migrations": true,
+        "settings": false,
+        "requiredTables": ["sections"]
+    },
+    "commands": {
+        "install": null,
+        "setup": null,
+        "demo": null,
+        "doctor": null
+    },
+    "settings": [],
+    "permissions": [
+        "ViewAny:Section",
+        "View:Section",
+        "Create:Section",
+        "Update:Section",
+        "Delete:Section",
+        "DeleteAny:Section",
+        "Restore:Section",
+        "RestoreAny:Section",
+        "ForceDelete:Section",
+        "ForceDeleteAny:Section",
+        "Replicate:Section",
+        "Reorder:Section"
+    ],
+    "capabilities": [
+        "content-sections",
+        "content-sections-admin",
+        "content-sections-block-library-bridge",
+        "content-sections-layout-builder-payloads",
+        "content-sections-publishing-studio-bridge",
+        "content-sections-public-actions-bridge",
+        "requires-livewire"
+    ],
+    "security": {
+        "riskTier": "standard",
+        "publicSurface": {
+            "routeNames": [
+                "capell-content-sections.screenshot-fixtures.section-selector-modal",
+                "capell-content-sections.screenshot-fixtures.section-widget-gallery"
+            ],
+            "auth": "public",
+            "csrfExemptRoutes": [],
+            "signedRoutes": [],
+            "tokenizedRoutes": [],
+            "webhookRoutes": [],
+            "throttledRoutes": []
+        },
+        "sensitiveData": {
+            "encryptedFields": [],
+            "hashedTokenFields": [],
+            "redactedOutputClasses": [],
+            "plaintextJustifications": []
+        },
+        "publicOutput": {
+            "cacheSafe": true,
+            "forbidAuthoringSurface": true,
+            "forbidSecrets": true,
+            "forbidPublicBladeQueries": true
+        },
+        "externalHttpClients": {
+            "requiresTimeouts": false,
+            "requiresSecretRedaction": false,
+            "clients": []
+        },
+        "adminSurface": {
+            "authorization": "permissions",
+            "permissions": [
+                "ViewAny:Section",
+                "View:Section",
+                "Create:Section",
+                "Update:Section",
+                "Delete:Section",
+                "DeleteAny:Section",
+                "Restore:Section",
+                "RestoreAny:Section",
+                "ForceDelete:Section",
+                "ForceDeleteAny:Section",
+                "Replicate:Section",
+                "Reorder:Section"
+            ]
+        }
+    },
+    "performance": {
+        "frontendRenderBudgetMs": 20,
+        "adminQueryBudget": 40,
+        "cacheTags": ["content-sections"],
+        "cacheSafety": {
+            "cacheable": true,
+            "variesBy": [],
+            "sensitiveOutput": false,
+            "invalidationSources": [
+                {
+                    "model": "Capell\\ContentSections\\Models\\Section",
+                    "events": [
+                        "created",
+                        "updated",
+                        "deleted",
+                        "restored",
+                        "forceDeleted"
+                    ]
+                }
+            ],
+            "queueInvalidation": true
+        }
+    },
+    "healthChecks": [
+        {
+            "key": "content-sections.package-health",
+            "label": "Content Sections package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\ContentSections\\Health\\ContentSectionsHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        }
+    ],
+    "commercial": {
+        "proposedLicense": "free",
+        "requestedCertification": "first-party",
+        "supportPolicy": "capell-first-party",
+        "privateDocsRequested": false
+    },
+    "marketplace": {
+        "summary": "Seventeen ready-to-use, themeable page sections — hero, FAQ, pricing, stats, testimonials, team, comparison, timeline and more — that editors reuse across pages and developers render through safe, package-owned Blade. Bundled free with Capell Foundation.",
+        "screenshots": [
+            {
+                "path": "docs/assets/marketplace/extension-card.jpg",
+                "alt": "Content Sections extension preview image",
+                "caption": "Content Sections extension preview"
+            },
+            {
+                "path": "docs/screenshots/sections-index.png",
+                "alt": "Content Sections admin index with reusable section records",
+                "caption": "Editors can review reusable hero, FAQ, and pricing sections from a dedicated Capell admin resource."
+            },
+            {
+                "path": "docs/screenshots/sections-create.png",
+                "alt": "Create Section form with blueprint selector and content editor",
+                "caption": "The create form starts from a section blueprint and gives editors translated content fields without storing layout markup."
+            },
+            {
+                "path": "docs/screenshots/sections-edit-with-assets.png",
+                "alt": "Edit Section form with publishing controls and assets panel",
+                "caption": "A reusable section edit screen combines content, publishing actions, site context, and the assets panel."
+            }
+        ],
+        "categories": ["admin", "foundation", "frontend"]
+    },
+    "contributionTraceability": {
+        "deferredContributions": []
+    }
+}

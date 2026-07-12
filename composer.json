@@ -1,0 +1,63 @@
+{
+    "name": "capell-app/content-sections",
+    "description": "A free catalog of 17 reusable, blueprint-backed page sections (hero, FAQ, pricing, stats, team, comparison, timeline, and more) for Capell, rendered through layout-builder and block-library.",
+    "keywords": [
+        "capell",
+        "content-sections",
+        "laravel",
+        "filamentphp",
+        "cms"
+    ],
+    "homepage": "https://github.com/capell-app/content-sections",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Howdu",
+            "email": "capell.app26@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.4",
+        "capell-app/admin": "^0.0.4 || 0.0.x-dev",
+        "capell-app/block-library": "^0.0.4 || 0.0.x-dev",
+        "capell-app/core": "^0.0.4 || 0.0.x-dev",
+        "capell-app/frontend": "^0.0.4 || 0.0.x-dev",
+        "capell-app/layout-builder": "^0.0.4 || 0.0.x-dev",
+        "symfony/html-sanitizer": "^7.0 || ^8.0"
+    },
+    "suggest": {
+        "capell-app/public-actions": "Enables CMS action buttons that submit reusable public actions.",
+        "capell-app/publishing-studio": "Enables workspace-aware section publishing integration."
+    },
+    "autoload": {
+        "psr-4": {
+            "Capell\\ContentSections\\": "src/",
+            "Capell\\ContentSections\\Database\\Factories\\": "database/factories"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Capell\\ContentSections\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Capell\\ContentSections\\Providers\\ContentSectionsServiceProvider"
+            ]
+        },
+        "branch-alias": {
+            "dev-main": "0.0.x-dev"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "prefer-stable": true,
+    "type": "library",
+    "support": {
+        "source": "https://github.com/capell-app/capell-packages",
+        "docs": "https://docs.capell.app/packages/content-sections"
+    }
+}

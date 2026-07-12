@@ -1,0 +1,573 @@
+<?php
+
+declare(strict_types=1);
+
+use Capell\ContentSections\Actions\BuildSectionAssetRenderDataAction;
+use Capell\ContentSections\Actions\ModifyContentSelectCreateAction;
+use Capell\ContentSections\Actions\NormalizeSectionIconAction;
+use Capell\ContentSections\Enums\ActionColor;
+use Capell\ContentSections\Enums\ActionLinkEnum;
+use Capell\ContentSections\Enums\ActionTarget;
+use Capell\ContentSections\Enums\AssetEnum;
+use Capell\ContentSections\Enums\ConfiguratorTypeEnum;
+use Capell\ContentSections\Enums\DividerSpacing;
+use Capell\ContentSections\Enums\DividerStyle;
+use Capell\ContentSections\Enums\LayoutTypeEnum;
+use Capell\ContentSections\Enums\LivewireComponentsEnum;
+use Capell\ContentSections\Enums\SectionConfiguratorEnum;
+use Capell\ContentSections\Enums\TypeEnum;
+use Capell\ContentSections\Filament\Components\Forms\ContentSelect;
+use Capell\ContentSections\Filament\Configurators\Blueprints\ContentBlueprintConfigurator;
+use Capell\ContentSections\Filament\Configurators\Sections\AccordionSectionConfigurator;
+use Capell\ContentSections\Filament\Configurators\Sections\CallToActionSectionConfigurator;
+use Capell\ContentSections\Filament\Configurators\Sections\ComparisonSectionConfigurator;
+use Capell\ContentSections\Filament\Configurators\Sections\CounterSectionConfigurator;
+use Capell\ContentSections\Filament\Configurators\Sections\DefaultSectionConfigurator;
+use Capell\ContentSections\Filament\Configurators\Sections\DividerSectionConfigurator;
+use Capell\ContentSections\Filament\Configurators\Sections\FaqSectionConfigurator;
+use Capell\ContentSections\Filament\Configurators\Sections\FeaturesSectionConfigurator;
+use Capell\ContentSections\Filament\Configurators\Sections\HeroSectionConfigurator;
+use Capell\ContentSections\Filament\Configurators\Sections\LogosSectionConfigurator;
+use Capell\ContentSections\Filament\Configurators\Sections\PricingSectionConfigurator;
+use Capell\ContentSections\Filament\Configurators\Sections\StatsSectionConfigurator;
+use Capell\ContentSections\Filament\Configurators\Sections\TableSectionConfigurator;
+use Capell\ContentSections\Filament\Configurators\Sections\TabsSectionConfigurator;
+use Capell\ContentSections\Filament\Configurators\Sections\TeamSectionConfigurator;
+use Capell\ContentSections\Filament\Configurators\Sections\TestimonialSectionConfigurator;
+use Capell\ContentSections\Filament\Configurators\Sections\TimelineSectionConfigurator;
+use Capell\ContentSections\Filament\Resources\Sections\SectionResource;
+use Capell\ContentSections\Filament\Resources\Sections\Widgets\SectionAlertsWidget;
+use Capell\ContentSections\Health\ContentSectionsHealthCheck;
+use Capell\ContentSections\Livewire\Assets\Table\SectionAssets;
+use Capell\ContentSections\Livewire\Filament\ModalTableSelect;
+use Capell\ContentSections\Manifest\ContentSectionsPackageContribution;
+use Capell\ContentSections\Manifest\ContentSectionsRoutesContribution;
+use Capell\ContentSections\Manifest\ContentSectionsSchemaExtendersContribution;
+use Capell\ContentSections\Models\Section;
+use Capell\ContentSections\Observers\SectionObserver;
+use Capell\ContentSections\Support\DefaultSectionDefinitionProvider;
+use Capell\Core\Contracts\Extensions\ExtensionContribution;
+use Capell\Core\Contracts\Extensions\RegistersExtensionRoute;
+use Capell\Core\Data\Diagnostics\DoctorCheckResultData;
+use Capell\Core\Enums\PublishStatusEnum;
+use Capell\Core\Models\Blueprint;
+use Capell\Core\Models\Language;
+use Capell\Frontend\Contracts\FrontendComponentRegistryInterface;
+use Capell\Frontend\Data\FrontendComponentData;
+use Capell\Tests\Support\Concerns\CreatesAdminUser;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\File;
+use Livewire\Livewire;
+
+uses(CreatesAdminUser::class);
+
+it('labels persisted content section action and divider options through enums', function (): void {
+    expect(ActionColor::Primary->value)->toBe('primary')
+        ->and(ActionColor::Primary->getLabel())->toBe(__('capell-admin::generic.primary'))
+        ->and(ActionTarget::Blank->value)->toBe('_blank')
+        ->and(ActionTarget::Blank->getLabel())->toBe(__('capell-admin::generic.new_tab'))
+        ->and(DividerStyle::Line->value)->toBe('line')
+        ->and(DividerStyle::Dots->getLabel())->toBe(__('capell-content-sections::generic.divider_dots'))
+        ->and(DividerSpacing::Medium->value)->toBe('md')
+        ->and(DividerSpacing::Large->getLabel())->toBe(__('capell-content-sections::generic.spacing_lg'));
+});
+
+it('builds section asset render data from preloaded relations and plain objects', function (): void {
+    app()->bind(FrontendComponentRegistryInterface::class, function (): object {
+        return new class implements FrontendComponentRegistryInterface
+        {
+            public function register(string $key, string $component, array $aliases = [], array $props = []): static
+            {
+                return $this;
+            }
+
+            public function resolve(string $component, ?string $default = null): string
+            {
+                return 'resolved-' . $component;
+            }
+
+            public function get(string $key): FrontendComponentData
+            {
+                return new FrontendComponentData(key: $key, component: 'resolved-' . $key);
+            }
+
+            public function has(string $key): bool
+            {
+                return true;
+            }
+
+            public function hasReference(string $component): bool
+            {
+                return true;
+            }
+
+            public function all(): Collection
+            {
+                return collect([
+                    'section.widget' => new FrontendComponentData(key: 'section.widget', component: 'resolved-section.widget'),
+                ]);
+            }
+        };
+    });
+
+    $translation = new class
+    {
+        public string $summary = 'Short summary';
+
+        public string $label = 'Asset title';
+
+        public function getMeta(string $key, mixed $default = null): mixed
+        {
+            return $key === 'link_text' ? 'Read case study' : $default;
+        }
+    };
+
+    $linkedPage = new class extends Model
+    {
+        /** @use HasFactory<Factory<static>> */
+        use HasFactory;
+    };
+    $linkedPage->setRelation('pageUrl', (object) ['full_url' => 'https://example.test/page']);
+
+    $asset = new class($translation, $linkedPage) extends Model
+    {
+        /** @use HasFactory<Factory<static>> */
+        use HasFactory;
+
+        /**
+         * @var array<array-key, mixed>
+         */
+        public array $meta = ['featured' => true];
+
+        public function __construct(?object $translation = null, ?Model $linkedPage = null)
+        {
+            parent::__construct();
+
+            if ($translation !== null) {
+                $this->setRelation('translation', $translation);
+                $this->setRelation('image', (object) ['id' => 10]);
+            }
+
+            if ($linkedPage instanceof Model) {
+                $this->setRelation('linkedPage', $linkedPage);
+            }
+        }
+
+        public function getMeta(string $key): ?string
+        {
+            return ['color' => 'primary', 'icon' => 'heroicon-o-sparkles'][$key] ?? null;
+        }
+    };
+
+    $data = BuildSectionAssetRenderDataAction::run($asset, 'card', true, true, true);
+
+    expect($data->componentItem)->toBe('resolved-card')
+        ->and($data->image)->toBeObject()
+        ->and($data->linkText)->toBe('Read case study')
+        ->and($data->summary)->toBe('Short summary')
+        ->and($data->title)->toBe('Asset title')
+        ->and($data->url)->toBe('https://example.test/page')
+        ->and($data->meta)->toBe(['featured' => true])
+        ->and($data->color)->toBe('primary')
+        ->and($data->icon)->toBe('heroicon-o-sparkles');
+});
+
+it('exposes default section definitions and enum metadata', function (): void {
+    $definitions = capell_test_collect((new DefaultSectionDefinitionProvider)->definitions());
+
+    expect($definitions)->toHaveCount(17)
+        ->and($definitions->pluck('key')->all())->toContain('content', 'hero', 'pricing', 'timeline')
+        ->and(ActionLinkEnum::Link->getLabel())->toBeString()
+        ->and(ActionLinkEnum::Page->getIcon())->toBe('heroicon-o-document-text')
+        ->and(ActionLinkEnum::PublicAction->getIcon())->toBe('heroicon-o-bolt')
+        ->and(AssetEnum::Section->getColor())->toBeString()
+        ->and(AssetEnum::Section->getLabel())->toBeString()
+        ->and(ConfiguratorTypeEnum::Section->getConfigurators())->toContain(SectionConfiguratorEnum::Hero->value)
+        ->and(ContentSectionsHealthCheck::compatibleCapellApiVersion())->toBe('^4.0');
+});
+
+it('runs real content sections health diagnostics', function (): void {
+    $results = ContentSectionsHealthCheck::runDiagnostics();
+
+    expect($results)->toHaveCount(5)
+        ->and($results->every(static fn (mixed $result): bool => $result instanceof DoctorCheckResultData))->toBeTrue()
+        ->and($results->every(static fn (DoctorCheckResultData $result): bool => $result->passed))->toBeTrue()
+        ->and(ContentSectionsHealthCheck::passed())->toBeTrue();
+});
+
+it('normalises section icon identifiers for public rendering', function (): void {
+    expect(NormalizeSectionIconAction::run('heroicon-o-sparkles'))->toBe('heroicon-o-sparkles')
+        ->and(NormalizeSectionIconAction::run(' heroicon-m-bolt '))->toBe('heroicon-m-bolt')
+        ->and(NormalizeSectionIconAction::run('../../storage/app/private/secret.svg'))->toBeNull()
+        ->and(NormalizeSectionIconAction::run('<svg onload=alert(1)>'))->toBeNull()
+        ->and(NormalizeSectionIconAction::run(null))->toBeNull();
+});
+
+it('declares content sections manifest surfaces accurately', function (): void {
+    $manifest = json_decode(
+        File::get(__DIR__ . '/../../capell.json'),
+        associative: true,
+        flags: JSON_THROW_ON_ERROR,
+    );
+
+    throw_unless(is_array($manifest), RuntimeException::class, 'Expected content-sections manifest to decode as an array.');
+
+    $database = is_array($manifest['database'] ?? null) ? $manifest['database'] : [];
+    $dependencies = is_array($manifest['dependencies'] ?? null) ? $manifest['dependencies'] : [];
+    $performance = is_array($manifest['performance'] ?? null) ? $manifest['performance'] : [];
+    $cacheSafety = is_array($performance['cacheSafety'] ?? null) ? $performance['cacheSafety'] : [];
+    $contributionTraceability = $manifest['contributionTraceability'] ?? null;
+    $security = $manifest['security'] ?? null;
+    $contributes = $manifest['contributes'] ?? [];
+
+    throw_unless(is_array($contributes), RuntimeException::class, 'Expected content-sections contributions to be an array.');
+    throw_unless(is_array($contributionTraceability), RuntimeException::class, 'Expected content-sections contribution traceability to be an array.');
+    throw_unless(is_array($security), RuntimeException::class, 'Expected content-sections security metadata to be an array.');
+    throw_unless(is_array($security['publicSurface'] ?? null), RuntimeException::class, 'Expected content-sections public surface metadata to be an array.');
+
+    $contributions = collect($contributes);
+    $routeContribution = $contributions->firstWhere('class', ContentSectionsRoutesContribution::class);
+    $schemaExtenderContribution = $contributions->firstWhere('class', ContentSectionsSchemaExtendersContribution::class);
+
+    throw_unless(is_array($routeContribution), RuntimeException::class, 'Expected content-sections route contribution to be an array.');
+    throw_unless(is_array($schemaExtenderContribution), RuntimeException::class, 'Expected content-sections schema extender contribution to be an array.');
+
+    expect($database['requiredTables'] ?? [])->toContain('sections')
+        ->and($dependencies['supports'] ?? [])->toContain(
+            'capell-app/publishing-studio',
+            'capell-app/public-actions',
+        )
+        ->and($manifest['permissions'] ?? [])->toContain(
+            'ViewAny:Section',
+            'Update:Section',
+            'ForceDeleteAny:Section',
+            'Reorder:Section',
+        )
+        ->and($manifest['capabilities'] ?? [])->toContain(
+            'content-sections-layout-builder-payloads',
+        )
+        ->and($contributions->pluck('type')->all())->toContain(
+            'admin-resource',
+            'asset',
+            'configurator',
+            'frontend-component',
+            'model',
+            'page-type',
+            'route',
+            'schema-extender',
+        )
+        ->and($contributionTraceability['deferredContributions'])->toBe([])
+        ->and($contributions->all())->toContain([
+            'type' => 'admin-resource',
+            'class' => ContentSectionsPackageContribution::class,
+            'resourceClass' => SectionResource::class,
+            'group' => 'Section',
+        ])
+        ->and($contributions->all())->toContain([
+            'type' => 'frontend-component',
+            'class' => ContentSectionsPackageContribution::class,
+            'keys' => ['section.widget', 'section.team-member'],
+        ])
+        ->and($schemaExtenderContribution)->toBe([
+            'type' => 'schema-extender',
+            'class' => ContentSectionsSchemaExtendersContribution::class,
+            'tag' => 'capell-content-sections:section-schema-extenders',
+            'extends' => 'section configurator meta schemas',
+        ])
+        ->and(class_implements(ContentSectionsSchemaExtendersContribution::class))->toContain(ExtensionContribution::class)
+        ->and($routeContribution['routes'])->toBe($security['publicSurface']['routeNames'])
+        ->and(class_implements(ContentSectionsRoutesContribution::class))->toContain(RegistersExtensionRoute::class)
+        ->and($cacheSafety['cacheable'] ?? false)->toBeTrue()
+        ->and($cacheSafety['invalidationSources'] ?? [])->toContain([
+            'model' => Section::class,
+            'events' => ['created', 'updated', 'deleted', 'restored', 'forceDeleted'],
+        ]);
+});
+
+it('declares section configurator keys for popular section variants', function (object $configurator, string $key): void {
+    $reflection = new ReflectionMethod($configurator, 'sectionKey');
+
+    expect($reflection->invoke($configurator))->toBe($key);
+})->with([
+    'accordion' => fn (): array => [new AccordionSectionConfigurator, 'accordion'],
+    'call_to_action' => fn (): array => [new CallToActionSectionConfigurator, 'call_to_action'],
+    'comparison' => fn (): array => [new ComparisonSectionConfigurator, 'comparison'],
+    'counter' => fn (): array => [new CounterSectionConfigurator, 'counter'],
+    'divider' => fn (): array => [new DividerSectionConfigurator, 'divider'],
+    'faq' => fn (): array => [new FaqSectionConfigurator, 'faq'],
+    'features' => fn (): array => [new FeaturesSectionConfigurator, 'features'],
+    'logos' => fn (): array => [new LogosSectionConfigurator, 'logos'],
+    'pricing' => fn (): array => [new PricingSectionConfigurator, 'pricing'],
+    'stats' => fn (): array => [new StatsSectionConfigurator, 'stats'],
+    'table' => fn (): array => [new TableSectionConfigurator, 'table'],
+    'tabs' => fn (): array => [new TabsSectionConfigurator, 'tabs'],
+    'team' => fn (): array => [new TeamSectionConfigurator, 'team'],
+    'timeline' => fn (): array => [new TimelineSectionConfigurator, 'timeline'],
+]);
+
+it('exposes default section extenders and testimonial configurator metadata', function (): void {
+    expect(DefaultSectionConfigurator::getExtenders())->toBeIterable()
+        ->and(new HeroSectionConfigurator)->toBeInstanceOf(DefaultSectionConfigurator::class)
+        ->and(new TestimonialSectionConfigurator)->toBeInstanceOf(DefaultSectionConfigurator::class);
+});
+
+it('builds the content blueprint configurator admin tab', function (): void {
+    $components = (new ContentBlueprintConfigurator)->make(Schema::make()->operation('create'));
+    $tabs = capell_test_collect($components)->first(fn (mixed $component): bool => $component instanceof Tabs);
+
+    expect($components)->not->toBeEmpty()
+        ->and($tabs)->toBeInstanceOf(Tabs::class);
+});
+
+it('builds popular section meta schemas for all configured section keys', function (object $configurator, array $expectedNames): void {
+    $reflection = new ReflectionMethod($configurator, 'metaFields');
+
+    $fields = capell_test_collect($reflection->invoke($configurator, Schema::make()->operation('edit')));
+    $fieldNames = $fields->map(
+        fn (mixed $field): ?string => is_object($field) && method_exists($field, 'getName') ? $field->getName() : null,
+    )->filter()->values()->all();
+
+    expect($fieldNames)->toContain(...$expectedNames);
+
+    $repeater = $fields->first(fn (mixed $field): bool => $field instanceof Repeater);
+
+    if ($repeater instanceof Repeater) {
+        expect($repeater->hasItemLabels())->toBeTrue();
+    }
+})->with([
+    'accordion' => fn (): array => [new AccordionSectionConfigurator, ['items', 'first_open']],
+    'call_to_action' => fn (): array => [new CallToActionSectionConfigurator, ['image', 'alignment', 'actions']],
+    'comparison' => fn (): array => [new ComparisonSectionConfigurator, ['columns', 'rows']],
+    'counter' => fn (): array => [new CounterSectionConfigurator, ['counters', 'animate']],
+    'divider' => fn (): array => [new DividerSectionConfigurator, ['style', 'spacing']],
+    'faq' => fn (): array => [new FaqSectionConfigurator, ['questions', 'first_open']],
+    'features' => fn (): array => [new FeaturesSectionConfigurator, ['features', 'columns']],
+    'logos' => fn (): array => [new LogosSectionConfigurator, ['logos', 'columns']],
+    'pricing' => fn (): array => [new PricingSectionConfigurator, ['plans']],
+    'stats' => fn (): array => [new StatsSectionConfigurator, ['stats', 'columns']],
+    'table' => fn (): array => [new TableSectionConfigurator, ['caption', 'headers', 'rows']],
+    'tabs' => fn (): array => [new TabsSectionConfigurator, ['tabs']],
+    'team' => fn (): array => [new TeamSectionConfigurator, ['members', 'columns']],
+    'timeline' => fn (): array => [new TimelineSectionConfigurator, ['milestones']],
+]);
+
+it('builds testimonial media metadata schema', function (): void {
+    $reflection = new ReflectionMethod(TestimonialSectionConfigurator::class, 'getMetaSchema');
+
+    $components = capell_test_collect($reflection->invoke(new TestimonialSectionConfigurator));
+
+    expect($components)->not->toBeEmpty()
+        ->and($components->map(
+            fn (mixed $component): ?string => is_object($component) && method_exists($component, 'getName') ? $component->getName() : null,
+        )->filter()->values()->all())->toContain('image');
+});
+
+it('exposes modal table select query, form, and selection helpers', function (): void {
+    $component = new class extends ModalTableSelect
+    {
+        /**
+         * @return Builder<Model>
+         */
+        public function exposeTableQuery(): Builder
+        {
+            /** @var Builder<Model> $query */
+            $query = $this->getTableQuery();
+
+            return $query;
+        }
+
+        public function exposeCanSubmitSelectedRecords(): bool
+        {
+            return $this->canSubmitSelectedRecords();
+        }
+    };
+
+    $component->tableArguments = ['excludeIds' => [1, 2]];
+    $component->tableQuery = fn (): Builder => Section::query();
+    $component->isDisabled = false;
+
+    expect($component->getTableArguments())->toBe(['excludeIds' => [1, 2]])
+        ->and($component->getSelectRecordsLabel())->toBeString()
+        ->and($component->form(Schema::make()))->toBeInstanceOf(Schema::class)
+        ->and($component->exposeTableQuery())->toBeInstanceOf(Builder::class)
+        ->and($component->selectRecordsAction()->getName())->toBe('selectRecords')
+        ->and($component->render()->name())->toBe('capell-content-sections::livewire.filament.widgets-table-select')
+        ->and($component->exposeCanSubmitSelectedRecords())->toBeFalse();
+});
+
+it('rejects invalid modal table configuration classes', function (): void {
+    $this->actingAsAdmin();
+
+    expect(fn (): mixed => Livewire::test(ModalTableSelect::class, [
+        'tableConfiguration' => stdClass::class,
+        'tableQuery' => Section::query(),
+    ]))->toThrow('Table configuration class [stdClass]');
+});
+
+it('declares section asset table metadata and filtered queries', function (): void {
+    $assetComponent = new class extends SectionAssets
+    {
+        /**
+         * @return Builder<Section>
+         */
+        public function exposeTableQuery(): Builder
+        {
+            return $this->getTableQuery();
+        }
+    };
+    $assetComponent->existingRecords = [9, 10];
+
+    expect(SectionAssets::getResource())->toBeString()
+        ->and($assetComponent->getTableRecordKey(['id' => 42]))->toBe('42')
+        ->and($assetComponent->exposeTableQuery())->toBeInstanceOf(Builder::class);
+});
+
+it('exposes content select create action and livewire enum metadata', function (): void {
+    $select = ModifyContentSelectCreateAction::run(ContentSelect::make('content_id'));
+
+    expect($select)->toBeInstanceOf(Select::class)
+        ->and(TypeEnum::Section->getModel())->toBe(Section::class)
+        ->and(TypeEnum::Section->getLabel())->toBeString()
+        ->and(LivewireComponentsEnum::ContentAssetsTable->getComponent())->toBe(SectionAssets::class)
+        ->and(LivewireComponentsEnum::getComponents())->toContain(SectionAssets::class);
+});
+
+it('builds pending, expired, and trashed section alert messages', function (): void {
+    $pendingWidget = new SectionAlertsWidget;
+    $pendingWidget->record = Section::factory()->pending()->create();
+
+    $expiredWidget = new SectionAlertsWidget;
+    $expiredWidget->record = Section::factory()->expired()->create();
+
+    $trashedSection = Section::factory()->create();
+    $trashedSection->delete();
+
+    $trashedWidget = new SectionAlertsWidget;
+    $trashedWidget->record = $trashedSection;
+
+    $pendingRecord = $pendingWidget->record;
+    $expiredRecord = $expiredWidget->record;
+
+    throw_if(! $pendingRecord instanceof Section || ! $expiredRecord instanceof Section, RuntimeException::class, 'Expected pending and expired section records.');
+
+    expect($pendingWidget->alerts())->toHaveKey('pending')
+        ->and($expiredWidget->alerts())->toHaveKey('expired')
+        ->and($trashedWidget->alerts())->toHaveKey('trashed')
+        ->and($pendingRecord->publish_status)->toBe(PublishStatusEnum::pending)
+        ->and($expiredRecord->publish_status)->toBe(PublishStatusEnum::expired);
+});
+
+it('normalizes section observer defaults and relation cache hooks', function (): void {
+    $blueprint = Blueprint::factory()
+        ->type(LayoutTypeEnum::Section)
+        ->default()
+        ->create();
+
+    $section = Section::factory()->make([
+        'blueprint_id' => null,
+        'parent_id' => null,
+    ]);
+
+    $observer = new SectionObserver;
+    $observer->creating($section);
+
+    expect($section->blueprint_id)->toBe($blueprint->getKey())
+        ->and($section->parent_id)->toBeNull();
+
+    $observer->saving($section);
+    $observer->deleting($section);
+    $observer->deleted($section);
+    $observer->restoring($section);
+    $observer->restored($section);
+});
+
+it('declares section resource metadata', function (): void {
+    expect(SectionResource::getModel())->toBe(Section::class)
+        ->and(SectionResource::getResourceType())->toBe(ConfiguratorTypeEnum::Section)
+        ->and(SectionResource::shouldRegisterNavigation())->toBeTrue()
+        ->and(SectionResource::getGloballySearchableAttributes())->toBe(['name', 'translations.title'])
+        ->and(SectionResource::getNavigationGroup())->toBe((string) __('capell-admin::navigation.group_content'))
+        ->and(SectionResource::getNavigationParentItem())->toBeNull()
+        ->and(SectionResource::getNavigationLabel())->toBeString()
+        ->and(SectionResource::getModelLabel())->toBeString()
+        ->and(SectionResource::getPluralModelLabel())->toBeString()
+        ->and(SectionResource::getPages())->toHaveKeys(['index', 'create', 'edit'])
+        ->and(SectionResource::getRelations())->not->toBeEmpty()
+        ->and(SectionResource::getWidgets())->toContain(SectionAlertsWidget::class)
+        ->and(SectionResource::getGlobalSearchResultDetails(new class extends Model
+        {
+            /** @use HasFactory<Factory<static>> */
+            use HasFactory;
+        }))->toBe([]);
+});
+
+it('covers section model render relations and local helpers', function (): void {
+    $language = Language::factory()->english()->create();
+    $blueprint = Blueprint::factory()
+        ->type(LayoutTypeEnum::Section)
+        ->create(['name' => 'Hero section']);
+    $section = Section::factory()->create([
+        'blueprint_id' => $blueprint->getKey(),
+        'meta' => [
+            'actions' => [
+                ['label' => 'Start'],
+            ],
+            'related' => [],
+        ],
+    ]);
+    $section->setRelation('blueprint', $blueprint);
+
+    $relations = Section::getMorphRelations($language);
+
+    $relations['linkedPage'](contentSectionsMorphBuilder());
+    $relations['translation'](contentSectionsMorphBuilder());
+    $section->registerMediaCollections();
+
+    expect($relations)->toHaveKeys(['linkedPage', 'translation'])
+        ->and($section->getBlueprint()->is($blueprint))->toBeTrue()
+        ->and($section->site()->getForeignKeyName())->toBe('site_id')
+        ->and($section->image()->getMorphType())->toBe('model_type')
+        ->and($section->linkedPage()->getMorphType())->toBe('meta->linked_pageable_type')
+        ->and($section->related()->getRelated())->toBeInstanceOf(Section::class)
+        ->and($section->actions)->toBe([['label' => 'Start']])
+        ->and($section->newQuery()->ordered()->toBase()->orders)->toHaveCount(2)
+        ->and($section->getMediaCollection('image')?->name)->toBe('image');
+});
+
+function contentSectionsMorphBuilder(): Illuminate\Contracts\Database\Eloquent\Builder
+{
+    $builder = Mockery::mock(Illuminate\Contracts\Database\Eloquent\Builder::class);
+
+    $builder->shouldReceive('with')->andReturnUsing(
+        function (string|array $relations) use ($builder): Illuminate\Contracts\Database\Eloquent\Builder {
+            foreach ((array) $relations as $relation) {
+                if ($relation instanceof Closure) {
+                    $relation($builder);
+                }
+            }
+
+            return $builder;
+        },
+    );
+    $builder->shouldReceive('when')->andReturnUsing(
+        function (mixed $value, Closure $callback) use ($builder): Illuminate\Contracts\Database\Eloquent\Builder {
+            if ($value) {
+                $callback($builder);
+            }
+
+            return $builder;
+        },
+    );
+    $builder->shouldReceive('orderByRaw')->andReturn($builder);
+    $builder->shouldReceive('where')->andReturn($builder);
+
+    return $builder;
+}

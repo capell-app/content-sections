@@ -1,0 +1,68 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Capell\ContentSections\Livewire\Assets\Table;
+
+use Capell\Admin\Support\AdminSurfaceLookup;
+use Capell\ContentSections\Actions\GetDefaultLanguageIdAction;
+use Capell\ContentSections\Enums\ResourceEnum;
+use Capell\ContentSections\Filament\Resources\Sections\Tables\SectionSelectionTable;
+use Capell\ContentSections\Models\Section;
+use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
+use Illuminate\Database\Eloquent\Builder;
+use Livewire\Attributes\Locked;
+use Override;
+
+class SectionAssets extends AbstractAssets
+{
+    public string $type = 'section';
+
+    #[Locked]
+    public string $tableConfiguration = SectionSelectionTable::class;
+
+    public static function getResource(): string
+    {
+        return AdminSurfaceLookup::resource(ResourceEnum::Section);
+    }
+
+    /**
+     * @return Builder<Section>
+     */
+    public function getFilteredTableQuery(): Builder
+    {
+        $query = parent::getFilteredTableQuery() ?? Section::query();
+
+        if (isset($this->getTableFilterState('filter')['language_id'])) {
+            $language_id = $this->getTableFilterState('filter')['language_id'];
+        } else {
+            $language_id = GetDefaultLanguageIdAction::run();
+        }
+
+        $query->with([
+            'translation' => fn (BuilderContract $query): BuilderContract => $query->where('language_id', (int) $language_id),
+        ]);
+
+        return $query;
+    }
+
+    /**
+     * @return Builder<Section>
+     */
+    #[Override]
+    protected function getTableQuery(): Builder
+    {
+        /* @var class-string<\Capell\ContentSections\Models\Section> $model */
+        $model = Section::class;
+
+        return $model::with([
+            'blueprint',
+            'site',
+            'translations.language',
+        ])
+            ->when(
+                $this->existingRecords,
+                fn (Builder $query) => $query->whereNotIn('id', $this->existingRecords),
+            );
+    }
+}

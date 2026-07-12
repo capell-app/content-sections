@@ -1,0 +1,128 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Capell\ContentSections\Filament\Configurators\Sections;
+
+use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
+use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;
+use Capell\Admin\Filament\Components\Forms\PublishSchema;
+use Capell\ContentSections\Filament\Components\Forms\Content\DetailsSchema;
+use Capell\ContentSections\Filament\Components\Forms\Content\SettingsSchema;
+use Capell\ContentSections\Filament\Components\Forms\Content\TranslationsRepeater;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Override;
+
+class TestimonialSectionConfigurator extends DefaultSectionConfigurator
+{
+    #[Override]
+    public function make(Schema $configurator): array
+    {
+        return match ($configurator->getOperation()) {
+            'createOption', 'replicate' => $this->getCreateOptionFormSchema($configurator),
+            'editOption' => $this->getEditOptionFormSchema($configurator),
+            'edit' => $this->getEditFormSchema($configurator),
+            'create' => $this->getCreateFormSchema($configurator),
+            default => $this->getFormSchema($configurator),
+        };
+    }
+
+    #[Override]
+    protected function getMetaSchema(): array
+    {
+        return [
+            MediaLibraryFileUpload::make('image'),
+            Group::make()
+                ->schema([
+                    TextInput::make('company')
+                        ->label(__('capell-content-sections::form.company')),
+                    TextInput::make('position')
+                        ->label(__('capell-content-sections::form.position')),
+                ]),
+        ];
+    }
+
+    /**
+     * @return array<array-key, mixed>
+     */
+    protected function getCreateFormSchema(Schema $configurator): array
+    {
+        return [
+            Section::make()
+                ->columns()
+                ->schema(SettingsSchema::make($configurator)),
+            TranslationsRepeater::make($configurator),
+        ];
+    }
+
+    /**
+     * @return array<array-key, mixed>
+     */
+    protected function getCreateOptionFormSchema(Schema $configurator): array
+    {
+        return [
+            ...SettingsSchema::make($configurator),
+            TranslationsRepeater::make($configurator),
+            Grid::make()
+                ->statePath('meta')
+                ->schema($this->getMetaSchema()),
+        ];
+    }
+
+    /**
+     * @return array<array-key, mixed>
+     */
+    protected function getEditFormSchema(Schema $configurator): array
+    {
+        return [
+            FixedWidthSidebar::make()
+                ->mainSchema([
+                    TranslationsRepeater::make($configurator),
+                    Section::make()
+                        ->statePath('meta')
+                        ->columns()
+                        ->schema($this->getMetaSchema()),
+                ])
+                ->sidebarSchema([
+                    ...$this->publishPanel($configurator),
+                    Section::make()
+                        ->columns(1)
+                        ->schema([
+                            ...DetailsSchema::make($configurator),
+                            ...SettingsSchema::make($configurator),
+                        ]),
+                ]),
+        ];
+
+    }
+
+    /**
+     * @return array<array-key, mixed>
+     */
+    protected function getEditOptionFormSchema(Schema $configurator): array
+    {
+        return [
+            TranslationsRepeater::make($configurator),
+            Grid::make()
+                ->statePath('meta')
+                ->columnSpanFull()
+                ->schema($this->getMetaSchema()),
+            Section::make(__('capell-admin::generic.settings'))
+                ->collapsed()
+                ->compact()
+                ->icon(Heroicon::OutlinedCog6Tooth)
+                ->columns()
+                ->columnSpanFull()
+                ->schema([
+                    ...DetailsSchema::make($configurator),
+                    ...SettingsSchema::make($configurator),
+                    PublishSchema::make($configurator),
+                ]),
+        ];
+    }
+}

@@ -1,0 +1,221 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Capell\ContentSections\Filament\Resources\Sections;
+
+use BackedEnum;
+use Capell\Admin\Filament\Concerns\HasConfiguredForm;
+use Capell\Admin\Filament\Concerns\HasConfiguredTable;
+use Capell\Admin\Filament\Concerns\HasNavigationBadge;
+use Capell\ContentSections\Enums\ConfiguratorTypeEnum;
+use Capell\ContentSections\Enums\LayoutTypeEnum;
+use Capell\ContentSections\Filament\Resources\Sections\Pages\CreateSection;
+use Capell\ContentSections\Filament\Resources\Sections\Pages\EditSection;
+use Capell\ContentSections\Filament\Resources\Sections\Pages\ListSections;
+use Capell\ContentSections\Filament\Resources\Sections\RelationManagers\SectionAssetsRelationManager;
+use Capell\ContentSections\Filament\Resources\Sections\Schemas\SectionForm;
+use Capell\ContentSections\Filament\Resources\Sections\Tables\SectionsTable;
+use Capell\ContentSections\Filament\Resources\Sections\Widgets\SectionAlertsWidget;
+use Capell\ContentSections\Models\Section;
+use Capell\ContentSections\Providers\ContentSectionsServiceProvider;
+use Capell\ContentSections\Support\SectionSiteScope;
+use Capell\Core\Facades\CapellCore;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Tables\Table;
+use Filament\Widgets\Widget;
+use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\HtmlString;
+use Override;
+
+class SectionResource extends Resource
+{
+    use HasConfiguredForm;
+    use HasConfiguredTable;
+    use HasNavigationBadge;
+
+    protected static ?string $slug = 'content-sections/sections';
+
+    protected static ?string $recordTitleAttribute = 'name';
+
+    protected static bool $isGloballySearchable = true;
+
+    protected static string $formConfigurator = SectionForm::class;
+
+    protected static string $tableConfigurator = SectionsTable::class;
+
+    protected static ?int $navigationSort = 5;
+
+    #[Override]
+    public static function form(Schema $configurator): Schema
+    {
+        return static::getFormConfigurator()::configure($configurator);
+    }
+
+    #[Override]
+    public static function table(Table $table): Table
+    {
+        return static::getTableConfigurator()::configure($table);
+    }
+
+    #[Override]
+    public static function shouldRegisterNavigation(): bool
+    {
+        return CapellCore::getPackage(ContentSectionsServiceProvider::$packageName)->isInstalled();
+    }
+
+    public static function getResourceType(): ConfiguratorTypeEnum
+    {
+        return ConfiguratorTypeEnum::Section;
+    }
+
+    #[Override]
+    public static function getEloquentQuery(): Builder
+    {
+        return SectionSiteScope::applyForCurrentActor(
+            parent::getEloquentQuery()->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ]),
+            'sections.site_id',
+        );
+    }
+
+    #[Override]
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'translations.title'];
+    }
+
+    #[Override]
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return SectionSiteScope::applyForCurrentActor(parent::getGlobalSearchEloquentQuery(), 'sections.site_id')
+            ->with([
+                'site:id,name,default',
+                'blueprint:id,name',
+                'ancestors',
+            ]);
+    }
+
+    /** @return array<string, string> */
+    #[Override]
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        if (! $record instanceof Section) {
+            return [];
+        }
+
+        $details = [];
+
+        if ($record->title !== $record->name) {
+            $details[(string) __('capell-admin::generic.title')] = (string) $record->title;
+        }
+
+        if (($breadcrumb = self::buildGlobalSearchBreadcrumbs($record)) instanceof HtmlString) {
+            $details[(string) __('capell-admin::generic.breadcrumbs')] = $breadcrumb->toHtml();
+        }
+
+        return $details;
+    }
+
+    /**
+     * @return class-string<Section>
+     */
+    #[Override]
+    public static function getModel(): string
+    {
+        return Section::class;
+    }
+
+    #[Override]
+    public static function getNavigationGroup(): ?string
+    {
+        return (string) __('capell-admin::navigation.group_content');
+    }
+
+    #[Override]
+    public static function getNavigationParentItem(): ?string
+    {
+        return null;
+    }
+
+    #[Override]
+    public static function getNavigationLabel(): string
+    {
+        return (string) (__('capell-content-sections::navigation.sections'));
+    }
+
+    #[Override]
+    public static function getPages(): array
+    {
+        return [
+            'index' => ListSections::route('/'),
+            'create' => CreateSection::route('/create'),
+            'edit' => EditSection::route('/{record}/edit'),
+        ];
+    }
+
+    #[Override]
+    public static function getNavigationIcon(): string|BackedEnum|Htmlable|null
+    {
+        return CapellCore::getAsset(LayoutTypeEnum::Section->name)->getIcon();
+    }
+
+    #[Override]
+    public static function getActiveNavigationIcon(): string|BackedEnum|Htmlable|null
+    {
+        return CapellCore::getAsset(LayoutTypeEnum::Section->name)->getActiveIcon();
+    }
+
+    #[Override]
+    public static function getModelLabel(): string
+    {
+        return __('capell-content-sections::generic.section');
+    }
+
+    #[Override]
+    public static function getPluralModelLabel(): string
+    {
+        return __('capell-content-sections::generic.sections');
+    }
+
+    #[Override]
+    public static function getRelations(): array
+    {
+        return [
+            SectionAssetsRelationManager::class,
+        ];
+    }
+
+    /** @return array<class-string<Widget>> */
+    #[Override]
+    public static function getWidgets(): array
+    {
+        return [
+            SectionAlertsWidget::class,
+        ];
+    }
+
+    private static function buildGlobalSearchBreadcrumbs(Section $record): ?HtmlString
+    {
+        $breadcrumbs = [];
+
+        if ($record->site !== null && ! $record->site->default) {
+            $breadcrumbs[] = $record->site->name;
+        }
+
+        if ($record->ancestors->isNotEmpty()) {
+            $breadcrumbs[] = $record->ancestors->pluck('name')->implode(' &raquo; ');
+        }
+
+        if (filled($breadcrumbs)) {
+            return new HtmlString(implode(' &raquo; ', $breadcrumbs));
+        }
+
+        return null;
+    }
+}
