@@ -2,7 +2,7 @@
 
 <!-- prettier-ignore-start -->
 
-## What This Extension Adds
+## What This Plugin Adds
 
 Content Sections is an **Available**, **Schema-owning** Capell package in the **Capell Foundation** product group. It ships as `capell-app/content-sections` and extends these surfaces: admin, frontend.
 
@@ -29,6 +29,10 @@ Status details:
 
 Screenshot contract: `docs/screenshots.json`.
 
+![Reusable sections index](docs/screenshots/sections-index.png)
+
+![Create reusable section form](docs/screenshots/sections-create.png)
+
 - Reusable sections index (admin, required).
 - Create reusable section form (admin, required).
 - Edit reusable section with assets (admin, required).
@@ -45,7 +49,7 @@ Screenshot contract: `docs/screenshots.json`.
 - Livewire components: `AbstractAssets`, `SectionAssets`, `ModalTableSelect`.
 - Route files: `packages/content-sections/routes/web.php`.
 - Policies: `SectionPolicy`.
-- Actions: `BuildSectionAssetRenderDataAction`, `BuildSectionDemoDataAction`, `CancelScheduledSectionUnpublishAction`, `CloneSectionIntoWorkspaceAction`, `CreateContentAction`, `CreateHeroContentBlueprintAction`, `EnsureSectionBlueprintForKeyAction`, `FinalizeSectionPublishAction`, `ModifyContentSelectCreateAction`, `MutateContentDataBeforeFillAction`, `NormalizeSectionIconAction`, `RegisterDefaultSectionsAction`, `and 6 more`.
+- Actions: `BuildSectionAssetRenderDataAction`, `BuildSectionCreateFormDataAction`, `BuildSectionDemoDataAction`, `CancelScheduledSectionUnpublishAction`, `CloneSectionIntoWorkspaceAction`, `CreateHeroContentBlueprintAction`, `CreateSectionContentAction`, `EnsureSectionBlueprintForKeyAction`, `FinalizeSectionPublishAction`, `GetDefaultLanguageIdAction`, `ModifyContentSelectCreateAction`, `NormalizeSectionIconAction`, `and 7 more`.
 - Data objects: `SectionAssetRenderData`, `SectionDefinitionData`, `SectionVisibilityActionResultData`.
 - Manifest contributions: `admin-resource: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `asset: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `configurator: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `frontend-component: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `model: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `page-type: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `route: Capell\ContentSections\Manifest\ContentSectionsRoutesContribution`, `schema-extender: Capell\ContentSections\Manifest\ContentSectionsSchemaExtendersContribution`.
 - Health checks: `Capell\ContentSections\Health\ContentSectionsHealthCheck`.
