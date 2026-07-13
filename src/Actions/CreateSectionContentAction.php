@@ -34,7 +34,7 @@ class CreateSectionContentAction implements Actionable
      */
     public function handle(array $data): Section
     {
-        $translations = $data['translations'] ?? [];
+        $translations = $this->normalizeTranslations($data['translations'] ?? []);
         unset($data['translations']);
 
         if (! isset($data['name']) && isset($translations[0])) {
@@ -48,5 +48,38 @@ class CreateSectionContentAction implements Actionable
         }
 
         return $content;
+    }
+
+    /**
+     * @return list<array{language_id: int|string, title: string, content?: mixed}>
+     */
+    private function normalizeTranslations(mixed $translations): array
+    {
+        if (! is_array($translations)) {
+            return [];
+        }
+
+        $normalized = [];
+
+        foreach ($translations as $translation) {
+            if (! is_array($translation)) {
+                continue;
+            }
+
+            $languageId = $translation['language_id'] ?? null;
+            $title = $translation['title'] ?? null;
+
+            if ((! is_int($languageId) && ! is_string($languageId)) || ! is_string($title)) {
+                continue;
+            }
+
+            $normalized[] = [
+                'language_id' => $languageId,
+                'title' => $title,
+                'content' => $translation['content'] ?? null,
+            ];
+        }
+
+        return $normalized;
     }
 }

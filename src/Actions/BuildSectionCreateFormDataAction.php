@@ -28,12 +28,15 @@ class BuildSectionCreateFormDataAction implements Actionable
         $data['blueprint_id'] = ResolveRequestedSectionBlueprintAction::run($data)?->getKey()
             ?? ResolveRequestedSectionBlueprintAction::make()->defaultBlueprint()->getKey();
 
-        $data['translations'] = $site?->translations->mapWithKeys(fn (Translation $translation): array => [
+        $translations = $site instanceof Site
+            ? $site->translations()->get()
+            : collect();
+
+        $data['translations'] = $translations->mapWithKeys(fn (Translation $translation): array => [
             (string) Str::uuid() => [
                 'language_id' => $translation->language_id,
             ],
-        ])
-            ->all();
+        ])->all();
 
         return $data;
     }

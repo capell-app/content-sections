@@ -81,8 +81,9 @@ it('labels persisted content section action and divider options through enums', 
 });
 
 it('builds section asset render data from preloaded relations and plain objects', function (): void {
-    app()->bind(FrontendComponentRegistryInterface::class, function (): object {
-        return new class implements FrontendComponentRegistryInterface
+    app()->instance(
+        FrontendComponentRegistryInterface::class,
+        new class implements FrontendComponentRegistryInterface
         {
             public function register(string $key, string $component, array $aliases = [], array $props = []): static
             {
@@ -115,8 +116,8 @@ it('builds section asset render data from preloaded relations and plain objects'
                     'section.widget' => new FrontendComponentData(key: 'section.widget', component: 'resolved-section.widget'),
                 ]);
             }
-        };
-    });
+        },
+    );
 
     $translation = new class
     {

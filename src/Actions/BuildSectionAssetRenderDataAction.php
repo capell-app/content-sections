@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\ContentSections\Actions;
 
 use Capell\ContentSections\Data\SectionAssetRenderData;
+use Capell\Core\Models\Contracts\Blueprintable;
 use Capell\Frontend\Contracts\FrontendComponentRegistryInterface;
 use Illuminate\Database\Eloquent\Model;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -28,23 +29,27 @@ final class BuildSectionAssetRenderDataAction
             : null;
         $summary = is_object($translation) ? data_get($translation, 'summary') : null;
         $title = is_object($translation) ? data_get($translation, 'label') : null;
+        $meta = data_get($asset, 'meta');
+        $meta = is_array($meta) ? $meta : [];
 
         return new SectionAssetRenderData(
             componentItem: $this->resolveComponentItem($componentItem),
             image: $withImage ? $this->image($asset) : null,
             linkText: is_string($linkText) ? $linkText : null,
-            meta: is_array(data_get($asset, 'meta')) ? data_get($asset, 'meta') : [],
+            meta: $meta,
             summary: $withSummary && is_string($summary) ? $summary : null,
             title: is_string($title) ? $title : null,
             url: $withUrl ? $this->url($asset) : null,
-            color: method_exists($asset, 'getMeta') ? $asset->getMeta('color') : null,
-            icon: method_exists($asset, 'getMeta') ? NormalizeSectionIconAction::run($asset->getMeta('icon')) : null,
+            color: $this->metaValue($asset, $meta, 'color'),
+            icon: NormalizeSectionIconAction::run($this->metaValue($asset, $meta, 'icon')),
         );
     }
 
     private function resolveComponentItem(string $componentItem): string
     {
-        if (! interface_exists(FrontendComponentRegistryInterface::class) || ! app()->bound(FrontendComponentRegistryInterface::class)) {
+        if (! interface_exists(FrontendComponentRegistryInterface::class)
+            || ! app()->bound(FrontendComponentRegistryInterface::class)
+            || ! app()->resolved(FrontendComponentRegistryInterface::class)) {
             return $componentItem;
         }
 
@@ -93,5 +98,16 @@ final class BuildSectionAssetRenderDataAction
         }
 
         return data_get($object, $key);
+    }
+
+    /** @param array<array-key, mixed> $meta */
+    private function metaValue(object $asset, array $meta, string $key): mixed
+    {
+        if (method_exists($asset, 'getMeta')
+            && (! $asset instanceof Blueprintable || ! $asset instanceof Model || $asset->relationLoaded('blueprint'))) {
+            return $asset->getMeta($key);
+        }
+
+        return $meta[$key] ?? null;
     }
 }
