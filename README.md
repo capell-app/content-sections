@@ -2,7 +2,7 @@
 
 <!-- prettier-ignore-start -->
 
-## What This Extension Adds
+## What This Plugin Adds
 
 Content Sections is an **Available**, **Schema-owning** Capell package in the **Capell Foundation** product group. It ships as `capell-app/content-sections` and extends these surfaces: admin, frontend.
 
@@ -45,8 +45,8 @@ Screenshot contract: `docs/screenshots.json`.
 - Livewire components: `AbstractAssets`, `SectionAssets`, `ModalTableSelect`.
 - Route files: `packages/content-sections/routes/web.php`.
 - Policies: `SectionPolicy`.
-- Actions: `BuildSectionAssetRenderDataAction`, `BuildSectionDemoDataAction`, `CancelScheduledSectionUnpublishAction`, `CloneSectionIntoWorkspaceAction`, `CreateContentAction`, `CreateHeroContentBlueprintAction`, `EnsureSectionBlueprintForKeyAction`, `FinalizeSectionPublishAction`, `ModifyContentSelectCreateAction`, `MutateContentDataBeforeFillAction`, `NormalizeSectionIconAction`, `RegisterDefaultSectionsAction`, `and 6 more`.
-- Data objects: `SectionAssetRenderData`, `SectionDefinitionData`, `SectionVisibilityActionResultData`.
+- Actions: `BuildSectionAssetRenderDataAction`, `BuildSectionCreateFormDataAction`, `BuildSectionDemoDataAction`, `CancelScheduledSectionUnpublishAction`, `CloneSectionIntoWorkspaceAction`, `CreateHeroContentBlueprintAction`, `CreateSectionContentAction`, `EnsureSectionBlueprintForKeyAction`, `FinalizeSectionPublishAction`, `GetDefaultLanguageIdAction`, `ModifyContentSelectCreateAction`, `NormalizeSectionIconAction`, `and 7 more`.
+- Data objects: `SectionAssetRenderData`, `SectionDefinitionData`, `SectionPublicRenderData`, `SectionVisibilityActionResultData`.
 - Manifest contributions: `admin-resource: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `asset: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `configurator: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `frontend-component: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `model: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `page-type: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `route: Capell\ContentSections\Manifest\ContentSectionsRoutesContribution`, `schema-extender: Capell\ContentSections\Manifest\ContentSectionsSchemaExtendersContribution`.
 - Health checks: `Capell\ContentSections\Health\ContentSectionsHealthCheck`.
 - Blade views: `packages/content-sections/resources/views/components/section/asset.blade.php`, `packages/content-sections/resources/views/components/section/team-member.blade.php`, `packages/content-sections/resources/views/components/section/widget.blade.php`, `packages/content-sections/resources/views/livewire/filament/widgets-table-select.blade.php`, `packages/content-sections/resources/views/screenshots/section-selector-modal.blade.php`, `packages/content-sections/resources/views/screenshots/section-widget-gallery.blade.php`, `packages/content-sections/resources/views/section/demo.blade.php`.
