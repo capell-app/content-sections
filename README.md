@@ -29,6 +29,10 @@ Status details:
 
 Screenshot contract: `docs/screenshots.json`.
 
+![Reusable sections index](docs/screenshots/sections-index.png)
+
+![Create reusable section form](docs/screenshots/sections-create.png)
+
 - Reusable sections index (admin, required).
 - Create reusable section form (admin, required).
 - Edit reusable section with assets (admin, required).
