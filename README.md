@@ -6,9 +6,11 @@
 
 Content Sections is an **Available**, **Schema-owning** Capell package in the **Capell Foundation** product group. It ships as `capell-app/content-sections` and extends these surfaces: admin, frontend.
 
-Seventeen ready-to-use, themeable page sections - hero, FAQ, pricing, stats, testimonials, team, comparison, timeline and more - that editors reuse across pages and developers render through safe, package-owned Blade. Bundled free with Capell Foundation.
+Content Sections adds reusable, publishable section records backed by registered blueprints and package-owned rendering components.
 
-After install, admins get package-owned management surfaces and public users may see package-owned frontend output or routes.
+Editors create and publish shared sections in the admin and select them from other content surfaces; public pages receive the rendered section without admin metadata.
+
+Evidence: [`capell.json`](capell.json), [`src/Models/Section.php`](src/Models/Section.php), [`src/Actions/RegisterDefaultSectionsAction.php`](src/Actions/RegisterDefaultSectionsAction.php), [`src/Providers/ContentSectionsServiceProvider.php`](src/Providers/ContentSectionsServiceProvider.php), [`docs/overview.admin.md`](docs/overview.admin.md), [`docs/screenshots.json`](docs/screenshots.json), [`tests/Feature/Filament/Resources/Section/SectionResourceTest.php`](tests/Feature/Filament/Resources/Section/SectionResourceTest.php), [`tests/Feature/SectionPublicOutputSanitisationTest.php`](tests/Feature/SectionPublicOutputSanitisationTest.php).
 
 Status details:
 
@@ -21,9 +23,11 @@ Status details:
 
 ## Why It Matters
 
-**For developers:** The package gives developers package-owned service providers, Actions, Data objects, models, Laravel routes, Filament classes, and Blade views instead of pushing this behaviour into core or application code.
+**For developers:** Section definitions are registered through a provider contract and resolved by Actions, so new section types can be added without placing queries or presentation logic in public views.
 
-**For teams:** Seventeen ready-to-use, themeable page sections - hero, FAQ, pricing, stats, testimonials, team, comparison, timeline and more - that editors reuse across pages and developers render through safe, package-owned Blade. Bundled free with Capell Foundation.
+**For teams:** Teams can maintain repeated content in one section and reuse it across pages while preserving a controlled publishing workflow.
+
+Evidence: [`src/Contracts/SectionDefinitionProvider.php`](src/Contracts/SectionDefinitionProvider.php), [`src/Support/SectionRegistry.php`](src/Support/SectionRegistry.php), [`src/Actions/ResolveSectionComponentAction.php`](src/Actions/ResolveSectionComponentAction.php), [`tests/Feature/SectionRenderingTest.php`](tests/Feature/SectionRenderingTest.php), [`docs/admin-guide.md`](docs/admin-guide.md), [`src/Actions/FinalizeSectionPublishAction.php`](src/Actions/FinalizeSectionPublishAction.php), [`tests/Feature/Publishing/SectionWorkspacePublishTest.php`](tests/Feature/Publishing/SectionWorkspacePublishTest.php).
 
 ## Screens And Workflow
 
@@ -49,6 +53,7 @@ Screenshot contract: `docs/screenshots.json`.
 - Livewire components: `AbstractAssets`, `SectionAssets`, `ModalTableSelect`.
 - Route files: `packages/content-sections/routes/web.php`.
 - Policies: `SectionPolicy`.
+- Extension contracts: `SectionDefinitionProvider`.
 - Actions: `BuildSectionAssetRenderDataAction`, `BuildSectionCreateFormDataAction`, `BuildSectionDemoDataAction`, `CancelScheduledSectionUnpublishAction`, `CloneSectionIntoWorkspaceAction`, `CreateHeroContentBlueprintAction`, `CreateSectionContentAction`, `EnsureSectionBlueprintForKeyAction`, `FinalizeSectionPublishAction`, `GetDefaultLanguageIdAction`, `ModifyContentSelectCreateAction`, `NormalizeSectionIconAction`, `and 7 more`.
 - Data objects: `SectionAssetRenderData`, `SectionDefinitionData`, `SectionPublicRenderData`, `SectionVisibilityActionResultData`.
 - Manifest contributions: `admin-resource: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `asset: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `configurator: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `frontend-component: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `model: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `page-type: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`, `route: Capell\ContentSections\Manifest\ContentSectionsRoutesContribution`, `schema-extender: Capell\ContentSections\Manifest\ContentSectionsSchemaExtendersContribution`.
@@ -60,27 +65,33 @@ Screenshot contract: `docs/screenshots.json`.
 
 - Required tables: `sections`.
 - Models: `ComposhipsJsonRelationshipsTrait`, `Section`.
+- Core record references in migrations: `sites via site_id`, `pages via page_id`.
 - Migration files: `2026_05_10_190844_01_create_sections_table.php`.
 - Migration impact: run host migrations through the package install flow before opening package surfaces.
-- Deletion/retention behaviour: Docs gap unless the package has an explicit pruning command, retention setting, or tested cascade path.
+- Deletion/retention behaviour: migrations declare cascade-on-delete relationships; no timed pruning or retention schedule is declared in `capell.json`.
 
 ## Install Impact
 
-- Admin navigation: adds package-owned Filament classes when registered.
+- Required packages: `capell-app/admin`, `capell-app/block-library`, `capell-app/core`, `capell-app/frontend`, `capell-app/layout-builder`.
+- Admin navigation: declares `admin-resource: ContentSectionsPackageContribution`; each Filament page or resource controls its own navigation visibility.
+- Admin/editor extensions: `configurator: ContentSectionsPackageContribution`, `schema-extender: ContentSectionsSchemaExtendersContribution`.
 - Permissions: `ViewAny:Section`, `View:Section`, `Create:Section`, `Update:Section`, `Delete:Section`, `DeleteAny:Section`, `Restore:Section`, `RestoreAny:Section`, `ForceDelete:Section`, `ForceDeleteAny:Section`, `Replicate:Section`, `Reorder:Section`.
-- Public routes: route files exist and must be reviewed before public enablement.
+- Public routes: loads `routes/web.php`; registers `ContentSectionsRoutesContribution`.
 - Database changes: package migrations are declared.
+- Config: `config/capell-content-sections.php`.
 - Settings: no package settings declared.
-- Queues or schedules: none detected in standard package paths.
+- Queues or schedules: none declared.
 - Cache tags: `content-sections`.
 - Commands: none declared.
 
 ## Common Pitfalls
 
+- Keep required Capell packages on compatible v4 releases: `capell-app/admin`, `capell-app/block-library`, `capell-app/core`, `capell-app/frontend`, `capell-app/layout-builder`.
 - Run migrations before opening package resources or public routes.
-- Review route middleware, throttling, signed URLs, and public-output safety before exposing routes.
+- Review package configuration before production-like verification: `config/capell-content-sections.php`.
+- Review middleware, throttling, signatures, and public-output safety in `routes/web.php` before exposing routes.
 - Keep public Blade and cached HTML free of authoring markers, model IDs, permissions, signed editor URLs, and lazy database queries.
-- Keep `composer.json`, `composer.local.json`, `capell.json`, docs, screenshots, and tests aligned when the package surface changes.
+- Custom write integrations must preserve invalidation for `content-sections` cache tags.
 
 ## Troubleshooting
 
@@ -95,12 +106,15 @@ Screenshot contract: `docs/screenshots.json`.
 
 1. Install the package: `composer require capell-app/content-sections`.
 2. Run the required setup: `php artisan migrate`.
-3. Open the related Capell admin surface and verify Content Sections appears.
+3. Open the Reusable sections index and confirm the admin workflow loads.
 
 ## Next Steps
 
 - [Package docs](docs/README.md)
 - [Overview](docs/overview.md)
+- [Admin guide](docs/admin-guide.md)
+- Configuration files: [`config/capell-content-sections.php`](config/capell-content-sections.php).
+- [Troubleshooting](#troubleshooting)
 - [Screenshot contract](docs/screenshots.json)
 - [Marketplace assets](docs/assets/marketplace/)
 - [Capell content language plan](../../docs/CONTENT_LANGUAGE_PLAN.md)

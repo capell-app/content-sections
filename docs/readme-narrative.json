@@ -1,0 +1,39 @@
+{
+    "whatThisPluginAdds": {
+        "text": "Content Sections adds reusable, publishable section records backed by registered blueprints and package-owned rendering components.",
+        "evidence": [
+            "capell.json",
+            "src/Models/Section.php",
+            "src/Actions/RegisterDefaultSectionsAction.php",
+            "src/Providers/ContentSectionsServiceProvider.php"
+        ]
+    },
+    "surfaceOutcome": {
+        "text": "Editors create and publish shared sections in the admin and select them from other content surfaces; public pages receive the rendered section without admin metadata.",
+        "evidence": [
+            "docs/overview.admin.md",
+            "docs/screenshots.json",
+            "tests/Feature/Filament/Resources/Section/SectionResourceTest.php",
+            "tests/Feature/SectionPublicOutputSanitisationTest.php"
+        ]
+    },
+    "whyItMatters": {
+        "developers": {
+            "text": "Section definitions are registered through a provider contract and resolved by Actions, so new section types can be added without placing queries or presentation logic in public views.",
+            "evidence": [
+                "src/Contracts/SectionDefinitionProvider.php",
+                "src/Support/SectionRegistry.php",
+                "src/Actions/ResolveSectionComponentAction.php",
+                "tests/Feature/SectionRenderingTest.php"
+            ]
+        },
+        "teams": {
+            "text": "Teams can maintain repeated content in one section and reuse it across pages while preserving a controlled publishing workflow.",
+            "evidence": [
+                "docs/admin-guide.md",
+                "src/Actions/FinalizeSectionPublishAction.php",
+                "tests/Feature/Publishing/SectionWorkspacePublishTest.php"
+            ]
+        }
+    }
+}
