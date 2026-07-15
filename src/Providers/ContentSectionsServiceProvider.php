@@ -44,6 +44,7 @@ use Composer\InstalledVersions;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Livewire;
 use Override;
@@ -335,7 +336,7 @@ final class ContentSectionsServiceProvider extends AbstractPackageServiceProvide
             }
         });
 
-        Section::deleted(function (Section $section): void {
+        Event::listen('eloquent.deleted: ' . Section::class, function (Section $section): void {
             $action = self::ADMIN_DELETED_MODEL_ACTION;
 
             if (class_exists($action)) {
