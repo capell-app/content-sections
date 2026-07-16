@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Capell\ContentSections\Actions;
 
 use Capell\ContentSections\Support\SectionRegistry;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class ResolveSectionComponentAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(?string $configurator, string $fallbackComponent): string

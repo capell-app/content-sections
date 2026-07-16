@@ -6,6 +6,7 @@ namespace Capell\ContentSections\Actions;
 
 use Capell\ContentSections\Enums\LayoutTypeEnum;
 use Capell\Core\Models\Blueprint;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -13,6 +14,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 class ResolveRequestedSectionBlueprintAction
 {
+    use AsFake;
     use AsObject;
 
     /**

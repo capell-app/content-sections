@@ -7,14 +7,16 @@ namespace Capell\ContentSections\Actions;
 use Capell\ContentSections\Models\Section;
 use Capell\LayoutBuilder\Contracts\WidgetAssetReferenceRepointer;
 use Illuminate\Database\Eloquent\Model;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\AsFake;
+use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
  * @method static Model run(Model $record)
  */
 final class FinalizeSectionPublishAction
 {
-    use AsAction;
+    use AsFake;
+    use AsObject;
 
     public function handle(Model $record): Model
     {

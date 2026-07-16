@@ -6,6 +6,7 @@ namespace Capell\ContentSections\Actions;
 
 use Capell\ContentSections\Models\Section;
 use Capell\Core\Contracts\Actionable;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -13,6 +14,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 class CreateSectionContentAction implements Actionable
 {
+    use AsFake;
     use AsObject;
 
     /**

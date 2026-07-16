@@ -6,6 +6,7 @@ namespace Capell\ContentSections\Actions;
 
 use Capell\ContentSections\Models\Section;
 use Carbon\CarbonImmutable;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -13,6 +14,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 class ReplicateContentAction
 {
+    use AsFake;
     use AsObject;
 
     /**

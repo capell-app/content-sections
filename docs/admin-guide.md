@@ -6,11 +6,11 @@ This guide is for editors who build reusable sections and owners deciding when t
 
 ### How to build a reusable section
 
-1. Go to **Sections**.
+1. Go to **Content > Sections**.
 2. Click to create a new section and give it a clear name (for example "Newsletter call to action").
 3. Choose the section blueprint that controls the available fields.
 4. Add your blocks, text, and images.
-5. Save the section. It is now in your **Section library**.
+5. Set its site and visibility dates as needed, then save. A section is available to other content surfaces, while its public output follows its publishing and visibility state.
 
 ![Review reusable sections before choosing which shared content block to update.](screenshots/sections-index.png)
 
@@ -25,9 +25,9 @@ This guide is for editors who build reusable sections and owners deciding when t
 
 ### How to edit once and update everywhere
 
-1. Go to **Sections** and open the section.
-2. Make your change and save.
-3. Every page that uses that section now shows the update. You do not edit each page separately.
+1. Go to **Content > Sections** and open the section.
+2. Make your change, confirm its visibility dates still allow it to be published, and save.
+3. Public pages that resolve the section use the current published section content. You do not edit each use separately.
 
 ![Update shared section copy and check which widget assets are attached before saving.](screenshots/sections-edit-with-assets.png)
 
@@ -52,13 +52,13 @@ This guide is for editors who build reusable sections and owners deciding when t
 
 | Role       | First useful screen                                       |
 | ---------- | --------------------------------------------------------- |
-| Editor     | **Sections**: build and edit reusable sections            |
-| Site owner | The **Sections** list: see what is shared across the site |
+| Editor     | **Content > Sections**: build and edit reusable sections            |
+| Site owner | The **Content > Sections** list: see what is shared across the site |
 
 ## Troubleshooting for editors
 
 | What you see                                          | What it means                                              | What to do                                                                                    |
 | ----------------------------------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| I changed a section and it changed on other pages too | That is by design. A section updates everywhere it is used | Check where a section appears before editing, or make a separate section for the one-off case |
-| I can't find the section to insert                    | It wasn't saved, or its name is unclear                    | Open **Sections** to confirm it exists, and rename it clearly                                 |
-| The section looks empty on a page                     | It has no blocks yet, or the page cache is stale           | Add content in the section editor, save, and clear the page cache if needed                   |
+| I changed a section and it changed on other pages too | That is by design for pages that resolve the published section | Check where a section appears before editing, or make a separate section for the one-off case |
+| I can't find the section to insert                    | It was not saved, is outside the current site scope, or its name is unclear | Open **Content > Sections** to confirm it exists and is available in the right site scope |
+| The section looks empty on a page                     | It has no configured content, is outside its visibility window, or the page cache is stale | Add content, check visibility dates, save, and clear the page cache if needed |

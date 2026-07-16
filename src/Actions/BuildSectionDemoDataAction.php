@@ -7,6 +7,7 @@ namespace Capell\ContentSections\Actions;
 use Capell\ContentSections\Data\SectionDefinitionData;
 use Capell\ContentSections\Support\SectionRegistry;
 use InvalidArgumentException;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 use stdClass;
 
@@ -15,6 +16,7 @@ use stdClass;
  */
 class BuildSectionDemoDataAction
 {
+    use AsFake;
     use AsObject;
 
     /**

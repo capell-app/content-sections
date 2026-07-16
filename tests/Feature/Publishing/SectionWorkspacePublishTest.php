@@ -105,14 +105,16 @@ it('publishes section drafts through publisher with revisions media and site wid
     expect(ListPublishingRevisionsAction::run($live))->toBeEmpty();
 
     $result = SaveRecordDraftAction::run($live, ['name' => 'Published reusable section'], $user);
+    $draftSection = publishingStudioTestInstance($result->record, Section::class);
 
-    expect($result->record->getAttribute('uuid'))->toBe($uuid)
-        ->and($result->record->media()->where('collection_name', MediaCollectionEnum::Image->value)->count())->toBe(1)
+    expect($draftSection->getAttribute('uuid'))->toBe($uuid)
+        ->and($draftSection->media()->where('collection_name', MediaCollectionEnum::Image->value)->count())->toBe(1)
         ->and($live->fresh()->name)->toBe('Live reusable section');
 
     $result->workspace->update(['status' => WorkspaceStatusEnum::Approved]);
 
-    resolve(Publisher::class)->publish($result->workspace->fresh(), $user, bypassWindow: true);
+    $freshWorkspace = publishingStudioTestInstance($result->workspace->fresh(), Workspace::class);
+    resolve(Publisher::class)->publish($freshWorkspace, $user, bypassWindow: true);
 
     $published = Section::query()
         ->withoutGlobalScopes()

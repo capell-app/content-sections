@@ -8,9 +8,10 @@ Start at the [package README](../README.md) when deciding whether to install thi
 
 | Doc                     | Use it for                                                                                        |
 | ----------------------- | ------------------------------------------------------------------------------------------------- |
+| [Admin Guide](admin-guide.md) | Create and manage reusable content sections in the editor.                                  |
 | [Overview](overview.md) | Package workflow, runtime surfaces, install notes, verification, and public-rendering boundaries. |
 
-## Read Next
+## Next
 
 | Related doc                                             | Why                                                   |
 | ------------------------------------------------------- | ----------------------------------------------------- |

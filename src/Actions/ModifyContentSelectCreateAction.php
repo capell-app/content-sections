@@ -14,6 +14,7 @@ use Filament\Forms\Components\Select;
 use Filament\Support\Enums\Width;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Str;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -21,6 +22,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 class ModifyContentSelectCreateAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(Select $select): Select

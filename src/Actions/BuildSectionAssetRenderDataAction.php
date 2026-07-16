@@ -8,10 +8,12 @@ use Capell\ContentSections\Data\SectionAssetRenderData;
 use Capell\Core\Models\Contracts\Blueprintable;
 use Capell\Frontend\Contracts\FrontendComponentRegistryInterface;
 use Illuminate\Database\Eloquent\Model;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 final class BuildSectionAssetRenderDataAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(

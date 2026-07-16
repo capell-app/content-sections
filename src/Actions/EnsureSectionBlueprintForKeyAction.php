@@ -10,6 +10,7 @@ use Capell\ContentSections\Enums\LayoutTypeEnum;
 use Capell\ContentSections\Support\SectionRegistry;
 use Capell\Core\Models\Blueprint;
 use InvalidArgumentException;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -17,6 +18,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 class EnsureSectionBlueprintForKeyAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(string $key): Blueprint

@@ -1,6 +1,6 @@
 ## What it does for you
 
-Content Sections lets you design a block of content once, save it, and drop it into any page. Edit the section in one place and every page that uses it updates automatically. It is the way to keep repeated content, like a call-to-action or a feature list, consistent across your site.
+Content Sections lets you design reusable, publishable content once and select it from other content surfaces. Edit the current published section in one place and pages that resolve it receive that content, helping repeated calls to action or feature lists stay consistent.
 
 ## Your screens
 
@@ -17,10 +17,10 @@ Content Sections lets you design a block of content once, save it, and drop it i
 
 ## Where to find it
 
-Go to **Sections** in the admin to build and manage sections. Insert them from the **Section library** while editing a page.
+Go to **Content > Sections** in the admin to build and manage sections. Select them from supported content surfaces while editing a page.
 
 ## Good to know
 
 - Design a section once, then drop it into any page.
-- Editing a section updates it everywhere it is used, so check where it appears before you change it.
+- Published section content is resolved wherever the section is used, so check its visibility dates and where it appears before changing it.
 - Give each section a clear name so the right one is easy to pick.

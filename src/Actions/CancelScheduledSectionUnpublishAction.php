@@ -9,10 +9,12 @@ use Capell\ContentSections\Models\Section;
 use Capell\Frontend\Support\Cache\CacheInvalidationRegistry;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Gate;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 final class CancelScheduledSectionUnpublishAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(Section $section, User $actor): SectionVisibilityActionResultData

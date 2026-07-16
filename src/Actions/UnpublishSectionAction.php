@@ -10,10 +10,12 @@ use Capell\Frontend\Support\Cache\CacheInvalidationRegistry;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Gate;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 final class UnpublishSectionAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(Section $section, User $actor): SectionVisibilityActionResultData

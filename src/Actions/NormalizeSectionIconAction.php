@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Capell\ContentSections\Actions;
 
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 final class NormalizeSectionIconAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(mixed $icon): ?string

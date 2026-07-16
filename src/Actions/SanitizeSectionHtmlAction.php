@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\ContentSections\Actions;
 
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizer;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
@@ -19,6 +20,7 @@ use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
  */
 class SanitizeSectionHtmlAction
 {
+    use AsFake;
     use AsObject;
 
     private static ?HtmlSanitizer $sanitizer = null;

@@ -12,7 +12,8 @@ use Capell\Core\Models\Translation;
 use Capell\PublishingStudio\Models\Workspace;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\AsFake;
+use Lorisleiva\Actions\Concerns\AsObject;
 use RuntimeException;
 
 /**
@@ -20,7 +21,8 @@ use RuntimeException;
  */
 final class CloneSectionIntoWorkspaceAction
 {
-    use AsAction;
+    use AsFake;
+    use AsObject;
 
     public function handle(Model $source, Workspace $workspace): Model
     {

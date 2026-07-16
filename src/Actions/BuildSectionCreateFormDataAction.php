@@ -8,6 +8,7 @@ use Capell\Core\Contracts\Actionable;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Illuminate\Support\Str;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -15,6 +16,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 class BuildSectionCreateFormDataAction implements Actionable
 {
+    use AsFake;
     use AsObject;
 
     /**

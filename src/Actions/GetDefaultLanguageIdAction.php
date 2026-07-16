@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\ContentSections\Actions;
 
 use Capell\Core\Models\Language;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -15,6 +16,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 class GetDefaultLanguageIdAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(): ?int

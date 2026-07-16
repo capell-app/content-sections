@@ -6,10 +6,12 @@ namespace Capell\ContentSections\Actions;
 
 use Capell\ContentSections\Support\DefaultSectionDefinitionProvider;
 use Capell\ContentSections\Support\SectionRegistry;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class RegisterDefaultSectionsAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(SectionRegistry $registry): void
