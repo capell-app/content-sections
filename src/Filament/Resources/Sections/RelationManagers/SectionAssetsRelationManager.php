@@ -66,7 +66,7 @@ class SectionAssetsRelationManager extends RelationManager
                     ->badge(),
             ])
             ->recordUrl(
-                fn (AssetAttachment $record): string => GetAssetResourceUrlAction::run($record->asset_type, $record->asset),
+                fn (AssetAttachment $record): ?string => GetAssetResourceUrlAction::run($record->asset_type, $record->asset),
             )
             ->filters([
                 SelectFilter::make('asset_type')

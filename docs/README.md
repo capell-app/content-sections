@@ -6,10 +6,10 @@ Start at the [package README](../README.md) when deciding whether to install thi
 
 ## Guides
 
-| Doc                     | Use it for                                                                                        |
-| ----------------------- | ------------------------------------------------------------------------------------------------- |
-| [Admin Guide](admin-guide.md) | Create and manage reusable content sections in the editor.                                  |
-| [Overview](overview.md) | Package workflow, runtime surfaces, install notes, verification, and public-rendering boundaries. |
+| Doc                           | Use it for                                                                                        |
+| ----------------------------- | ------------------------------------------------------------------------------------------------- |
+| [Admin Guide](admin-guide.md) | Create and manage reusable content sections in the editor.                                        |
+| [Overview](overview.md)       | Package workflow, runtime surfaces, install notes, verification, and public-rendering boundaries. |
 
 ## Next
 

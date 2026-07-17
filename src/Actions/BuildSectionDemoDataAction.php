@@ -20,7 +20,7 @@ class BuildSectionDemoDataAction
     use AsObject;
 
     /**
-     * @return array<array-key, mixed>
+     * @return array{definition: SectionDefinitionData, asset: stdClass, title: string, summary: string, meta: array<string, mixed>, linkText: string|null, url: string|null}
      */
     public function handle(string $key): array
     {
@@ -82,7 +82,7 @@ class BuildSectionDemoDataAction
     }
 
     /**
-     * @return array<array-key, mixed>
+     * @return array<string, mixed>
      */
     private function meta(string $key): array
     {

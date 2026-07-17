@@ -27,8 +27,9 @@ class BuildSectionCreateFormDataAction implements Actionable
     {
         $site = Site::getDefault();
 
-        $data['blueprint_id'] = ResolveRequestedSectionBlueprintAction::run($data)?->getKey()
-            ?? ResolveRequestedSectionBlueprintAction::make()->defaultBlueprint()->getKey();
+        $blueprint = ResolveRequestedSectionBlueprintAction::run($data)
+            ?? ResolveRequestedSectionBlueprintAction::make()->defaultBlueprint();
+        $data['blueprint_id'] = $blueprint->getKey();
 
         $translations = $site instanceof Site
             ? $site->translations()->get()

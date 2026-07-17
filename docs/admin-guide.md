@@ -50,15 +50,15 @@ This guide is for editors who build reusable sections and owners deciding when t
 
 ### Who does what
 
-| Role       | First useful screen                                       |
-| ---------- | --------------------------------------------------------- |
+| Role       | First useful screen                                                 |
+| ---------- | ------------------------------------------------------------------- |
 | Editor     | **Content > Sections**: build and edit reusable sections            |
 | Site owner | The **Content > Sections** list: see what is shared across the site |
 
 ## Troubleshooting for editors
 
-| What you see                                          | What it means                                              | What to do                                                                                    |
-| ----------------------------------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| I changed a section and it changed on other pages too | That is by design for pages that resolve the published section | Check where a section appears before editing, or make a separate section for the one-off case |
-| I can't find the section to insert                    | It was not saved, is outside the current site scope, or its name is unclear | Open **Content > Sections** to confirm it exists and is available in the right site scope |
-| The section looks empty on a page                     | It has no configured content, is outside its visibility window, or the page cache is stale | Add content, check visibility dates, save, and clear the page cache if needed |
+| What you see                                          | What it means                                                                              | What to do                                                                                    |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| I changed a section and it changed on other pages too | That is by design for pages that resolve the published section                             | Check where a section appears before editing, or make a separate section for the one-off case |
+| I can't find the section to insert                    | It was not saved, is outside the current site scope, or its name is unclear                | Open **Content > Sections** to confirm it exists and is available in the right site scope     |
+| The section looks empty on a page                     | It has no configured content, is outside its visibility window, or the page cache is stale | Add content, check visibility dates, save, and clear the page cache if needed                 |

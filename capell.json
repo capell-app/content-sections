@@ -127,11 +127,8 @@
     "security": {
         "riskTier": "standard",
         "publicSurface": {
-            "routeNames": [
-                "capell-content-sections.screenshot-fixtures.section-selector-modal",
-                "capell-content-sections.screenshot-fixtures.section-widget-gallery"
-            ],
-            "auth": "public",
+            "routeNames": [],
+            "auth": "none",
             "csrfExemptRoutes": [],
             "signedRoutes": [],
             "tokenizedRoutes": [],
