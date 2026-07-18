@@ -87,20 +87,12 @@ final class ContentSectionsServiceProvider extends AbstractPackageServiceProvide
 
     public function registeringPackage(): void
     {
+        parent::registeringPackage();
+
         $this->app->booting(function (): void {
             if ($this->isPackageInstalled()) {
                 $this->registerResources();
             }
-        });
-
-        $this->app->booted(function (): void {
-            $this->registerLivewireComponents();
-
-            if (! $this->isPackageInstalled()) {
-                return;
-            }
-
-            $this->bootInstalledPackage();
         });
     }
 
@@ -122,9 +114,11 @@ final class ContentSectionsServiceProvider extends AbstractPackageServiceProvide
         return version_compare($version, '0.0.0', '<');
     }
 
-    private function bootInstalledPackage(): self
+    #[Override]
+    protected function bootInstalledPackage(): self
     {
         return $this
+            ->registerPackageLivewireComponents()
             ->registerModels()
             ->registerPolicies()
             ->registerSectionRegistry()
@@ -347,7 +341,7 @@ final class ContentSectionsServiceProvider extends AbstractPackageServiceProvide
         return $this;
     }
 
-    private function registerLivewireComponents(): self
+    private function registerPackageLivewireComponents(): self
     {
         if (! $this->isLivewireV3()) {
             Livewire::addNamespace(
