@@ -284,7 +284,11 @@ it('declares content sections manifest surfaces accurately', function (): void {
             'extends' => 'section configurator meta schemas',
         ])
         ->and(class_implements(ContentSectionsSchemaExtendersContribution::class))->toContain(ExtensionContribution::class)
-        ->and($routeContribution['routes'])->toBe($security['publicSurface']['routeNames'])
+        ->and($routeContribution['routes'])->toBe([
+            'capell-content-sections.screenshot-fixtures.section-selector-modal',
+            'capell-content-sections.screenshot-fixtures.section-widget-gallery',
+        ])
+        ->and($security['publicSurface']['routeNames'])->toBe([])
         ->and(class_implements(ContentSectionsRoutesContribution::class))->toContain(RegistersExtensionRoute::class)
         ->and($cacheSafety['cacheable'] ?? false)->toBeTrue()
         ->and($cacheSafety['invalidationSources'] ?? [])->toContain([
