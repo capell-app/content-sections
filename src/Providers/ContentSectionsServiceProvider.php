@@ -64,6 +64,8 @@ final class ContentSectionsServiceProvider extends AbstractPackageServiceProvide
 
     public static string $packageName = 'capell-app/content-sections';
 
+    private bool $sectionRegistryBootstrapped = false;
+
     public function packageRegistered(): void
     {
         if (! interface_exists(self::BLOCK_DEFINITION_PROVIDER)) {
@@ -154,6 +156,10 @@ final class ContentSectionsServiceProvider extends AbstractPackageServiceProvide
         $this->app->singleton(SectionRegistry::class);
 
         $this->callAfterResolving(SectionRegistry::class, function (SectionRegistry $registry): void {
+            if ($this->sectionRegistryBootstrapped) {
+                return;
+            }
+
             RegisterDefaultSectionsAction::run($registry);
 
             foreach ($this->app->tagged(SectionDefinitionProvider::TAG) as $provider) {
@@ -163,6 +169,8 @@ final class ContentSectionsServiceProvider extends AbstractPackageServiceProvide
 
                 RegisterSectionDefinitionProviderAction::run($registry, $provider);
             }
+
+            $this->sectionRegistryBootstrapped = true;
         });
 
         return $this;
