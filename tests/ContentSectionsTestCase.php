@@ -92,7 +92,11 @@ class ContentSectionsTestCase extends AbstractTestCase
         CapellCore::forcePackageInstalled(AdminServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(LayoutBuilderServiceProvider::$packageName);
-        CapellCore::forcePackageInstalled('capell-app/publishing-studio');
+        CapellCore::registerPackage(
+            PublishingStudioServiceProvider::$packageName,
+            path: realpath(__DIR__ . '/../../publishing-studio') ?: null,
+        );
+        CapellCore::forcePackageInstalled(PublishingStudioServiceProvider::$packageName);
         CapellCore::forcePackageInstalled('capell-app/theme-foundation');
         CapellCore::forcePackageInstalled(ContentSectionsServiceProvider::$packageName);
 

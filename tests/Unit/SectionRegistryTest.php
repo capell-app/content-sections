@@ -108,6 +108,16 @@ it('registers section definitions from another package provider', function (): v
         ->and($registry->getByConfigurator(AccordionSectionConfigurator::getKey())?->key)->toBe('package_accordion');
 });
 
+it('registers the same provider idempotently during dynamic package boot', function (): void {
+    $registry = new SectionRegistry;
+
+    RegisterDefaultSectionsAction::run($registry);
+    $registeredSections = $registry->all();
+    RegisterDefaultSectionsAction::run($registry);
+
+    expect($registry->all())->toBe($registeredSections);
+});
+
 it('resolves the frontend component without string matching configurator names', function (): void {
     $registry = new SectionRegistry;
     $registry->register(new SectionDefinitionData(
