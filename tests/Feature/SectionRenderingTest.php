@@ -15,7 +15,7 @@ use Sinnbeck\DomAssertions\Asserts\AssertElement;
 
 beforeEach(function (): void {
     config(['cache.default' => 'array']);
-    config(['capell-core.disable_cache' => true]);
+    config(['capell.disable_cache' => true]);
 
     $registry = new SectionRegistry;
 
