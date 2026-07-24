@@ -49,6 +49,7 @@
         },
         {
             "id": "section-selector-modal",
+            "colorSchemes": ["light"],
             "title": "Section selector modal.",
             "package": "content-sections",
             "surface": "frontend",
@@ -64,6 +65,7 @@
         },
         {
             "id": "section-widget-gallery",
+            "colorSchemes": ["light"],
             "title": "Frontend section widget gallery.",
             "package": "content-sections",
             "surface": "frontend",
