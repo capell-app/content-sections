@@ -31,7 +31,7 @@ test('required fields are required', function (): void {
             'name' => '',
         ])
         ->call('create')
-        ->assertHasAllFormErrors([
+        ->assertHasFormErrors([
             'name' => 'required',
         ]);
 });

@@ -300,6 +300,22 @@ it('loads content select options through site content type parent and admin quer
         ->and($searchResults)->toHaveKey($matchingSection->getKey());
 });
 
+it('orders content select search results by portable text relevance', function (): void {
+    $contains = Section::factory()->create(['name' => 'Before Alpha']);
+    $prefix = Section::factory()->create(['name' => 'Alpha launch']);
+    $exact = Section::factory()->create(['name' => 'Alpha']);
+
+    $select = ContentSelect::make('content_id')
+        ->container(contentSectionsSchema('edit'));
+
+    expect(array_slice(array_keys(invokeContentSelectOptions($select, search: 'Alpha')), 0, 3))
+        ->toBe([
+            $exact->getKey(),
+            $prefix->getKey(),
+            $contains->getKey(),
+        ]);
+});
+
 it('scopes content select options selected records and labels to the current actor', function (): void {
     $assignedSite = Site::factory()->create(['name' => 'Assigned Site']);
     $hiddenSite = Site::factory()->create(['name' => 'Hidden Site']);

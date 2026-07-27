@@ -21,7 +21,7 @@
         "php": "^8.4",
         "capell-app/admin": "^1.0",
         "capell-app/block-library": "^1.0",
-        "capell-app/core": "^1.0",
+        "capell-app/core": "^1.0.21",
         "capell-app/frontend": "^1.0",
         "capell-app/layout-builder": "^1.0",
         "symfony/html-sanitizer": "^7.0 || ^8.0"

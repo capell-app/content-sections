@@ -43,7 +43,6 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Override;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Models\Activity;
@@ -175,14 +174,10 @@ class Section extends Model implements Blueprintable, HasMedia, Publishable, Use
                             ->when(
                                 $languageId !== null,
                                 function (BuilderContract $query) use ($languageId): void {
-                                    if (DB::getDriverName() === 'sqlite') {
-                                        $query->orderByRaw(
-                                            'CASE language_id '
-                                            . sprintf('WHEN %d THEN 0 ELSE 1 END', $languageId),
-                                        );
-                                    } else {
-                                        $query->orderByRaw('FIELD(language_id, ?)', [$languageId]);
-                                    }
+                                    $query->orderByRaw(
+                                        'CASE WHEN language_id = ? THEN 0 ELSE 1 END',
+                                        [$languageId],
+                                    );
                                 },
                             );
                     },
@@ -191,14 +186,10 @@ class Section extends Model implements Blueprintable, HasMedia, Publishable, Use
                             ->when(
                                 $languageId !== null,
                                 function (BuilderContract $query) use ($languageId): void {
-                                    if (DB::getDriverName() === 'sqlite') {
-                                        $query->orderByRaw(
-                                            'CASE language_id '
-                                            . sprintf('WHEN %d THEN 0 ELSE 1 END', $languageId),
-                                        );
-                                    } else {
-                                        $query->orderByRaw('FIELD(language_id, ?)', [$languageId]);
-                                    }
+                                    $query->orderByRaw(
+                                        'CASE WHEN language_id = ? THEN 0 ELSE 1 END',
+                                        [$languageId],
+                                    );
                                 },
                             );
                     },

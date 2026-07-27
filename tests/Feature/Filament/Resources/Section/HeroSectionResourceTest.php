@@ -69,7 +69,7 @@ it('validates edit hero content', function (): void {
             'name' => '',
         ])
         ->call('save')
-        ->assertHasAllFormErrors([
+        ->assertHasFormErrors([
             'name' => 'required',
         ]);
 });

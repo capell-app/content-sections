@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Data\Database\DatabaseIndexDefinition;
+use Capell\Core\Enums\Database\DatabaseCapability;
+use Capell\Core\Facades\CapellDatabase;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -14,10 +17,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        $driver = Schema::getConnection()->getDriverName();
-        $databaseVersion = $driver === 'mysql' ? (string) DB::selectOne('select version() as v')->v : null;
-
-        Schema::create('sections', function (Blueprint $table) use ($databaseVersion, $driver): void {
+        Schema::create('sections', function (Blueprint $table): void {
             $table->id();
             $table->uuid('uuid')->nullable()->index();
             $table->unsignedBigInteger('workspace_id')->default(0)->index();
@@ -33,28 +33,27 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            if ($driver === 'pgsql') {
-                $table->index('meta->page_id', 'sections_page_id_index');
-            }
-
-            if (
-                $driver === 'mysql' &&
-                $databaseVersion !== null &&
-                version_compare($databaseVersion, '8.0.13', '>=') &&
-                ! str_contains($databaseVersion, 'MariaDB')
-            ) {
-                $table->rawIndex(
-                    '(cast(json_unquote(json_extract(`meta`, \'$."page_id"\')) as unsigned))',
-                    'sections_page_id_index',
-                );
-            }
-
             $table->index(['site_id', 'blueprint_id', 'order']);
             $table->index(['site_id', 'blueprint_id', 'parent_id']);
             $table->index(['site_id', 'blueprint_id', 'visible_from', 'visible_until']);
             $table->nestedSetDepth();
             $table->nestedSetIndex();
         });
+
+        $connection = Schema::getConnection();
+        $schema = CapellDatabase::for($connection)->schemaDialect();
+
+        if ($schema->supports(DatabaseCapability::JsonPathIndex, $connection)) {
+            $index = $schema->jsonPathIndex(
+                new DatabaseIndexDefinition('sections', 'sections_page_id_index', ['meta']),
+                'meta',
+                '$.page_id',
+            );
+
+            if ($index !== null) {
+                DB::statement($index->sql, $index->bindings);
+            }
+        }
     }
 
     /**

@@ -9,7 +9,9 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Concerns\HasCustomSelectOption;
 use Capell\ContentSections\Models\Section;
 use Capell\ContentSections\Support\SectionSiteScope;
+use Capell\Core\Data\Database\SqlFragment;
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Facades\CapellDatabase;
 use Closure;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
@@ -349,8 +351,18 @@ class ContentSelect extends Select
             )
             ->when(
                 $search,
-                fn (Builder $query, string $search): Builder => $query->where('sections.name', 'like', sprintf('%%%s%%', $search))
-                    ->orderByRaw('CASE WHEN sections.name = ? THEN 1 ELSE 0 END DESC, INSTR(sections.name, ?), sections.name', [$search, $search]),
+                function (Builder $query, string $search): Builder {
+                    $grammar = $query->getQuery()->getGrammar();
+                    $name = SqlFragment::raw($grammar->wrap('sections.name'));
+                    $relevance = CapellDatabase::for($query->getModel())
+                        ->queryDialect()
+                        ->textRelevance($name, $search);
+
+                    return $query
+                        ->where('sections.name', 'like', sprintf('%%%s%%', $search))
+                        ->orderByRaw($relevance->sql, $relevance->bindings)
+                        ->orderBy('sections.name');
+                },
                 fn (Builder $query): Builder => $query->limit(10),
             );
     }
