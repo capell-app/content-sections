@@ -239,7 +239,7 @@ class AssetsRepeater extends Repeater
                 'site',
             ])
             ->orderBy('site_id')
-            ->orderBy(NestedSet::LFT, 'DESC')
+            ->orderBy(NestedSet::LFT, 'desc')
             ->whereHas('blueprint', self::applySelectablePageTypeQuery(...));
     }
 

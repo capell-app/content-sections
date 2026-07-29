@@ -100,8 +100,6 @@ it('does not emit script markup in the rendered anonymous section html', functio
 it('keeps authenticated non-admin public payloads free of authoring markers and unsafe html', function (): void {
     $user = test()->createUser(['email' => 'frontend-visitor@example.test']);
 
-    throw_unless(is_object($user), RuntimeException::class, 'Expected test user.');
-
     test()->actingAs($user);
 
     $widgetData = placeSectionAndBuildPublicGraph(

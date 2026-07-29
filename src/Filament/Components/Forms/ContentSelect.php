@@ -288,7 +288,7 @@ class ContentSelect extends Select
     {
         $contents = $this->getContentQuery($siteId, $search)
             ->orderBy('site_id')
-            ->orderBy(NestedSet::LFT, 'ASC')
+            ->orderBy(NestedSet::LFT, 'asc')
             ->get();
 
         return $contents->mapWithKeys(
@@ -358,10 +358,10 @@ class ContentSelect extends Select
                         ->queryDialect()
                         ->textRelevance($name, $search);
 
-                    return $query
-                        ->where('sections.name', 'like', sprintf('%%%s%%', $search))
-                        ->orderByRaw($relevance->sql, $relevance->bindings)
-                        ->orderBy('sections.name');
+                    $query->where('sections.name', 'like', sprintf('%%%s%%', $search));
+                    $relevance->applyOrder($query->getQuery());
+
+                    return $query->orderBy('sections.name');
                 },
                 fn (Builder $query): Builder => $query->limit(10),
             );
