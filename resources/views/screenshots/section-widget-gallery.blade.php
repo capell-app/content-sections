@@ -107,13 +107,13 @@
             aria-label="Reusable section widget gallery"
         >
             @foreach ([
-                              ['Hero', 'Lead with a strong page intro and action set.'],
-                              ['Features', 'Compare product capabilities in a scannable grid.'],
-                              ['FAQ', 'Publish accessible disclosure content for support questions.'],
-                              ['Pricing', 'Show plans, benefits, and calls to action.'],
-                              ['Team', 'Introduce people with roles and short biographies.'],
-                              ['Timeline', 'Sequence milestones, launches, or process steps.'],
-                          ] as [$sectionName, $summary])
+                ['Hero', 'Lead with a strong page intro and action set.'],
+                ['Features', 'Compare product capabilities in a scannable grid.'],
+                ['FAQ', 'Publish accessible disclosure content for support questions.'],
+                ['Pricing', 'Show plans, benefits, and calls to action.'],
+                ['Team', 'Introduce people with roles and short biographies.'],
+                ['Timeline', 'Sequence milestones, launches, or process steps.'],
+            ] as [$sectionName, $summary])
                 <article class="gallery-item">
                     <div>
                         <span>Section</span>

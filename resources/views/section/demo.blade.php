@@ -14,9 +14,7 @@
 </head>
 <body class="bg-slate-50 text-slate-950 antialiased">
     <main class="mx-auto min-h-screen max-w-6xl px-6 py-12">
-        <p
-            class="mb-3 text-sm font-medium tracking-wide text-slate-500 uppercase"
-        >section preview</p>
+        <p class="mb-3 text-sm font-medium tracking-wide text-slate-500 uppercase">section preview</p>
         <div class="rounded-lg bg-white p-8 shadow-sm ring-1 ring-slate-200">
             <x-dynamic-component
                 :component="$definition->component"

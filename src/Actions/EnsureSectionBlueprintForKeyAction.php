@@ -9,6 +9,7 @@ use Capell\ContentSections\Data\SectionDefinitionData;
 use Capell\ContentSections\Enums\LayoutTypeEnum;
 use Capell\ContentSections\Support\SectionRegistry;
 use Capell\Core\Models\Blueprint;
+use Filament\Support\Icons\Heroicon;
 use InvalidArgumentException;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -47,6 +48,12 @@ class EnsureSectionBlueprintForKeyAction
             return $blueprint;
         }
 
+        $icon = match (true) {
+            $definition->icon instanceof Heroicon => 'heroicon-' . $definition->icon->value,
+            $definition->icon instanceof BackedEnum => (string) $definition->icon->value,
+            default => $definition->icon,
+        };
+
         /** @var Blueprint $blueprint */
         $blueprint = Blueprint::query()->create([
             'name' => $definition->label,
@@ -57,7 +64,7 @@ class EnsureSectionBlueprintForKeyAction
             'status' => true,
             'admin' => [
                 'configurator' => $configuratorKey,
-                'icon' => $definition->icon instanceof BackedEnum ? $definition->icon->value : $definition->icon,
+                'icon' => $icon,
             ],
         ]);
 

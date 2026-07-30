@@ -2,7 +2,7 @@
     use Capell\ContentSections\Actions\BuildSectionAssetRenderDataAction;
 @endphp
 
-@props ([
+@props([
     'asset',
     'componentItem',
     'size' => null,

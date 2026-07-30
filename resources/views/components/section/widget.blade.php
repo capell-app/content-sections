@@ -1,4 +1,4 @@
-@props ([
+@props([
     'color' => null,
     'icon' => null,
     'image' => null,
@@ -11,23 +11,23 @@
     'url' => null,
 ])
 <div
-    @class ([
-        'capell-section-widget',
-        'md:p-y-16 flex flex-col items-center space-y-6 p-10 text-center',
-        match ($color) {
-            'danger' => 'bg-danger text-white',
-            'dark-gray' => 'bg-dark-gray text-white',
-            'gray' => 'bg-gray text-white',
-            'info' => 'bg-info text-white',
-            'light-gray' => 'bg-light-gray text-gray-900',
-            'primary' => 'bg-primary text-white',
-            'secondary' => 'bg-secondary text-white',
-            'success' => 'bg-success text-white',
-            'warning' => 'bg-warning text-white',
-            default => 'bg-white text-gray-900',
-        },
-        $attributes->get('class'),
-    ])
+    @class([
+    'capell-section-widget',
+    'md:p-y-16 flex flex-col items-center space-y-6 p-10 text-center',
+    match ($color) {
+        'danger' => 'bg-danger text-white',
+        'dark-gray' => 'bg-dark-gray text-white',
+        'gray' => 'bg-gray text-white',
+        'info' => 'bg-info text-white',
+        'light-gray' => 'bg-light-gray text-gray-900',
+        'primary' => 'bg-primary text-white',
+        'secondary' => 'bg-secondary text-white',
+        'success' => 'bg-success text-white',
+        'warning' => 'bg-warning text-white',
+        default => 'bg-white text-gray-900',
+    },
+    $attributes->get('class'),
+])
 >
     {{ $color }}
     @if ($icon)
