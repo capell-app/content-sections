@@ -37,11 +37,11 @@ Screenshot contract: `docs/screenshots.json`.
 
 ![Create reusable section form](docs/screenshots/sections-create.png)
 
-- Reusable sections index (admin, required).
-- Create reusable section form (admin, required).
-- Edit reusable section with assets (admin, required).
-- Section selector modal (frontend, required).
-- Frontend section widget gallery (frontend, required).
+- Reusable sections index (admin, required evidence).
+- Create reusable section form (admin, required evidence).
+- Edit reusable section with assets (admin, required evidence).
+- Section selector modal (frontend, required evidence).
+- Frontend section widget gallery (frontend, required evidence).
 
 ## Technical Shape
 
@@ -65,7 +65,7 @@ Screenshot contract: `docs/screenshots.json`.
 
 - Required tables: `sections`.
 - Models: `ComposhipsJsonRelationshipsTrait`, `Section`.
-- Core record references in migrations: `sites via site_id`, `pages via page_id`.
+- Core record references in migrations: `sites via site_id`.
 - Migration files: `2026_05_10_190844_01_create_sections_table.php`.
 - Migration impact: run host migrations through the package install flow before opening package surfaces.
 - Deletion/retention behaviour: migrations declare cascade-on-delete relationships; no timed pruning or retention schedule is declared in `capell.json`.
@@ -106,7 +106,7 @@ Screenshot contract: `docs/screenshots.json`.
 
 1. Install the package: `composer require capell-app/content-sections`.
 2. Run the required setup: `php artisan migrate`.
-3. Open the Reusable sections index and confirm the admin workflow loads.
+3. Open the package admin surface at `/screenshot-fixtures/content-sections/sections-index` and confirm Content Sections is available.
 
 ## Next Steps
 
