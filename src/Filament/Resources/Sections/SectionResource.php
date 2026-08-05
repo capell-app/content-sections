@@ -174,13 +174,13 @@ class SectionResource extends Resource
     #[Override]
     public static function getModelLabel(): string
     {
-        return __('capell-content-sections::generic.section');
+        return __('capell-content-sections::model_labels.section');
     }
 
     #[Override]
     public static function getPluralModelLabel(): string
     {
-        return __('capell-content-sections::generic.sections');
+        return __('capell-content-sections::model_labels.sections');
     }
 
     #[Override]
