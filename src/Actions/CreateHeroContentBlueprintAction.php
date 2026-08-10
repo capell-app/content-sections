@@ -25,7 +25,7 @@ class CreateHeroContentBlueprintAction
 
         return $blueprint::query()->firstOrCreate([
             'key' => 'hero',
-            'type' => LayoutTypeEnum::Section,
+            'type' => LayoutTypeEnum::Section->value,
         ], [
             'name' => __('capell-content-sections::generic.hero'),
             'admin' => [

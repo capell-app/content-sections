@@ -78,6 +78,26 @@
             "notes": "Capture the dedicated anonymous route-backed gallery fixture. Do not fall back to Dashboard or a generic placeholder page.",
             "screenshotPath": "packages/content-sections/docs/screenshots/section-widget-gallery.png",
             "useCase": "A maintainer verifies the public section gallery renders every Block Library-backed widget safely for anonymous visitors."
+        },
+        {
+            "id": "content-sections-admin-sidebar-menu-open",
+            "title": "Reusable sections index with admin sidebar menu open.",
+            "package": "content-sections",
+            "surface": "admin",
+            "targetType": "admin-resource",
+            "target": "SectionResource:index",
+            "url": "/screenshot-fixtures/content-sections/sections-index",
+            "waitFor": "table",
+            "required": false,
+            "notes": "Capture after installing content-sections with block-library and layout-builder, with at least three seeded sections across different blueprints so table filters, columns, and navigation state are visible. Capture this same admin surface with the fully collapsible sidebar opened.",
+            "screenshotPath": "packages/content-sections/docs/screenshots/content-sections-admin-sidebar-menu-open.png",
+            "useCase": "An editor reviews reusable sections before choosing which shared content block to update.",
+            "beforeWait": [
+                {
+                    "type": "click",
+                    "selector": ".fi-topbar-open-collapse-sidebar-btn"
+                }
+            ]
         }
     ]
 }

@@ -29,7 +29,7 @@ use Capell\ContentSections\Support\SectionPublicLayoutWidgetPayloadContributor;
 use Capell\ContentSections\Support\SectionRegistry;
 use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
 use Capell\Core\Data\AssetData;
-use Capell\Core\Data\PageTypeData;
+use Capell\Core\Data\BlueprintSubjectDescriptorData;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Site;
@@ -225,11 +225,12 @@ final class ContentSectionsServiceProvider extends AbstractPackageServiceProvide
     private function registerPageTypes(): self
     {
         foreach (LayoutTypeEnum::cases() as $layoutType) {
-            $this->surface()->pageType(
-                new PageTypeData(
-                    name: $layoutType->value,
-                    model: $layoutType->getModel(),
+            $this->surface()->blueprintSubject(
+                new BlueprintSubjectDescriptorData(
+                    key: $layoutType->value,
                     label: $layoutType->getLabel(),
+                    modelClass: $layoutType->getModel(),
+                    ownerPackage: 'capell-app/content-sections',
                 ),
             );
         }
