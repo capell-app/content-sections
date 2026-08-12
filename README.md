@@ -37,11 +37,12 @@ Screenshot contract: `docs/screenshots.json`.
 
 ![Create reusable section form](docs/screenshots/sections-create.png)
 
-- Reusable sections index (admin, required evidence).
+- Reusable sections index (admin, required authentic evidence).
 - Create reusable section form (admin, required evidence).
 - Edit reusable section with assets (admin, required evidence).
 - Section selector modal (frontend, required evidence).
 - Frontend section widget gallery (frontend, required evidence).
+- Reusable sections index with admin sidebar menu open (admin, supplementary evidence).
 
 ## Technical Shape
 
@@ -106,7 +107,7 @@ Screenshot contract: `docs/screenshots.json`.
 
 1. Install the package: `composer require capell-app/content-sections`.
 2. Run the required setup: `php artisan migrate`.
-3. Open the package admin surface at `/screenshot-fixtures/content-sections/sections-index` and confirm Content Sections is available.
+3. Open the package admin surface at `/content-sections/sections` and confirm Content Sections is available.
 
 ## Next Steps
 

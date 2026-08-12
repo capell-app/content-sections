@@ -3,6 +3,8 @@
     "composerName": "capell-app/content-sections",
     "generatedFor": "deployment-screenshot-runner",
     "requiresInstalledPackage": true,
+    "auditStatus": "authentic-installed-app-captured",
+    "auditReason": "Required Marketplace evidence is captured from the real installed Content Sections Filament resource after runner-owned deterministic setup.",
     "outputDirectory": "packages/content-sections/docs/screenshots",
     "entries": [
         {
@@ -12,10 +14,13 @@
             "surface": "admin",
             "targetType": "admin-resource",
             "target": "SectionResource:index",
-            "url": "/screenshot-fixtures/content-sections/sections-index",
+            "url": "/content-sections/sections",
+            "scenario": "admin-index",
             "waitFor": "table",
+            "user": "admin",
             "required": true,
-            "notes": "Capture after installing content-sections with block-library and layout-builder, with at least three seeded sections across different blueprints so table filters, columns, and navigation state are visible.",
+            "evidenceKind": "installed-app-filament-capture",
+            "notes": "Captured from the real installed SectionResource index after runner-owned setup creates deterministic site-scoped sections.",
             "screenshotPath": "packages/content-sections/docs/screenshots/sections-index.png",
             "useCase": "An editor reviews reusable sections before choosing which shared content block to update."
         },
