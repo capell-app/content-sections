@@ -258,6 +258,10 @@ final class SectionPublicLayoutWidgetPayloadContributor implements PublicLayoutW
 
     private function translationFor(Section $section): ?Translation
     {
+        if (! $section->relationLoaded('translation')) {
+            return null;
+        }
+
         $translation = $section->getRelationValue('translation');
 
         return $translation instanceof Translation ? $translation : null;
