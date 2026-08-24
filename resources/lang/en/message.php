@@ -15,4 +15,12 @@ return [
     'scheduled_unpublish_cancelled' => 'Section scheduled unpublish cancelled. Public cache will be cleared.',
     'unpublish_section_confirmation' => 'This will immediately remove the section from public output and clear public cache for pages that use it.',
     'unpublished' => 'Section unpublished. Public cache will be cleared.',
+    'usage_none' => 'Not currently used.',
+    'usage_none_detail' => 'No authorised attachments or Layout Builder placements currently reference this section.',
+    'usage_count' => 'Used in :count place.|Used in :count places.',
+    'usage_count_partial' => 'Used in at least :count place you can access.|Used in at least :count places you can access.',
+    'usage_partial_notice' => 'You can only see usage on sites assigned to you. The real total may be higher.',
+    'usage_destinations_more' => 'and :count more.|and :count more.',
+    'usage_delete_consequence' => 'Deleting removes it from every listed destination.',
+    'usage_force_delete_consequence' => 'Force deleting permanently removes it from every listed destination.',
 ];

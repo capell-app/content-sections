@@ -14,4 +14,6 @@ return [
     'save_as_draft' => 'Save as draft',
     'select_records' => 'Select Records',
     'unpublish' => 'Unpublish',
+    'review_uses' => 'Review uses',
+    'close' => 'Close',
 ];

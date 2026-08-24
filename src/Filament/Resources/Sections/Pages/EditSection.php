@@ -10,14 +10,17 @@ use Capell\Admin\Filament\Concerns\HasAncestorBreadcrumbs;
 use Capell\Admin\Filament\Concerns\HasBlueprintRelationManagers;
 use Capell\Admin\Filament\Concerns\HasExtensibleRecordHeading;
 use Capell\Admin\Support\AdminSurfaceLookup;
+use Capell\ContentSections\Actions\BuildSectionUsageSummaryAction;
 use Capell\ContentSections\Actions\CancelScheduledSectionUnpublishAction;
 use Capell\ContentSections\Actions\ReplicateContentAction;
 use Capell\ContentSections\Actions\UnpublishSectionAction;
+use Capell\ContentSections\Data\SectionUsageSummaryData;
 use Capell\ContentSections\Enums\LivewireComponentsEnum;
 use Capell\ContentSections\Enums\ResourceEnum;
 use Capell\ContentSections\Filament\Actions\CreateContentAction;
 use Capell\ContentSections\Filament\Resources\Sections\Widgets\SectionAlertsWidget;
 use Capell\ContentSections\Models\Section;
+use Capell\ContentSections\Support\SectionUsageWarnings;
 use Capell\PublishingStudio\Actions\SaveRecordDraftAction;
 use Capell\PublishingStudio\Enums\WorkspaceStatusEnum;
 use Capell\PublishingStudio\Filament\Actions\PublishingRevisionsHeaderAction;
@@ -31,6 +34,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Widgets\Widget;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\User as AuthenticatedUser;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
@@ -77,14 +81,24 @@ class EditSection extends EditRecord
     public function getSubheading(): string|Htmlable|null
     {
         $blueprint = $this->record->blueprint;
+        $impact = $this->usage()->impactSummary();
 
-        if ($blueprint === null) {
+        $lines = array_filter([
+            $blueprint === null ? null : (string) __('capell-content-sections::heading.content_blueprint', ['type' => $blueprint->name]),
+            $impact,
+        ]);
+
+        if ($lines === []) {
             return null;
         }
 
-        return __('capell-content-sections::heading.content_blueprint', [
-            'type' => $blueprint->name,
-        ]);
+        $escaped = [];
+
+        foreach ($lines as $line) {
+            $escaped[] = e($line);
+        }
+
+        return new HtmlString(implode(' &middot; ', $escaped));
     }
 
     #[Override]
@@ -93,13 +107,22 @@ class EditSection extends EditRecord
         /** @var array<Action|ActionGroup> $actions */
         $actions = array_values(array_filter([
             $this->saveAsDraftAction(),
+            $this->reviewUsesAction(),
             $this->unpublishAction(),
             $this->cancelScheduledUnpublishAction(),
             $this->publishAction(),
             $this->publishingRevisionsAction(),
             RestoreAction::make('restore'),
-            DeleteAction::make('delete'),
-            ForceDeleteAction::make('forceDelete'),
+            DeleteAction::make('delete')
+                ->modalDescription(fn (): HtmlString => SectionUsageWarnings::describe(
+                    $this->usage(),
+                    'capell-content-sections::message.usage_delete_consequence',
+                )),
+            ForceDeleteAction::make('forceDelete')
+                ->modalDescription(fn (): HtmlString => SectionUsageWarnings::describe(
+                    $this->usage(),
+                    'capell-content-sections::message.usage_force_delete_consequence',
+                )),
             ActionGroup::make([
                 CreateContentAction::make('create')
                     ->redirectAfterCreate(),
@@ -133,6 +156,37 @@ class EditSection extends EditRecord
     {
         return parent::getSaveFormAction()
             ->label(__('capell-content-sections::button.save_and_publish'));
+    }
+
+    private function reviewUsesAction(): Action
+    {
+        return Action::make('reviewUses')
+            ->label(__('capell-content-sections::button.review_uses'))
+            ->icon('heroicon-o-link')
+            ->color('gray')
+            ->modalHeading(__('capell-content-sections::heading.usage_breakdown'))
+            ->modalContent(fn (): View => view(
+                'capell-content-sections::filament.sections.usage-breakdown',
+                ['usage' => $this->usage()],
+            ))
+            ->modalSubmitAction(false)
+            ->modalCancelActionLabel(__('capell-content-sections::button.close'));
+    }
+
+    /**
+     * Computed once per request; refreshed on every render since this is called
+     * fresh for the subheading, the review-uses modal, and every destructive
+     * action's confirmation copy on that same request.
+     */
+    /**
+     * Deliberately uncached: every caller (subheading, review-uses modal,
+     * unpublish/delete/force-delete confirmations) needs the exact current
+     * state, and each of those is itself a single, bounded query pair — never
+     * an actual N+1 across page rows.
+     */
+    private function usage(): SectionUsageSummaryData
+    {
+        return BuildSectionUsageSummaryAction::run($this->record);
     }
 
     private function publishingRevisionsAction(): ?object
@@ -226,7 +280,10 @@ class EditSection extends EditRecord
             ->authorize(fn (): bool => Gate::allows('update', $this->record))
             ->requiresConfirmation()
             ->modalHeading(__('capell-content-sections::button.unpublish'))
-            ->modalDescription(__('capell-content-sections::message.unpublish_section_confirmation'))
+            ->modalDescription(fn (): HtmlString => SectionUsageWarnings::describe(
+                $this->usage(),
+                'capell-content-sections::message.unpublish_section_confirmation',
+            ))
             ->action(function (): void {
                 $user = auth()->user();
 

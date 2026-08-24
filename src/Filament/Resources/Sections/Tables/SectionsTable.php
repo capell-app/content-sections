@@ -16,15 +16,24 @@ use Capell\Admin\Filament\Components\Tables\Columns\Page\PageNameColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\SiteColumn;
 use Capell\Admin\Filament\Contracts\TableConfigurator;
 use Capell\Admin\Support\AdminSurfaceLookup;
+use Capell\Admin\Support\MediaScope;
+use Capell\ContentSections\Actions\BuildSectionUsageSummaryAction;
 use Capell\ContentSections\Actions\ReplicateContentAction;
+use Capell\ContentSections\Data\SectionUsageSummaryData;
 use Capell\ContentSections\Enums\LayoutTypeEnum;
 use Capell\ContentSections\Enums\ResourceEnum;
 use Capell\ContentSections\Filament\Components\Tables\Columns\Content\ContentNameColumn;
 use Capell\ContentSections\Models\Section;
 use Capell\ContentSections\Support\SectionSiteScope;
+use Capell\ContentSections\Support\SectionUsageScope;
+use Capell\ContentSections\Support\SectionUsageWarnings;
+use Capell\Core\Enums\PublishStatusEnum;
+use Capell\Core\Models\AssetAttachment;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
+use Capell\LayoutBuilder\Models\WidgetAsset;
+use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -41,9 +50,13 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
+use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 
 class SectionsTable implements TableConfigurator
@@ -70,6 +83,7 @@ class SectionsTable implements TableConfigurator
                         'children',
                         'assets',
                     ])
+                    ->tap(self::withUsageCounts(...))
                     ->withoutGlobalScopes([
                         SoftDeletingScope::class,
                     ]),
@@ -88,14 +102,26 @@ class SectionsTable implements TableConfigurator
                 ActionGroup::make([
                     ReplicateAction::make('replicate')
                         ->replicaModelAction(ReplicateContentAction::class),
-                    DeleteAction::make('delete'),
+                    DeleteAction::make('delete')
+                        ->modalDescription(fn (Section $record): HtmlString => SectionUsageWarnings::modalDescription(
+                            $record,
+                            'capell-content-sections::message.usage_delete_consequence',
+                        )),
                 ])
                     ->color('gray'),
             ])
             ->toolbarActions([
-                DeleteBulkAction::make('delete'),
+                DeleteBulkAction::make('delete')
+                    ->modalDescription(fn (EloquentCollection $records): HtmlString => self::bulkUsageDescription(
+                        $records,
+                        'capell-content-sections::message.usage_delete_consequence',
+                    )),
                 RestoreBulkAction::make('restore'),
-                ForceDeleteBulkAction::make('forceDelete'),
+                ForceDeleteBulkAction::make('forceDelete')
+                    ->modalDescription(fn (EloquentCollection $records): HtmlString => self::bulkUsageDescription(
+                        $records,
+                        'capell-content-sections::message.usage_force_delete_consequence',
+                    )),
             ])
             ->recordClasses(fn (Section $record): ?string => match (true) {
                 (bool) $record->deleted_at => 'table-row-warning',
@@ -119,6 +145,26 @@ class SectionsTable implements TableConfigurator
         return [
             IdentifierColumn::make('id'),
             ContentNameColumn::make('name'),
+            TextColumn::make('publish_status')
+                ->label(__('capell-content-sections::table.publish_status'))
+                ->badge()
+                ->alignCenter()
+                ->toggleable()
+                ->getStateUsing(fn (Section $record): PublishStatusEnum => PublishStatusEnum::fromModel($record)),
+            TextColumn::make('used_in')
+                ->label(__('capell-content-sections::table.used_in'))
+                ->badge()
+                ->alignCenter()
+                ->toggleable()
+                ->tooltip(__('capell-content-sections::table.used_in_tooltip'))
+                ->getStateUsing(fn (Section $record): int => self::numeric($record->getAttribute('attachment_usage_count'))
+                    + self::numeric($record->getAttribute('widget_usage_count')))
+                ->color(fn (int $state): string => $state === 0 ? 'gray' : 'success')
+                ->formatStateUsing(fn (int $state): string => $state === 0
+                    ? __('capell-content-sections::table.used_in_none')
+                    : (string) $state)
+                ->action(self::usageBreakdownAction()),
+            DateColumn::make('updated_at'),
             TextColumn::make('translation.title')
                 ->label(__('capell-admin::table.title'))
                 ->searchable()
@@ -165,6 +211,7 @@ class SectionsTable implements TableConfigurator
                 }),
             BadgeableColumn::make('assets_count')
                 ->label(__('capell-content-sections::table.assets'))
+                ->tooltip(__('capell-content-sections::table.assets_tooltip'))
                 ->alignCenter()
                 ->numeric()
                 ->sortable()
@@ -182,8 +229,8 @@ class SectionsTable implements TableConfigurator
             DateColumn::make('visible_until')
                 ->label(__('capell-content-sections::table.visible_until'))
                 ->toggleable(isToggledHiddenByDefault: true),
-            DateColumn::make('created_at'),
-            DateColumn::make('updated_at'),
+            DateColumn::make('created_at')
+                ->toggleable(isToggledHiddenByDefault: true),
             DateColumn::make('deleted_at'),
         ];
     }
@@ -458,5 +505,94 @@ class SectionsTable implements TableConfigurator
         }
 
         return $label . Str::limit($section->name, 40);
+    }
+
+    /**
+     * Adds two bounded, actor-scoped correlated-subquery columns to the list query
+     * (one query for the whole page, not one per row) so the "Used in" column never
+     * issues per-record usage lookups. Detail is only computed per-record, on demand,
+     * by {@see BuildSectionUsageSummaryAction} when a single count is opened.
+     *
+     * @param  Builder<Section>  $query
+     * @return Builder<Section>
+     */
+    protected static function withUsageCounts(Builder $query): Builder
+    {
+        // withCount() above already established a base `sections.*` select; append
+        // rather than replace it so the children/assets aggregate columns survive.
+        return $query
+            ->selectSub(self::attachmentUsageCountSubquery($query), 'attachment_usage_count')
+            ->selectSub(self::widgetUsageCountSubquery($query), 'widget_usage_count');
+    }
+
+    /** @param  Builder<Section>  $query */
+    protected static function attachmentUsageCountSubquery(Builder $query): QueryBuilder
+    {
+        $attachments = new AssetAttachment;
+
+        return MediaScope::applyAssetAttachmentsForCurrentActor(
+            AssetAttachment::query()
+                ->selectRaw('COUNT(*)')
+                ->where($attachments->qualifyColumn('asset_type'), $query->getModel()->getMorphClass())
+                ->whereColumn($attachments->qualifyColumn('asset_id'), $query->qualifyColumn($query->getModel()->getKeyName())),
+        )->toBase();
+    }
+
+    /** @param  Builder<Section>  $query */
+    protected static function widgetUsageCountSubquery(Builder $query): QueryBuilder
+    {
+        $widgetAssets = new WidgetAsset;
+
+        return SectionUsageScope::applyPlacedForCurrentActor(
+            WidgetAsset::query()
+                ->selectRaw('COUNT(*)')
+                ->where($widgetAssets->qualifyColumn('asset_type'), $query->getModel()->getMorphClass())
+                ->whereColumn($widgetAssets->qualifyColumn('asset_id'), $query->qualifyColumn($query->getModel()->getKeyName())),
+        )->toBase();
+    }
+
+    protected static function usageBreakdownAction(): Action
+    {
+        return Action::make('usage')
+            ->label(__('capell-content-sections::heading.usage_breakdown'))
+            ->modalHeading(fn (Section $record): string => __('capell-content-sections::heading.usage_breakdown') . ': ' . $record->name)
+            ->modalContent(fn (Section $record): View => view(
+                'capell-content-sections::filament.sections.usage-breakdown',
+                ['usage' => BuildSectionUsageSummaryAction::run($record)],
+            ))
+            ->modalSubmitAction(false)
+            ->modalCancelActionLabel(__('capell-content-sections::button.close'));
+    }
+
+    /**
+     * @param  EloquentCollection<int, Section>  $records
+     */
+    protected static function bulkUsageDescription(EloquentCollection $records, string $consequenceKey): HtmlString
+    {
+        /** @var SectionUsageSummaryData $usage */
+        $usage = $records->reduce(
+            fn (SectionUsageSummaryData $carry, Section $section): SectionUsageSummaryData => self::mergeUsage(
+                $carry,
+                BuildSectionUsageSummaryAction::run($section),
+            ),
+            SectionUsageSummaryData::blank(),
+        );
+
+        return SectionUsageWarnings::describe($usage, $consequenceKey);
+    }
+
+    private static function numeric(mixed $value): int
+    {
+        return is_numeric($value) ? (int) $value : 0;
+    }
+
+    private static function mergeUsage(SectionUsageSummaryData $carry, SectionUsageSummaryData $next): SectionUsageSummaryData
+    {
+        return new SectionUsageSummaryData(
+            attachmentCount: $carry->attachmentCount + $next->attachmentCount,
+            widgetCount: $carry->widgetCount + $next->widgetCount,
+            isAuthoritative: $carry->isAuthoritative && $next->isAuthoritative,
+            destinations: [...$carry->destinations, ...$next->destinations],
+        );
     }
 }
