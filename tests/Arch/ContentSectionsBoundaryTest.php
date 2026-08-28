@@ -24,9 +24,12 @@ it('only depends on the layout-builder package through public contracts', functi
     }
 
     expect($violations)->toEqualCanonicalizing([
+        'packages/content-sections/src/Actions/BuildSectionUsageSummaryAction.php',
         'packages/content-sections/src/Actions/FinalizeSectionPublishAction.php',
-        'packages/content-sections/src/Providers/ContentSectionsServiceProvider.php',
+        'packages/content-sections/src/Filament/Resources/Sections/Tables/SectionsTable.php',
+        'packages/content-sections/src/Support/SectionUsageScope.php',
         'packages/content-sections/src/Support/SectionPublicLayoutWidgetPayloadContributor.php',
+        'packages/content-sections/src/Providers/ContentSectionsServiceProvider.php',
     ]);
 });
 

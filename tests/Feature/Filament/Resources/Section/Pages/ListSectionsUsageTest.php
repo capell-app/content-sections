@@ -79,7 +79,7 @@ it('keeps the used-in column to a single bounded query regardless of row or usag
     // query, so exactly one query should reference them, regardless of how
     // many rows or how much usage exists — never one query per row.
     expect($usageQueries)->toHaveCount(1)
-        ->and($usageQueries->first())->toContain('from `sections`')
+        ->and($usageQueries->first())->toMatch('/from (?:`|")sections(?:`|")/')
         ->and($usageQueries->first())->toContain('asset_attachments')
         ->and($usageQueries->first())->toContain('widget_assets');
 });

@@ -48,7 +48,7 @@ Screenshot contract: `docs/screenshots.json`.
 
 - Service providers: `Capell\ContentSections\Providers\ContentSectionsServiceProvider`.
 - Config files: `packages/content-sections/config/capell-content-sections.php`.
-- Migrations: `packages/content-sections/database/migrations/2026_05_10_190844_01_create_sections_table.php`.
+- Migrations: `packages/content-sections/database/migrations/2026_05_10_190844_01_create_sections_table.php`, `packages/content-sections/database/migrations/2026_08_28_000003_change_section_visibility_to_datetime.php`.
 - Models: `ComposhipsJsonRelationshipsTrait`, `Section`.
 - Filament classes: `CreateContentAction`, `ActionsRepeater`, `AssetsRepeater`, `BlueprintSelect`, `DetailsSchema`, `RelatedRepeater`, `SettingsSchema`, `TranslationsRepeater`, `ContentSelect`, `CustomColorInput`, `ContentNameColumn`, `HasAssetsRelationManager`, `and 28 more`.
 - Livewire components: `AbstractAssets`, `SectionAssets`, `ModalTableSelect`.
@@ -67,7 +67,7 @@ Screenshot contract: `docs/screenshots.json`.
 - Required tables: `sections`.
 - Models: `ComposhipsJsonRelationshipsTrait`, `Section`.
 - Core record references in migrations: `sites via site_id`.
-- Migration files: `2026_05_10_190844_01_create_sections_table.php`.
+- Migration files: `2026_05_10_190844_01_create_sections_table.php`, `2026_08_28_000003_change_section_visibility_to_datetime.php`.
 - Migration impact: run host migrations through the package install flow before opening package surfaces.
 - Deletion/retention behaviour: migrations declare cascade-on-delete relationships; no timed pruning or retention schedule is declared in `capell.json`.
 
