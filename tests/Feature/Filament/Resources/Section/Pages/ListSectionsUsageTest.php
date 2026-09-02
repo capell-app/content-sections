@@ -71,9 +71,20 @@ it('keeps the used-in column to a single bounded query regardless of row or usag
 
     livewire(ListSections::class)->assertSuccessful();
 
-    $usageQueries = collect($queries)->filter(
-        fn (string $sql): bool => str_contains($sql, 'asset_attachments') || str_contains($sql, 'widget_assets'),
-    );
+    // Ignore schema introspection. WorkspaceContextScope verifies once per
+    // process that a table carries both workspace columns, and that probe
+    // (pragma_table_xinfo / sqlite_master / information_schema) names the
+    // table as a string literal, so it matches the filter below without being
+    // a usage lookup. It is a fixed cost, not per-row: proven by running this
+    // test with 7 sections instead of 3 and still seeing exactly two probes.
+    // Filtering them out keeps the real assertion at exactly one query.
+    $usageQueries = collect($queries)
+        ->reject(fn (string $sql): bool => str_contains($sql, 'pragma_')
+            || str_contains($sql, 'sqlite_master')
+            || str_contains($sql, 'information_schema'))
+        ->filter(
+            fn (string $sql): bool => str_contains($sql, 'asset_attachments') || str_contains($sql, 'widget_assets'),
+        );
 
     // Both usage counts are correlated subqueries embedded in the single list
     // query, so exactly one query should reference them, regardless of how
