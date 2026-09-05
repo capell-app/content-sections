@@ -90,7 +90,7 @@ it('keeps computing usage for a trashed section, ready for the force-delete conf
     // pre-existing, orthogonal Filament/Livewire limitation on this page
     // (route-model-bound record resolution on the initial mount does not
     // agree with re-hydration on a later interaction for a soft-deleted
-    // row), unrelated to CAP-0311. ForceDeleteAction's modal reuses the same
+    // row). ForceDeleteAction's modal reuses the same
     // `SectionUsageWarnings::describe()` already proven against delete above,
     // so what actually needs proving here is that the usage projection itself
     // stays correct once the section is trashed — which this asserts directly.
