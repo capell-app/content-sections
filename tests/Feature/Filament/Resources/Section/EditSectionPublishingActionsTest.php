@@ -6,18 +6,29 @@ use BezhanSalleh\FilamentShield\Facades\FilamentShield;
 use BezhanSalleh\FilamentShield\Support\Utils;
 use Capell\ContentSections\Filament\Resources\Sections\Pages\EditSection;
 use Capell\ContentSections\Models\Section;
+use Capell\Core\Models\Site;
 use Capell\PublishingStudio\Actions\InstallWorkspaceRolesAction;
 use Capell\PublishingStudio\Enums\WorkspaceStatusEnum;
 use Capell\PublishingStudio\Models\PublishingRevision;
 use Capell\PublishingStudio\Models\Workspace;
 use Capell\PublishingStudio\WorkspaceContext;
+use Capell\Tests\Fixtures\Models\User;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Filament\Actions\Action;
 use Illuminate\Contracts\Support\Htmlable;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 uses(CreatesAdminUser::class);
+
+afterEach(function (): void {
+    resolve(PermissionRegistrar::class)->setPermissionsTeamId(null);
+    resolve(PermissionRegistrar::class)->teams = false;
+    resolve(PermissionRegistrar::class)->forgetCachedPermissions();
+    config(['permission.teams' => false]);
+});
 
 function contentSectionPermission(string $affix): string
 {
@@ -184,14 +195,27 @@ it('hides workspace publish controls from editors without publish permission', f
     Permission::findOrCreate(contentSectionPermission('update'));
     Permission::findOrCreate(InstallWorkspaceRolesAction::PERMISSION_PUBLISH);
 
-    $editor = test()->createUserWithPermission([
+    config(['permission.teams' => true]);
+    resolve(PermissionRegistrar::class)->teams = true;
+    $site = Site::factory()->create();
+    $roleName = 'section-workspace-editor';
+    $role = Role::findOrCreate($roleName, 'web');
+    $role->givePermissionTo([
         contentSectionPermission('view'),
         contentSectionPermission('update'),
     ]);
+    $editor = User::factory()->create();
+    $editor->assignRoleForSite($site, $roleName);
+
+    resolve(PermissionRegistrar::class)->setPermissionsTeamId($site);
     $workspace = Workspace::factory()->create(['status' => WorkspaceStatusEnum::Open]);
-    $section = Section::factory()->create(['workspace_id' => $workspace->id]);
+    // The embedded publish-status panel resolves the section through site access.
+    $section = Section::factory()->site($site)->create(['workspace_id' => $workspace->id]);
 
     test()->actingAs($editor);
+
+    expect($editor->isGlobalAdmin())->toBeFalse()
+        ->and($editor->getAssignedSiteIds()->all())->toBe([$site->getKey()]);
 
     WorkspaceContext::runWith($workspace, function () use ($section): void {
         Livewire::test(EditSection::class, ['record' => $section->getRouteKey()])

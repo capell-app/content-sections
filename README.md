@@ -10,8 +10,6 @@ Content Sections adds reusable, publishable section records backed by registered
 
 Editors create and publish shared sections in the admin and select them from other content surfaces; public pages receive the rendered section without admin metadata.
 
-Evidence: [`capell.json`](capell.json), [`src/Models/Section.php`](src/Models/Section.php), [`src/Actions/RegisterDefaultSectionsAction.php`](src/Actions/RegisterDefaultSectionsAction.php), [`src/Providers/ContentSectionsServiceProvider.php`](src/Providers/ContentSectionsServiceProvider.php), [`docs/overview.admin.md`](docs/overview.admin.md), [`docs/screenshots.json`](docs/screenshots.json), [`tests/Feature/Filament/Resources/Section/SectionResourceTest.php`](tests/Feature/Filament/Resources/Section/SectionResourceTest.php), [`tests/Feature/SectionPublicOutputSanitisationTest.php`](tests/Feature/SectionPublicOutputSanitisationTest.php).
-
 Status details:
 
 - Status: Available
@@ -26,8 +24,6 @@ Status details:
 **For developers:** Section definitions are registered through a provider contract and resolved by Actions, so new section types can be added without placing queries or presentation logic in public views.
 
 **For teams:** Teams can maintain repeated content in one section and reuse it across pages while preserving a controlled publishing workflow.
-
-Evidence: [`src/Contracts/SectionDefinitionProvider.php`](src/Contracts/SectionDefinitionProvider.php), [`src/Support/SectionRegistry.php`](src/Support/SectionRegistry.php), [`src/Actions/ResolveSectionComponentAction.php`](src/Actions/ResolveSectionComponentAction.php), [`tests/Feature/SectionRenderingTest.php`](tests/Feature/SectionRenderingTest.php), [`docs/admin-guide.md`](docs/admin-guide.md), [`src/Actions/FinalizeSectionPublishAction.php`](src/Actions/FinalizeSectionPublishAction.php), [`tests/Feature/Publishing/SectionWorkspacePublishTest.php`](tests/Feature/Publishing/SectionWorkspacePublishTest.php).
 
 ## Screens And Workflow
 
@@ -232,7 +228,7 @@ Screenshot contract: `docs/screenshots.json`.
 ## Quick Start
 
 1. Install the package: `composer require capell-app/content-sections`.
-2. Open the package admin surface at `/content-sections/sections` and confirm Content Sections is available.
+2. Open the package admin surface at `/admin/content-sections/sections` and confirm Content Sections is available.
 
 ## Next Steps
 
@@ -248,6 +244,5 @@ Screenshot contract: `docs/screenshots.json`.
 - [Capell documentation design system](../../docs/DESIGN_SYSTEM.md)
 - [Capell and package ERD notes](../../docs/erd/capell-and-package-erds.md)
 - Related packages: [Block Library](../block-library/README.md), [Layout Builder](../layout-builder/README.md), [Publishing Studio](../publishing-studio/README.md), [Public Actions](../public-actions/README.md).
-- Focused tests: `vendor/bin/pest packages/content-sections/tests --configuration=phpunit.xml`.
 
 <!-- prettier-ignore-end -->

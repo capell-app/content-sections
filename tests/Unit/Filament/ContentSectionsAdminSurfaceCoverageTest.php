@@ -139,6 +139,43 @@ it('scopes section selection table rows and site filter options to the current a
         ->and($siteFilter?->getOptions())->not->toHaveKey($hiddenSite->getKey());
 });
 
+it('keeps section table empty states truthful when a selection filter excludes a section', function (): void {
+    $sectionBlueprint = Blueprint::factory()->create([
+        'name' => 'Reusable section',
+        'type' => 'section',
+        'status' => true,
+    ]);
+    $otherBlueprint = Blueprint::factory()->create([
+        'name' => 'Other section',
+        'type' => 'section',
+        'status' => true,
+    ]);
+    $section = Section::factory()->create([
+        'blueprint_id' => $sectionBlueprint->getKey(),
+        'site_id' => null,
+    ]);
+
+    $sectionsTable = SectionsTable::configure(Table::make(contentSectionsTableLivewire()));
+    $selectionTable = SectionSelectionTable::configure(Table::make(contentSectionsTableLivewire()));
+    $query = $selectionTable->getQuery();
+    $blueprintFilter = $selectionTable->getFilters()['blueprint_id'] ?? null;
+
+    if (! $query instanceof Builder || ! $blueprintFilter instanceof SelectFilter) {
+        throw new RuntimeException('Expected the section selection table query and blueprint filter.');
+    }
+
+    $filteredQuery = $blueprintFilter->apply(clone $query, ['value' => $otherBlueprint->getKey()]);
+
+    expect($query->whereKey($section)->exists())->toBeTrue()
+        ->and($filteredQuery->whereKey($section)->exists())->toBeFalse()
+        ->and($sectionsTable->getEmptyStateHeading())->toBe('No sections found')
+        ->and($sectionsTable->getEmptyStateDescription())
+        ->toBe('No sections are available for the current selection. Try adjusting your search or filters.')
+        ->and($selectionTable->getEmptyStateHeading())->toBe('No sections found')
+        ->and($selectionTable->getEmptyStateDescription())
+        ->toBe('No sections are available for the current selection. Try adjusting your search or filters.');
+});
+
 it('labels content action repeater items from the selected higher level target', function (): void {
     $page = Page::factory()->create(['name' => 'Pricing']);
     $repeater = ContentSectionsActionsRepeaterHarness::make('actions');

@@ -17,9 +17,11 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Override;
 
 class SectionSelectionTable implements TableConfigurator
 {
+    #[Override]
     public static function configure(Table $table): Table
     {
         return $table
@@ -43,6 +45,8 @@ class SectionSelectionTable implements TableConfigurator
                 BlueprintColumn::make('blueprint.name'),
                 SiteColumn::make('site.name'),
             ])
+            ->emptyStateHeading(__('capell-content-sections::table.sections_empty_heading'))
+            ->emptyStateDescription(__('capell-content-sections::table.sections_empty_description'))
             ->filters([
                 SelectFilter::make('site_id')
                     ->label(__('capell-admin::form.site'))

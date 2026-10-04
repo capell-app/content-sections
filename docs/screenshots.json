@@ -31,12 +31,13 @@
             "surface": "admin",
             "targetType": "admin-resource",
             "target": "SectionResource:create",
-            "url": "/screenshot-fixtures/content-sections/sections-create",
-            "waitFor": ".form-grid",
+            "url": "/admin/content-sections/sections/create",
+            "waitFor": "form",
             "required": true,
-            "notes": "Capture with the blueprint selector visible. The form depends on Layout Builder blueprints registered by the installed package.",
+            "notes": "Capture the real installed Filament surface after the manifest fixture commands prepare its data and widget settings.",
             "screenshotPath": "packages/content-sections/docs/screenshots/sections-create.png",
-            "useCase": "An editor starts a new reusable section and chooses the section blueprint that controls the available fields."
+            "useCase": "An editor starts a new reusable section and chooses the section blueprint that controls the available fields.",
+            "scenario": "admin-index"
         },
         {
             "id": "sections-edit-with-assets",
@@ -45,12 +46,29 @@
             "surface": "admin",
             "targetType": "admin-resource",
             "target": "SectionResource:edit",
-            "url": "/screenshot-fixtures/content-sections/sections-edit-with-assets",
-            "waitFor": ".form-grid",
+            "url": "/screenshot-fixtures/content-sections/section",
+            "waitFor": ".fi-ta-row:has-text(\"Workshop attendance\")",
             "required": true,
-            "notes": "Requires a seeded section with translations and at least one related widget asset so the relation manager tab is not empty.",
+            "notes": "Capture the real installed Filament surface after the manifest fixture commands prepare its data and widget settings.",
             "screenshotPath": "packages/content-sections/docs/screenshots/sections-edit-with-assets.png",
-            "useCase": "An editor updates shared section copy and checks which widget assets are attached before saving."
+            "useCase": "An editor updates shared section copy and checks which widget assets are attached before saving.",
+            "scenario": "admin-form",
+            "beforeWait": [
+                {
+                    "type": "scrollIntoView",
+                    "selector": "[wire\\:key$=\"SectionAssetsRelationManager\"]",
+                    "block": "start"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": ".fi-ta-row:has-text(\"Workshop attendance\")"
+                },
+                {
+                    "type": "scrollIntoView",
+                    "selector": ".fi-ta-row:has-text(\"Plan your studio visit\")",
+                    "block": "end"
+                }
+            ]
         },
         {
             "id": "section-selector-modal",
@@ -91,18 +109,26 @@
             "surface": "admin",
             "targetType": "admin-resource",
             "target": "SectionResource:index",
-            "url": "/screenshot-fixtures/content-sections/sections-index",
-            "waitFor": "table",
+            "url": "/admin/content-sections/sections",
+            "waitFor": ".fi-ta tbody tr",
             "required": false,
-            "notes": "Capture after installing content-sections with block-library and layout-builder, with at least three seeded sections across different blueprints so table filters, columns, and navigation state are visible. Capture this same admin surface with the fully collapsible sidebar opened.",
+            "notes": "Capture the real installed Filament surface after the manifest fixture commands prepare its data and widget settings.",
             "screenshotPath": "packages/content-sections/docs/screenshots/content-sections-admin-sidebar-menu-open.png",
             "useCase": "An editor reviews reusable sections before choosing which shared content block to update.",
             "beforeWait": [
                 {
                     "type": "click",
                     "selector": ".fi-topbar-open-collapse-sidebar-btn"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": ".fi-sidebar.fi-sidebar-open"
                 }
-            ]
+            ],
+            "scenario": "admin-index"
         }
+    ],
+    "fixtureCommands": [
+        "capell:screenshot-admin-fixture --package=content-sections"
     ]
 }

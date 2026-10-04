@@ -58,9 +58,11 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
+use Override;
 
 class SectionsTable implements TableConfigurator
 {
+    #[Override]
     public static function configure(Table $table): Table
     {
         return $table
@@ -91,6 +93,8 @@ class SectionsTable implements TableConfigurator
             ->defaultSort('updated_at', 'desc')
             ->columns(static::getTableColumns())
             ->filters(static::getTableFilters())
+            ->emptyStateHeading(__('capell-content-sections::table.sections_empty_heading'))
+            ->emptyStateDescription(__('capell-content-sections::table.sections_empty_description'))
             ->filtersFormWidth('4xl')
             ->filtersFormColumns([
                 'sm' => 2,

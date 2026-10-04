@@ -13,11 +13,11 @@ use Capell\BlockLibrary\Contracts\BlockDefinitionProvider;
 use Capell\ContentSections\Actions\CloneSectionIntoWorkspaceAction;
 use Capell\ContentSections\Actions\FinalizeSectionPublishAction;
 use Capell\ContentSections\Actions\RegisterDefaultSectionsAction;
+use Capell\ContentSections\Actions\RegisterSectionBlueprintSubjectsAction;
 use Capell\ContentSections\Actions\RegisterSectionDefinitionProviderAction;
 use Capell\ContentSections\Contracts\SectionDefinitionProvider;
 use Capell\ContentSections\Enums\AssetEnum;
 use Capell\ContentSections\Enums\FrontendComponentKeyEnum;
-use Capell\ContentSections\Enums\LayoutTypeEnum;
 use Capell\ContentSections\Enums\LivewireComponentsEnum;
 use Capell\ContentSections\Enums\ResourceEnum;
 use Capell\ContentSections\Filament\Configurators\Blueprints\ContentBlueprintConfigurator;
@@ -29,7 +29,6 @@ use Capell\ContentSections\Support\SectionPublicLayoutWidgetPayloadContributor;
 use Capell\ContentSections\Support\SectionRegistry;
 use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
 use Capell\Core\Data\AssetData;
-use Capell\Core\Data\BlueprintSubjectDescriptorData;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Site;
@@ -87,6 +86,7 @@ final class ContentSectionsServiceProvider extends AbstractPackageServiceProvide
             ->hasTranslations();
     }
 
+    #[Override]
     public function registeringPackage(): void
     {
         parent::registeringPackage();
@@ -224,16 +224,7 @@ final class ContentSectionsServiceProvider extends AbstractPackageServiceProvide
 
     private function registerPageTypes(): self
     {
-        foreach (LayoutTypeEnum::cases() as $layoutType) {
-            $this->surface()->blueprintSubject(
-                new BlueprintSubjectDescriptorData(
-                    key: $layoutType->value,
-                    label: $layoutType->getLabel(),
-                    modelClass: $layoutType->getModel(),
-                    ownerPackage: 'capell-app/content-sections',
-                ),
-            );
-        }
+        RegisterSectionBlueprintSubjectsAction::run();
 
         return $this;
     }
