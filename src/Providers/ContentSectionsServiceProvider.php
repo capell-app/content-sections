@@ -63,8 +63,11 @@ final class ContentSectionsServiceProvider extends AbstractPackageServiceProvide
 
     public static string $packageName = 'capell-app/content-sections';
 
+    private bool $installedRuntimeBooted = false;
+
     private bool $sectionRegistryBootstrapped = false;
 
+    #[Override]
     public function packageRegistered(): void
     {
         if (! interface_exists(self::BLOCK_DEFINITION_PROVIDER)) {
@@ -77,6 +80,7 @@ final class ContentSectionsServiceProvider extends AbstractPackageServiceProvide
         );
     }
 
+    #[Override]
     public function configurePackage(Package $package): void
     {
         $package->name(self::$name)
@@ -119,7 +123,11 @@ final class ContentSectionsServiceProvider extends AbstractPackageServiceProvide
     #[Override]
     protected function bootInstalledPackage(): self
     {
-        return $this
+        if ($this->installedRuntimeBooted) {
+            return $this;
+        }
+
+        $this
             ->registerPackageLivewireComponents()
             ->registerModels()
             ->registerPolicies()
@@ -135,6 +143,10 @@ final class ContentSectionsServiceProvider extends AbstractPackageServiceProvide
             ->registerBladeComponents()
             ->registerBlazeComponents()
             ->registerPublishingStudio();
+
+        $this->installedRuntimeBooted = true;
+
+        return $this;
     }
 
     private function registerModels(): self

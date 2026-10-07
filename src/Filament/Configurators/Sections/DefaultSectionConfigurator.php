@@ -21,6 +21,9 @@ use Capell\ContentSections\Filament\Components\Forms\Content\SettingsSchema;
 use Capell\ContentSections\Filament\Components\Forms\Content\TranslationsRepeater;
 use Capell\ContentSections\Filament\Components\Forms\CustomColorInput;
 use Capell\ContentSections\Models\Section as SectionModel;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Section;
@@ -28,6 +31,7 @@ use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Contracts\Support\Htmlable;
 
 class DefaultSectionConfigurator implements ConfiguratorInterface
 {
@@ -44,7 +48,7 @@ class DefaultSectionConfigurator implements ConfiguratorInterface
     }
 
     /**
-     * @return array<array-key, mixed>
+     * @return array<int, Component | Action | ActionGroup | string | Htmlable>
      */
     public function make(Schema $configurator): array
     {
@@ -55,7 +59,7 @@ class DefaultSectionConfigurator implements ConfiguratorInterface
     }
 
     /**
-     * @return array<array-key, mixed>
+     * @return array<int, Component | Action | ActionGroup | string | Htmlable>
      */
     protected function getMetaSchema(): array
     {
@@ -80,7 +84,7 @@ class DefaultSectionConfigurator implements ConfiguratorInterface
     }
 
     /**
-     * @return array<array-key, mixed>
+     * @return array<int, Component | Action | ActionGroup | string | Htmlable>
      */
     protected function getOptionFormSchema(Schema $configurator): array
     {
@@ -96,7 +100,7 @@ class DefaultSectionConfigurator implements ConfiguratorInterface
     }
 
     /**
-     * @return array<array-key, mixed>
+     * @return array<int, Component | Action | ActionGroup | string | Htmlable>
      */
     protected function getFormSchema(Schema $configurator): array
     {

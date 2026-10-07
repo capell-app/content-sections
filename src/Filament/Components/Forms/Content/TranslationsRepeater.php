@@ -9,17 +9,21 @@ use Capell\Admin\Filament\Components\Forms\RepeaterTabs;
 use Capell\Admin\Filament\Components\Forms\TranslationLanguageSelect;
 use Capell\Admin\Filament\Components\Forms\TranslationsRepeater as BaseTranslationsRepeater;
 use Capell\Core\Models\Blueprint;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
 
 class TranslationsRepeater
 {
     /**
-     * @param  array<array-key, mixed>  $components
+     * @param  array<int, Component | Action | ActionGroup | string | Htmlable>  $components
      */
     public static function make(
         Schema $configurator,
@@ -42,7 +46,7 @@ class TranslationsRepeater
     }
 
     /**
-     * @return array<array-key, mixed>
+     * @return array<int, Component | Action | ActionGroup | string | Htmlable>
      */
     private static function getContentSchema(Schema $configurator): array
     {
@@ -65,7 +69,7 @@ class TranslationsRepeater
     }
 
     /**
-     * @return array<array-key, mixed>
+     * @return array<int, Component | Action | ActionGroup | string | Htmlable>
      */
     private static function getTitleSchema(): array
     {

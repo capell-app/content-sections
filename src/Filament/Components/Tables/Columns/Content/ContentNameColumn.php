@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace Capell\ContentSections\Filament\Components\Tables\Columns\Content;
 
-use Awcodes\BadgeableColumn\Components\Badge;
-use Capell\Admin\Filament\Components\Tables\Columns\BadgeableColumn;
 use Capell\ContentSections\Models\Section;
 use Filament\Support\Enums\FontWeight;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Support\HtmlString;
+use Override;
 
-class ContentNameColumn extends BadgeableColumn
+class ContentNameColumn extends TextColumn
 {
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -31,17 +32,17 @@ class ContentNameColumn extends BadgeableColumn
 
                 return new HtmlString($ancestors->pluck('name')->join(' &raquo; '));
             })
-            ->suffixBadges([
-                Badge::make('children')
-                    ->label(
-                        fn (Section $record): string|array => __(
-                            'capell-admin::generic.total_children',
-                            ['total' => $this->getChildCount($record)],
-                        ),
-                    )
-                    ->color('gray')
-                    ->visible(fn (Section $record): bool => (bool) $this->getChildCount($record)),
-            ]);
+            ->suffix(function (Section $record): ?HtmlString {
+                $count = $this->getChildCount($record);
+
+                if ($count === 0) {
+                    return null;
+                }
+
+                return new HtmlString(view('capell-content-sections::tables.columns.children-badge', [
+                    'count' => $count,
+                ])->render());
+            });
     }
 
     private function getChildCount(Section $record): int

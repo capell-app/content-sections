@@ -170,12 +170,10 @@ it('creates the default section blueprint for generic create routes', function (
 
 it('exposes inline blueprint creation from the section details schema', function (): void {
     $configurator = Schema::make()->operation('create');
+    $blueprintSelect = array_find(DetailsSchema::make($configurator), fn ($component): bool => $component instanceof BlueprintSelect);
 
-    $blueprintSelect = collect(DetailsSchema::make($configurator))
-        ->first(fn (mixed $component): bool => $component instanceof BlueprintSelect);
-
-    expect($blueprintSelect)->toBeInstanceOf(BlueprintSelect::class)
-        ->and($blueprintSelect->hasCreateOptionActionFormSchema())->toBeTrue();
+    expect($blueprintSelect)->toBeInstanceOf(BlueprintSelect::class);
+    expect($blueprintSelect?->hasCreateOptionActionFormSchema())->toBeTrue();
 });
 
 it('renders every registered section demo component', function (): void {

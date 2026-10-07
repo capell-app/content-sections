@@ -29,7 +29,7 @@ it('can list section assets', function (): void {
         ->assertSuccessful()
         ->assertCountTableRecords(5)
         ->assertCanSeeTableRecords($section->assets)
-        ->assertTableColumnStateSet('asset.name', state: [$resource->asset->name], record: $resource);
+        ->assertTableColumnStateSet('asset.name', state: $resource->asset->name, record: $resource);
 });
 
 it('can search section assets by name', function (): void {

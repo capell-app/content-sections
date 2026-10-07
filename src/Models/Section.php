@@ -9,6 +9,7 @@ use Aimeos\Nestedset\QueryBuilder;
 use Bkwld\Cloner\Cloneable;
 use Capell\ContentSections\Database\Factories\SectionFactory;
 use Capell\ContentSections\Models\Concerns\ComposhipsJsonRelationshipsTrait;
+use Capell\ContentSections\Models\Concerns\SectionNestedSet;
 use Capell\ContentSections\Observers\SectionObserver;
 use Capell\Core\Concerns\HasCapellMedia;
 use Capell\Core\Contracts\Pageable;
@@ -124,6 +125,9 @@ class Section extends Model implements Blueprintable, HasMedia, Publishable, Use
     use HasUserstamps;
     use LogsActivity;
     use NodeTrait;
+    use SectionNestedSet {
+        SectionNestedSet::bootNodeTrait insteadof NodeTrait;
+    }
     use SoftDeletes;
 
     protected $table = 'sections';

@@ -10,12 +10,16 @@ use Capell\Admin\Filament\Components\Forms\PublishSchema;
 use Capell\ContentSections\Filament\Components\Forms\Content\DetailsSchema;
 use Capell\ContentSections\Filament\Components\Forms\Content\SettingsSchema;
 use Capell\ContentSections\Filament\Components\Forms\Content\TranslationsRepeater;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Contracts\Support\Htmlable;
 use Override;
 
 class TestimonialSectionConfigurator extends DefaultSectionConfigurator
@@ -48,7 +52,7 @@ class TestimonialSectionConfigurator extends DefaultSectionConfigurator
     }
 
     /**
-     * @return array<array-key, mixed>
+     * @return array<int, Component | Action | ActionGroup | string | Htmlable>
      */
     protected function getCreateFormSchema(Schema $configurator): array
     {
@@ -61,7 +65,7 @@ class TestimonialSectionConfigurator extends DefaultSectionConfigurator
     }
 
     /**
-     * @return array<array-key, mixed>
+     * @return array<int, Component | Action | ActionGroup | string | Htmlable>
      */
     protected function getCreateOptionFormSchema(Schema $configurator): array
     {
@@ -75,7 +79,7 @@ class TestimonialSectionConfigurator extends DefaultSectionConfigurator
     }
 
     /**
-     * @return array<array-key, mixed>
+     * @return array<int, Component | Action | ActionGroup | string | Htmlable>
      */
     protected function getEditFormSchema(Schema $configurator): array
     {
@@ -102,7 +106,7 @@ class TestimonialSectionConfigurator extends DefaultSectionConfigurator
     }
 
     /**
-     * @return array<array-key, mixed>
+     * @return array<int, Component | Action | ActionGroup | string | Htmlable>
      */
     protected function getEditOptionFormSchema(Schema $configurator): array
     {
