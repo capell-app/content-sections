@@ -30,6 +30,9 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
+use Capell\Core\Support\Activity\ActivityLogCompat;
+use Capell\Core\Support\Activity\LogOptions;
+use Capell\Core\Support\Activity\LogsActivity;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -45,9 +48,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Collection;
 use Override;
-use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Models\Activity;
-use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
@@ -224,23 +225,18 @@ class Section extends Model implements Blueprintable, HasMedia, Publishable, Use
 
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults()
-            ->useLogName('content')
-            ->logAll()
-            ->logExcept([
-                'updated_at',
-                'created_at',
-                'deleted_at',
-                'workspace_id',
-                'shadowed_by_workspace_id',
-                '_lft',
-                '_rgt',
-                'created_by',
-                'updated_by',
-                'deleted_by',
-            ])
-            ->logOnlyDirty()
-            ->dontSubmitEmptyLogs();
+        return ActivityLogCompat::options('content', [
+            'updated_at',
+            'created_at',
+            'deleted_at',
+            'workspace_id',
+            'shadowed_by_workspace_id',
+            '_lft',
+            '_rgt',
+            'created_by',
+            'updated_by',
+            'deleted_by',
+        ]);
     }
 
     public function registerMediaCollections(): void
