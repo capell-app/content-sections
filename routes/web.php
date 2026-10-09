@@ -2,10 +2,14 @@
 
 declare(strict_types=1);
 
+use Capell\ContentSections\Http\Controllers\PublicSectionFragmentController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\View\View;
 
-if (! app()->environment('testing')) {
+Route::get('/_capell/content-sections/fragments/{reference}', PublicSectionFragmentController::class)
+    ->where('reference', '.*')->name('capell-content-sections.fragments.show');
+
+if (! app()->environment('testing') && config('capell-content-sections.screenshot_fixtures_enabled', false) !== true) {
     return;
 }
 

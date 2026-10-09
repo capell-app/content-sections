@@ -87,6 +87,13 @@
             ],
             "prefix": "screenshot-fixtures/content-sections",
             "middleware": ["web"]
+        },
+        {
+            "type": "route",
+            "class": "Capell\\ContentSections\\Manifest\\PublicSectionFragmentsRoutesContribution",
+            "routes": ["capell-content-sections.fragments.show"],
+            "prefix": "_capell/content-sections/fragments",
+            "middleware": []
         }
     ],
     "database": {

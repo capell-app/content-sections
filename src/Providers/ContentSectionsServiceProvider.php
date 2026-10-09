@@ -21,6 +21,7 @@ use Capell\ContentSections\Enums\FrontendComponentKeyEnum;
 use Capell\ContentSections\Enums\LivewireComponentsEnum;
 use Capell\ContentSections\Enums\ResourceEnum;
 use Capell\ContentSections\Filament\Configurators\Blueprints\ContentBlueprintConfigurator;
+use Capell\ContentSections\Fragments\ContentSectionsFragmentUrlResolver;
 use Capell\ContentSections\Models\Section;
 use Capell\ContentSections\Policies\SectionPolicy;
 use Capell\ContentSections\Support\ContentSectionsBlockDefinitionProvider;
@@ -34,6 +35,7 @@ use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Site;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Contracts\AssetsRegistryInterface;
+use Capell\Frontend\Contracts\Fragments\PublicFragmentUrlResolver;
 use Capell\Frontend\Contracts\FrontendComponentRegistryInterface;
 use Capell\Frontend\Data\FrontendAssetData;
 use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadContributor;
@@ -70,6 +72,8 @@ final class ContentSectionsServiceProvider extends AbstractPackageServiceProvide
     #[Override]
     public function packageRegistered(): void
     {
+        $this->app->tag([ContentSectionsFragmentUrlResolver::class], PublicFragmentUrlResolver::TAG);
+
         if (! interface_exists(self::BLOCK_DEFINITION_PROVIDER)) {
             return;
         }

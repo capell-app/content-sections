@@ -22,7 +22,7 @@
         "capell-app/admin": "^1.0",
         "capell-app/block-library": "^1.0",
         "capell-app/core": "^1.0.66",
-        "capell-app/frontend": "^1.0",
+        "capell-app/frontend": "^1.0.70",
         "capell-app/layout-builder": "^1.0",
         "symfony/html-sanitizer": "^7.0 || ^8.0"
     },
