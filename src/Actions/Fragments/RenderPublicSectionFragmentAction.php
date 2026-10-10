@@ -9,7 +9,6 @@ use Capell\ContentSections\Enums\PublicSectionFragmentOutcome;
 use Capell\ContentSections\Fragments\ContentSectionsFragmentUrlResolver;
 use Capell\ContentSections\Models\Section;
 use Capell\Core\Enums\PublishVisibilityStateEnum;
-use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Theme;
@@ -29,10 +28,7 @@ use Capell\Frontend\Facades\Frontend;
 use Capell\Frontend\Support\Cache\FragmentCache;
 use Capell\Frontend\Support\Renderables\RenderableDynamicDataRegistry;
 use Capell\Frontend\Support\State\FrontendState;
-use Capell\LayoutBuilder\Actions\ResolvePublicWidgetAssetsAction;
-use Capell\LayoutBuilder\Models\Widget;
-use Capell\LayoutBuilder\Support\LayoutWidgetData;
-use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
+use Capell\LayoutBuilder\Contracts\PublicLayoutAssetMembership;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -46,6 +42,8 @@ final class RenderPublicSectionFragmentAction
 {
     use AsFake;
     use AsObject;
+
+    public function __construct(private readonly PublicLayoutAssetMembership $membership) {}
 
     public function handle(string $reference): ?string
     {
@@ -105,7 +103,7 @@ final class RenderPublicSectionFragmentAction
         $previous = app()->resolved(FrontendContextReader::class) ? resolve(FrontendContextReader::class) : null;
         try {
             $this->bindContext($context, $layout, $page);
-            if (! $this->belongsToPublicLayout($section, $page, $layout, $context->language)) {
+            if (! $this->membership->contains($section, $page, $layout, $context->language)) {
                 return new PublicSectionFragmentResultData(PublicSectionFragmentOutcome::Unavailable);
             }
             $configuredTtl = config('capell-content-sections.fragments.cache_seconds', 1800);
@@ -135,32 +133,6 @@ final class RenderPublicSectionFragmentAction
                 app()->forgetInstance(FrontendContextReader::class);
             }
         }
-    }
-
-    private function belongsToPublicLayout(Section $section, Page $page, Layout $layout, Language $language): bool
-    {
-        $containers = is_array($layout->containers) ? $layout->containers : [];
-        $loader = resolve(LayoutLoader::class);
-        foreach ($containers as $containerKey => $container) {
-            foreach (LayoutWidgetData::fromContainer(is_array($container) ? $container : []) as $entry) {
-                $key = LayoutWidgetData::key($entry);
-                if ($key === null) {
-                    continue;
-                }
-                $occurrence = LayoutWidgetData::occurrence($entry);
-                $widget = $loader->getLayoutWidget($layout, $key, $language, $page, (string) $containerKey, $occurrence);
-                if (! $widget instanceof Widget) {
-                    continue;
-                }
-                foreach (ResolvePublicWidgetAssetsAction::run($widget, $page, $language, (string) $containerKey, $occurrence) as $attachment) {
-                    if ($attachment->asset_type === $section->getMorphClass() && (string) $attachment->asset_id === (string) $this->modelKey($section)) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
     }
 
     private function modelKey(Model $model): int|string
