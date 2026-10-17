@@ -6,6 +6,7 @@ use Capell\ContentSections\Actions\Fragments\RenderPublicSectionFragmentAction;
 use Capell\ContentSections\Enums\PublicSectionFragmentOutcome;
 use Capell\ContentSections\Fragments\ContentSectionsFragmentUrlResolver;
 use Capell\ContentSections\Models\Section;
+use Capell\ContentSections\Tests\Support\PublicSectionFragmentState;
 use Capell\Core\Data\RenderableDefinitionData;
 use Capell\Core\Database\Factories\TranslationFactory;
 use Capell\Core\Models\Language;
@@ -51,17 +52,17 @@ it('separates internal rendering crashes from absent sections without exposing i
 
 it('renders a non-marketing public section through its registered owner and invalidates the shared fragment', function (): void {
     $fixture = sharedSectionFragmentFixture();
-    SharedSectionFragmentFixture::$html = '<section>Shared public section</section>';
+    $fixture['state']->html = '<section>Shared public section</section>';
     expect(RenderPublicSectionFragmentAction::run($fixture['token']))->toBe('<section>Shared public section</section>');
     expect(RenderPublicSectionFragmentAction::run($fixture['token']))->toBe('<section>Shared public section</section>');
     resolve(FragmentCache::class)->invalidateBySurrogateKey('site-' . $fixture['reference']->siteId);
     expect(RenderPublicSectionFragmentAction::run($fixture['token']))->toBe('<section>Shared public section</section>');
-    expect(SharedSectionFragmentFixture::$renders)->toBe(2);
+    expect($fixture['state']->renders)->toBe(2);
 });
 
 it('revokes cached sections when detached, unpublished, or changed', function (Closure $mutate): void {
     $fixture = sharedSectionFragmentFixture();
-    SharedSectionFragmentFixture::$html = '<section>Shared section</section>';
+    $fixture['state']->html = '<section>Shared section</section>';
     expect(RenderPublicSectionFragmentAction::run($fixture['token']))->toBe('<section>Shared section</section>');
     $mutate($fixture);
     app()->forgetInstance(LayoutLoader::class);
@@ -83,20 +84,19 @@ it('rejects request-varying dynamic section contributors before shared caching',
 
 it('rejects authoring output without storing it as a shared fragment', function (): void {
     $fixture = sharedSectionFragmentFixture();
-    SharedSectionFragmentFixture::$html = '<div data-capell-model-id="42">Editor</div>';
+    $fixture['state']->html = '<div data-capell-model-id="42">Editor</div>';
     expect(RenderPublicSectionFragmentAction::make()->result($fixture['token'])->outcome)->toBe(PublicSectionFragmentOutcome::AuthoringSurfaceRejected);
     expect(resolve(FragmentCache::class)->remember(ResolvePublicFragmentCacheIdentityAction::run($fixture['reference']), fn () => 'not cached'))->toBe('not cached');
 });
 
-/** @return array{language: Language, site: Site, widget: Widget, layout: Layout, page: Page, section: Section, attachment: WidgetAsset, reference: PublicFragmentReferenceData, token: string} */
+/** @return array{language: Language, site: Site, widget: Widget, layout: Layout, page: Page, section: Section, attachment: WidgetAsset, reference: PublicFragmentReferenceData, token: string, state: PublicSectionFragmentState} */
 function sharedSectionFragmentFixture(): array
 {
-    SharedSectionFragmentFixture::$renders = 0;
-    SharedSectionFragmentFixture::$html = '<section>Shared section</section>';
+    $state = new PublicSectionFragmentState;
     app('view')->addNamespace('shared-section-fixture', __DIR__ . '/../../Fixtures/views');
-    app('view')->composer('shared-section-fixture::section', function ($view): void {
-        SharedSectionFragmentFixture::$renders++;
-        $view->with('html', SharedSectionFragmentFixture::$html);
+    app('view')->composer('shared-section-fixture::section', function ($view) use ($state): void {
+        $state->renders++;
+        $view->with('html', $state->html);
     });
     $language = Language::factory()->create(['status' => true]);
     $site = Site::factory()->language($language)->withTranslations($language)->create(['status' => true]);
@@ -112,12 +112,5 @@ function sharedSectionFragmentFixture(): array
     $reference = new PublicFragmentReferenceData(owner: ContentSectionsFragmentUrlResolver::OWNER, formatVersion: 1, pageableType: $page->getMorphClass(), pageableId: $page->getKey(), siteId: $site->getKey(), languageId: $language->getKey(), contentVersion: ResolvePublicFragmentContentVersionAction::run($page, $site, $language, $layout, $ownerContext), ownerContext: $ownerContext);
     $token = resolve(PublicFragmentReferenceCodec::class)->encode($reference);
 
-    return compact('language', 'site', 'widget', 'layout', 'page', 'section', 'attachment', 'reference', 'token');
-}
-
-final class SharedSectionFragmentFixture
-{
-    public static int $renders = 0;
-
-    public static string $html = '';
+    return compact('language', 'site', 'widget', 'layout', 'page', 'section', 'attachment', 'reference', 'token', 'state');
 }

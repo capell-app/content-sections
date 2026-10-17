@@ -6,14 +6,19 @@ namespace Capell\ContentSections\Filament\Components\Forms\Content;
 
 use Capell\Admin\Filament\Components\Forms\BlueprintSelect as BaseBlueprintSelect;
 use Capell\ContentSections\Enums\LayoutTypeEnum;
-use Capell\Core\Enums\BlueprintSubjectEnum;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Override;
 
 class BlueprintSelect extends BaseBlueprintSelect
 {
-    protected null|BlueprintSubjectEnum|string $type = LayoutTypeEnum::Section->value;
+    #[Override]
+    protected function setUp(?string $label = null): void
+    {
+        parent::setUp($label);
+
+        $this->subject(LayoutTypeEnum::Section->value);
+    }
 
     #[Override]
     public function withRelation(): static

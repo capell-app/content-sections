@@ -58,6 +58,7 @@ Screenshot contract: `docs/screenshots.json`.
 ### Models
 
 - `ComposhipsJsonRelationshipsTrait`
+- `SectionNestedSet`
 - `Section`
 
 ### Filament classes
@@ -133,10 +134,13 @@ Screenshot contract: `docs/screenshots.json`.
 - `CreateSectionContentAction`
 - `EnsureSectionBlueprintForKeyAction`
 - `FinalizeSectionPublishAction`
+- `RenderPublicSectionFragmentAction`
 - `GetDefaultLanguageIdAction`
+- `InstallContentSectionsPackageAction`
 - `ModifyContentSelectCreateAction`
 - `NormalizeSectionIconAction`
 - `RegisterDefaultSectionsAction`
+- `RegisterSectionBlueprintSubjectsAction`
 - `RegisterSectionDefinitionProviderAction`
 - `ReplicateContentAction`
 - `ResolveRequestedSectionBlueprintAction`
@@ -146,12 +150,17 @@ Screenshot contract: `docs/screenshots.json`.
 
 ### Data objects
 
+- `PublicSectionFragmentResultData`
 - `SectionAssetRenderData`
 - `SectionDefinitionData`
 - `SectionPublicRenderData`
 - `SectionUsageDestinationData`
 - `SectionUsageSummaryData`
 - `SectionVisibilityActionResultData`
+
+### Manifest action API
+
+- `install: Capell\ContentSections\Actions\InstallContentSectionsPackageAction`
 
 ### Manifest contributions
 
@@ -162,6 +171,7 @@ Screenshot contract: `docs/screenshots.json`.
 - `model: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`
 - `page-type: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`
 - `route: Capell\ContentSections\Manifest\ContentSectionsRoutesContribution`
+- `route: Capell\ContentSections\Manifest\PublicSectionFragmentsRoutesContribution`
 - `schema-extender: Capell\ContentSections\Manifest\ContentSectionsSchemaExtendersContribution`
 
 ### Health checks
@@ -178,6 +188,7 @@ Screenshot contract: `docs/screenshots.json`.
 - `packages/content-sections/resources/views/screenshots/section-selector-modal.blade.php`
 - `packages/content-sections/resources/views/screenshots/section-widget-gallery.blade.php`
 - `packages/content-sections/resources/views/section/demo.blade.php`
+- `packages/content-sections/resources/views/tables/columns/children-badge.blade.php`
 
 ### Cache tags
 
@@ -187,7 +198,7 @@ Screenshot contract: `docs/screenshots.json`.
 ## Data Model
 
 - Required tables: `sections`.
-- Models: `ComposhipsJsonRelationshipsTrait`, `Section`.
+- Models: `ComposhipsJsonRelationshipsTrait`, `SectionNestedSet`, `Section`.
 - Core record references in migrations: `sites via site_id`.
 - Migration files: `2026_05_10_190844_01_create_sections_table.php`, `2026_08_28_000003_change_section_visibility_to_datetime.php`.
 - Migration impact: run host migrations through the package install flow before opening package surfaces.
@@ -199,7 +210,7 @@ Screenshot contract: `docs/screenshots.json`.
 - Admin navigation: declares `admin-resource: ContentSectionsPackageContribution`; each Filament page or resource controls its own navigation visibility.
 - Admin/editor extensions: `configurator: ContentSectionsPackageContribution`, `schema-extender: ContentSectionsSchemaExtendersContribution`.
 - Permissions: `ViewAny:Section`, `View:Section`, `Create:Section`, `Update:Section`, `Delete:Section`, `DeleteAny:Section`, `Restore:Section`, `RestoreAny:Section`, `ForceDelete:Section`, `ForceDeleteAny:Section`, `Replicate:Section`, `Reorder:Section`; access also governed by package policies: `SectionPolicy`.
-- Public routes: loads `routes/web.php`; registers `ContentSectionsRoutesContribution`.
+- Public routes: loads `routes/web.php`; registers `ContentSectionsRoutesContribution`, `PublicSectionFragmentsRoutesContribution`.
 - Database changes: package migrations are declared.
 - Config: `config/capell-content-sections.php`.
 - Settings: no package settings declared.

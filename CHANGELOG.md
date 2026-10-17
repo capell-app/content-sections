@@ -4,6 +4,8 @@ All notable changes to `capell-app/content-sections` will be documented in this 
 
 ## Unreleased
 
+- Blueprint selectors use the registered subject so unrelated blueprint types are not offered or selected by default.
+
 - Added translated demo copy defaults for section gallery payloads and coverage for locale overrides.
 - Added dedicated route-backed screenshot fixture states for the section selector modal and anonymous section widget gallery.
 - Added provider-backed health diagnostics for the sections table, morph alias, admin resource, default section registry, and public payload contributor.

@@ -14,9 +14,13 @@ use Capell\ContentSections\Providers\ContentSectionsServiceProvider;
 use Capell\Core\Data\PageTypeData;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Media;
+use Capell\DiscoveryFoundation\Providers\DiscoveryFoundationServiceProvider;
 use Capell\FoundationTheme\Providers\FoundationThemeServiceProvider;
 use Capell\Frontend\Providers\FrontendServiceProvider;
+use Capell\HtmlCache\Providers\HtmlCacheServiceProvider;
 use Capell\LayoutBuilder\LayoutBuilderServiceProvider;
+use Capell\MigrationAssistant\Providers\MigrationAssistantServiceProvider;
+use Capell\Navigation\Providers\NavigationServiceProvider;
 use Capell\PublishingStudio\Providers\PublishingStudioServiceProvider;
 use Capell\Tests\AbstractTestCase;
 use Illuminate\Contracts\Config\Repository;
@@ -76,6 +80,10 @@ class ContentSectionsTestCase extends AbstractTestCase
             AdminServiceProvider::class,
             FrontendServiceProvider::class,
             FoundationThemeServiceProvider::class,
+            DiscoveryFoundationServiceProvider::class,
+            HtmlCacheServiceProvider::class,
+            MigrationAssistantServiceProvider::class,
+            NavigationServiceProvider::class,
             PublishingStudioServiceProvider::class,
             LivewireServiceProvider::class,
         ];
@@ -90,7 +98,12 @@ class ContentSectionsTestCase extends AbstractTestCase
         parent::getEnvironmentSetUp($app);
 
         CapellCore::forcePackageInstalled(AdminServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(BlockLibraryServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(DiscoveryFoundationServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(HtmlCacheServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(MigrationAssistantServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(NavigationServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(LayoutBuilderServiceProvider::$packageName);
         CapellCore::registerPackage(
             PublishingStudioServiceProvider::$packageName,

@@ -16,11 +16,13 @@ use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section as FilamentSection;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -314,8 +316,8 @@ it('loads content select options through site content type parent and admin quer
             static fn (Builder $query): Builder => $query->where('sections.name', 'not like', 'Excluded%'),
         );
 
-    $siteOptions = invokeContentSelectOptions($select, $primarySite->getKey(), 'Alpha');
-    $allSiteOptions = invokeContentSelectOptions($select);
+    $siteOptions = contentSelectOptions($select, $primarySite->getKey(), 'Alpha');
+    $allSiteOptions = contentSelectOptions($select);
     $optionLabel = evaluateContentSelectCallback($select, 'getOptionLabelUsing', [
         'value' => $matchingSection->getKey(),
     ]);
@@ -345,7 +347,7 @@ it('orders content select search results by portable text relevance', function (
     $select = ContentSelect::make('content_id')
         ->container(contentSectionsSchema('edit'));
 
-    expect(array_slice(array_keys(invokeContentSelectOptions($select, search: 'Alpha')), 0, 3))
+    expect(array_slice(array_keys(contentSelectOptions($select, search: 'Alpha')), 0, 3))
         ->toBe([
             $exact->getKey(),
             $prefix->getKey(),
@@ -371,7 +373,7 @@ it('scopes content select options selected records and labels to the current act
 
     $select = ContentSelect::make('content_id')
         ->container(contentSectionsSchema('edit'));
-    $options = invokeContentSelectOptions($select);
+    $options = contentSelectOptions($select);
     $searchResults = evaluateContentSelectCallback($select, 'getSearchResultsUsing', [
         'search' => 'Section',
     ], [
@@ -432,10 +434,10 @@ it('scopes parent filter options to global and assigned site records', function 
 
     auth()->setUser(contentSectionsScopedUser(collect([(int) $assignedSite->getKey()])));
 
-    $allOptions = invokeParentSectionOptions(null, null);
-    $assignedSiteOptions = invokeParentSectionOptions($assignedSite->getKey(), null);
-    $hiddenSiteOptions = invokeParentSectionOptions($hiddenSite->getKey(), null);
-    $hiddenSearchOptions = invokeParentSectionOptions(null, null, 'Hidden');
+    $allOptions = parentSectionFilterOptions(null, null);
+    $assignedSiteOptions = parentSectionFilterOptions($assignedSite->getKey(), null);
+    $hiddenSiteOptions = parentSectionFilterOptions($hiddenSite->getKey(), null);
+    $hiddenSearchOptions = parentSectionFilterOptions(null, null, 'Hidden');
 
     expect($allOptions)->toHaveKey($globalParent->getKey())
         ->and($allOptions)->toHaveKey($assignedParent->getKey())
@@ -490,12 +492,14 @@ function contentSectionsComponentNames(array $components): array
 /**
  * @return array<array-key, mixed>
  */
-function invokeContentSelectOptions(ContentSelect $select, ?int $siteId = null, ?string $search = null): array
+function contentSelectOptions(ContentSelect $select, ?int $siteId = null, ?string $search = null): array
 {
-    $reflection = new ReflectionMethod(ContentSelect::class, 'getContentOptions');
+    if ($siteId === null && $search === null) {
+        return $select->getOptions();
+    }
 
-    /** @var array<array-key, mixed> $options */
-    $options = $reflection->invoke($select, $siteId, $search);
+    $options = evaluateContentSelectCallback($select, 'getSearchResultsUsing', ['search' => $search ?? ''], [Get::class => contentSectionsSiteIdGetter($siteId)]);
+    throw_unless(is_array($options), RuntimeException::class);
 
     return $options;
 }
@@ -503,14 +507,30 @@ function invokeContentSelectOptions(ContentSelect $select, ?int $siteId = null, 
 /**
  * @return array<array-key, mixed>
  */
-function invokeParentSectionOptions(null|int|string $siteId, ?int $languageId, ?string $search = null): array
+function parentSectionFilterOptions(null|int|string $siteId, ?int $languageId, ?string $search = null): array
 {
-    $reflection = new ReflectionMethod(SectionsTable::class, 'parentSectionOptions');
+    $livewire = contentSectionsTableLivewire();
+    $livewire->shouldReceive('getTableFilterState')->with('filter')->andReturn(['site_id' => $siteId]);
+    $table = SectionsTable::configure(Table::make($livewire));
+    $filter = $table->getFilter('filter');
+    throw_unless($filter instanceof Filter, RuntimeException::class);
+    $select = collect($filter->getSchemaComponents())->first(fn (mixed $field): bool => $field instanceof Select && $field->getName() === 'parent_id');
+    throw_unless($select instanceof Select, RuntimeException::class);
+    $property = new ReflectionProperty($select, $search === null ? 'options' : 'getSearchResultsUsing');
+    $callback = $property->getValue($select);
+    throw_unless($callback instanceof Closure, RuntimeException::class);
+    $get = new class($languageId) extends Get
+    {
+        public function __construct(private readonly ?int $languageId) {}
 
-    /** @var array<array-key, mixed> $options */
-    $options = $reflection->invoke(null, $siteId, $languageId, $search);
+        #[Override]
+        public function __invoke(string|Component $path = '', bool $isAbsolute = false): mixed
+        {
+            return $path === 'language_id' ? $this->languageId : null;
+        }
+    };
 
-    return $options;
+    return $select->evaluate($callback, ['search' => $search ?? ''], [HasTable::class => $livewire, Get::class => $get]);
 }
 
 function contentSectionsSiteIdGetter(?int $siteId): Get&MockInterface

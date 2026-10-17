@@ -10,6 +10,7 @@ use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Enums\ConfiguratorTypeEnum as AdminConfiguratorTypeEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\BlockLibrary\Contracts\BlockDefinitionProvider;
+use Capell\BlockLibrary\Support\BlockRegistry;
 use Capell\ContentSections\Actions\CloneSectionIntoWorkspaceAction;
 use Capell\ContentSections\Actions\FinalizeSectionPublishAction;
 use Capell\ContentSections\Actions\RegisterDefaultSectionsAction;
@@ -65,23 +66,10 @@ final class ContentSectionsServiceProvider extends AbstractPackageServiceProvide
 
     public static string $packageName = 'capell-app/content-sections';
 
-    private bool $installedRuntimeBooted = false;
-
-    private bool $sectionRegistryBootstrapped = false;
-
     #[Override]
     public function packageRegistered(): void
     {
         $this->app->tag([ContentSectionsFragmentUrlResolver::class], PublicFragmentUrlResolver::TAG);
-
-        if (! interface_exists(self::BLOCK_DEFINITION_PROVIDER)) {
-            return;
-        }
-
-        $this->app->tag(
-            [ContentSectionsBlockDefinitionProvider::class],
-            self::BLOCK_DEFINITION_PROVIDER::TAG,
-        );
     }
 
     #[Override]
@@ -92,18 +80,6 @@ final class ContentSectionsServiceProvider extends AbstractPackageServiceProvide
             ->hasRoute('web')
             ->hasViews(self::$name)
             ->hasTranslations();
-    }
-
-    #[Override]
-    public function registeringPackage(): void
-    {
-        parent::registeringPackage();
-
-        $this->app->booting(function (): void {
-            if ($this->isPackageInstalled()) {
-                $this->registerResources();
-            }
-        });
     }
 
     #[Override]
@@ -125,11 +101,10 @@ final class ContentSectionsServiceProvider extends AbstractPackageServiceProvide
     }
 
     #[Override]
-    protected function bootInstalledPackage(): self
+    protected function bootInstalledRuntime(): void
     {
-        if ($this->installedRuntimeBooted) {
-            return $this;
-        }
+        $this->loadTranslationsFrom(__DIR__ . '/../../resources/lang', self::$name);
+        $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
 
         $this
             ->registerPackageLivewireComponents()
@@ -148,9 +123,6 @@ final class ContentSectionsServiceProvider extends AbstractPackageServiceProvide
             ->registerBlazeComponents()
             ->registerPublishingStudio();
 
-        $this->installedRuntimeBooted = true;
-
-        return $this;
     }
 
     private function registerModels(): self
@@ -172,10 +144,6 @@ final class ContentSectionsServiceProvider extends AbstractPackageServiceProvide
         $this->app->singleton(SectionRegistry::class);
 
         $this->callAfterResolving(SectionRegistry::class, function (SectionRegistry $registry): void {
-            if ($this->sectionRegistryBootstrapped) {
-                return;
-            }
-
             RegisterDefaultSectionsAction::run($registry);
 
             foreach ($this->app->tagged(SectionDefinitionProvider::TAG) as $provider) {
@@ -186,7 +154,22 @@ final class ContentSectionsServiceProvider extends AbstractPackageServiceProvide
                 RegisterSectionDefinitionProviderAction::run($registry, $provider);
             }
 
-            $this->sectionRegistryBootstrapped = true;
+        });
+
+        // The lifecycle hook runs once even when the provider is registered again.
+        if (interface_exists(self::BLOCK_DEFINITION_PROVIDER)) {
+            $this->app->tag(
+                [ContentSectionsBlockDefinitionProvider::class],
+                self::BLOCK_DEFINITION_PROVIDER::TAG,
+            );
+        }
+
+        $this->callAfterResolving(BlockRegistry::class, static function (BlockRegistry $registry): void {
+            foreach (resolve(ContentSectionsBlockDefinitionProvider::class)->definitions() as $definition) {
+                if (! $registry->has($definition->key)) {
+                    $registry->register($definition);
+                }
+            }
         });
 
         return $this;

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\Admin\Contracts\ConfiguratorInterface;
 use Capell\ContentSections\Actions\BuildSectionAssetRenderDataAction;
 use Capell\ContentSections\Actions\ModifyContentSelectCreateAction;
 use Capell\ContentSections\Actions\NormalizeSectionIconAction;
@@ -46,6 +47,7 @@ use Capell\ContentSections\Manifest\ContentSectionsSchemaExtendersContribution;
 use Capell\ContentSections\Models\Section;
 use Capell\ContentSections\Observers\SectionObserver;
 use Capell\ContentSections\Support\DefaultSectionDefinitionProvider;
+use Capell\ContentSections\Tests\Fixtures\ContentSectionsSchemaLivewireHarness;
 use Capell\Core\Contracts\Extensions\ExtensionContribution;
 use Capell\Core\Contracts\Extensions\RegistersExtensionRoute;
 use Capell\Core\Data\Diagnostics\DoctorCheckResultData;
@@ -55,6 +57,7 @@ use Capell\Core\Models\Language;
 use Capell\Frontend\Contracts\FrontendComponentRegistryInterface;
 use Capell\Frontend\Data\FrontendComponentData;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
+use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Tabs;
@@ -63,8 +66,10 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Routing\Route;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use Livewire\Livewire;
 
 uses(CreatesAdminUser::class);
@@ -241,6 +246,13 @@ it('declares content sections manifest surfaces accurately', function (): void {
     throw_unless(is_array($routeContribution), RuntimeException::class, 'Expected content-sections route contribution to be an array.');
     throw_unless(is_array($schemaExtenderContribution), RuntimeException::class, 'Expected content-sections schema extender contribution to be an array.');
 
+    $routeNames = $security['publicSurface']['routeNames'] ?? null;
+    throw_unless(is_array($routeNames) && $routeNames !== [], RuntimeException::class);
+    foreach ($routeNames as $routeName) {
+        throw_unless(is_string($routeName), RuntimeException::class);
+        expect(Illuminate\Support\Facades\Route::getRoutes()->getByName($routeName))->toBeInstanceOf(Route::class);
+    }
+
     expect($database['requiredTables'] ?? [])->toContain('sections')
         ->and($dependencies['supports'] ?? [])->toContain(
             'capell-app/publishing-studio',
@@ -288,7 +300,8 @@ it('declares content sections manifest surfaces accurately', function (): void {
             'capell-content-sections.screenshot-fixtures.section-selector-modal',
             'capell-content-sections.screenshot-fixtures.section-widget-gallery',
         ])
-        ->and($security['publicSurface']['routeNames'])->toBe([])
+        ->and($security['publicSurface']['routeNames'])->toBe(['capell-content-sections.fragments.show'])
+        ->and(Illuminate\Support\Facades\Route::getRoutes()->getByName('capell-content-sections.fragments.show'))->toBeInstanceOf(Route::class)
         ->and(class_implements(ContentSectionsRoutesContribution::class))->toContain(RegistersExtensionRoute::class)
         ->and($cacheSafety['cacheable'] ?? false)->toBeTrue()
         ->and($cacheSafety['invalidationSources'] ?? [])->toContain([
@@ -297,10 +310,9 @@ it('declares content sections manifest surfaces accurately', function (): void {
         ]);
 });
 
-it('declares section configurator keys for popular section variants', function (object $configurator, string $key): void {
-    $reflection = new ReflectionMethod($configurator, 'sectionKey');
-
-    expect($reflection->invoke($configurator))->toBe($key);
+it('declares section configurator keys for popular section variants', function (ConfiguratorInterface $configurator, string $key): void {
+    expect($configurator::getKey())->toBe(Str::studly($key))
+        ->and(contentSectionConfiguredFields($configurator))->not->toBeEmpty();
 })->with([
     'accordion' => fn (): array => [new AccordionSectionConfigurator, 'accordion'],
     'call_to_action' => fn (): array => [new CallToActionSectionConfigurator, 'call_to_action'],
@@ -332,10 +344,8 @@ it('builds the content blueprint configurator admin tab', function (): void {
         ->and($tabs)->toBeInstanceOf(Tabs::class);
 });
 
-it('builds popular section meta schemas for all configured section keys', function (object $configurator, array $expectedNames): void {
-    $reflection = new ReflectionMethod($configurator, 'metaFields');
-
-    $fields = capell_test_collect($reflection->invoke($configurator, Schema::make()->operation('edit')));
+it('builds popular section meta schemas for all configured section keys', function (ConfiguratorInterface $configurator, array $expectedNames): void {
+    $fields = collect(contentSectionConfiguredFields($configurator));
     $fieldNames = $fields->map(
         fn (mixed $field): ?string => is_object($field) && method_exists($field, 'getName') ? $field->getName() : null,
     )->filter()->values()->all();
@@ -365,9 +375,7 @@ it('builds popular section meta schemas for all configured section keys', functi
 ]);
 
 it('builds testimonial media metadata schema', function (): void {
-    $reflection = new ReflectionMethod(TestimonialSectionConfigurator::class, 'getMetaSchema');
-
-    $components = capell_test_collect($reflection->invoke(new TestimonialSectionConfigurator));
+    $components = collect(contentSectionConfiguredFields(new TestimonialSectionConfigurator));
 
     expect($components)->not->toBeEmpty()
         ->and($components->map(
@@ -575,4 +583,13 @@ function contentSectionsMorphBuilder(): Illuminate\Contracts\Database\Eloquent\B
     $builder->shouldReceive('where')->andReturn($builder);
 
     return $builder;
+}
+
+/** @return array<string, Field> */
+function contentSectionConfiguredFields(ConfiguratorInterface $configurator): array
+{
+    $schema = Schema::make(new ContentSectionsSchemaLivewireHarness)->operation('edit')->record(new Section);
+    $configurator::configure($schema);
+
+    return $schema->getFlatFields(withHidden: true);
 }

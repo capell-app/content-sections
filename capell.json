@@ -6,7 +6,7 @@
     "kind": "package",
     "capellApiVersion": "^1.0",
     "version": "1.0.0",
-    "description": "Seventeen ready-to-use, themeable page sections — hero, FAQ, pricing, stats, testimonials, team, comparison, timeline and more — that editors reuse across pages and developers render through safe, package-owned Blade. Bundled free with Capell Foundation.",
+    "description": "Seventeen ready-to-use, themeable page sections (hero, FAQ, pricing, stats, testimonials, team, comparison, timeline and more) that editors reuse across pages and developers render through safe, package-owned Blade. Bundled free with Capell Foundation.",
     "product": {
         "group": "Capell Foundation",
         "tier": "free",
@@ -137,8 +137,8 @@
     "security": {
         "riskTier": "standard",
         "publicSurface": {
-            "routeNames": [],
-            "auth": "none",
+            "routeNames": ["capell-content-sections.fragments.show"],
+            "auth": "public",
             "csrfExemptRoutes": [],
             "signedRoutes": [],
             "tokenizedRoutes": [],
@@ -219,7 +219,7 @@
         "privateDocsRequested": false
     },
     "marketplace": {
-        "summary": "Seventeen ready-to-use, themeable page sections — hero, FAQ, pricing, stats, testimonials, team, comparison, timeline and more — that editors reuse across pages and developers render through safe, package-owned Blade. Bundled free with Capell Foundation.",
+        "summary": "Seventeen ready-to-use, themeable page sections (hero, FAQ, pricing, stats, testimonials, team, comparison, timeline and more) that editors reuse across pages and developers render through safe, package-owned Blade. Bundled free with Capell Foundation.",
         "screenshots": [
             {
                 "path": "docs/assets/marketplace/extension-card.jpg",

@@ -3,13 +3,12 @@
 declare(strict_types=1);
 
 use Capell\ContentSections\Models\Section;
-use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Date;
 
 afterEach(function (): void {
-    Date::use(Carbon::class);
+    Date::useDefault();
 });
 
 it('uses the existing sections table and section morph alias', function (): void {

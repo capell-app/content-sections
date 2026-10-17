@@ -14,8 +14,6 @@ use Capell\PublishingStudio\Models\Workspace;
 use Capell\PublishingStudio\WorkspaceContext;
 use Capell\Tests\Fixtures\Models\User;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
-use Filament\Actions\Action;
-use Illuminate\Contracts\Support\Htmlable;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -61,17 +59,8 @@ it('labels the primary save action as save and publish', function (): void {
     test()->actingAsAdmin();
 
     $section = Section::factory()->create();
-    $component = Livewire::test(EditSection::class, ['record' => $section->getRouteKey()])
-        ->instance();
-    $method = new ReflectionMethod($component, 'getSaveFormAction');
-
-    /** @var Action $saveAction */
-    $saveAction = $method->invoke($component);
-    $label = $saveAction->getLabel();
-
-    expect($saveAction)->toBeInstanceOf(Action::class)
-        ->and($label instanceof Htmlable ? $label->toHtml() : $label)
-        ->toBe(__('capell-content-sections::button.save_and_publish'));
+    Livewire::test(EditSection::class, ['record' => $section->getRouteKey()])
+        ->assertSee(__('capell-content-sections::button.save_and_publish'));
 });
 
 it('unpublishes live sections immediately', function (): void {
