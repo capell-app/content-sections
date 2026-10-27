@@ -19,7 +19,7 @@ This guide is for editors who build reusable sections and owners deciding when t
 ### How to insert a section into a page
 
 1. Open the page you want to edit.
-2. Add a section from the **Section library**.
+2. Choose an existing section from **Sections**.
 3. Pick the section by its name.
 4. Save the page.
 
@@ -35,7 +35,7 @@ This guide is for editors who build reusable sections and owners deciding when t
 
 ### Turn on first
 
-- **A few high-value reusable sections.** Start with content that genuinely repeats, like a call to action or a contact block, so editors see the benefit of editing once.
+- A few high-value reusable sections. Start with content that genuinely repeats, like a call to action or a contact block, so editors see the benefit of editing once.
 
 ### Add when needed
 

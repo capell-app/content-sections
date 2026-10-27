@@ -13,6 +13,7 @@ use Capell\BlockLibrary\Contracts\BlockDefinitionProvider;
 use Capell\BlockLibrary\Support\BlockRegistry;
 use Capell\ContentSections\Actions\CloneSectionIntoWorkspaceAction;
 use Capell\ContentSections\Actions\FinalizeSectionPublishAction;
+use Capell\ContentSections\Actions\Fragments\InvalidateSectionFragmentsForMediaAction;
 use Capell\ContentSections\Actions\RegisterDefaultSectionsAction;
 use Capell\ContentSections\Actions\RegisterSectionBlueprintSubjectsAction;
 use Capell\ContentSections\Actions\RegisterSectionDefinitionProviderAction;
@@ -24,6 +25,7 @@ use Capell\ContentSections\Enums\ResourceEnum;
 use Capell\ContentSections\Filament\Configurators\Blueprints\ContentBlueprintConfigurator;
 use Capell\ContentSections\Fragments\ContentSectionsFragmentUrlResolver;
 use Capell\ContentSections\Models\Section;
+use Capell\ContentSections\Policies\SectionAssetAttachmentPolicy;
 use Capell\ContentSections\Policies\SectionPolicy;
 use Capell\ContentSections\Support\ContentSectionsBlockDefinitionProvider;
 use Capell\ContentSections\Support\ContentSectionsModelRegistrar;
@@ -32,8 +34,11 @@ use Capell\ContentSections\Support\SectionRegistry;
 use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
 use Capell\Core\Data\AssetData;
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Models\AssetAttachment;
 use Capell\Core\Models\Blueprint;
+use Capell\Core\Models\Media;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\Translation;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Contracts\AssetsRegistryInterface;
 use Capell\Frontend\Contracts\Fragments\PublicFragmentUrlResolver;
@@ -135,6 +140,10 @@ final class ContentSectionsServiceProvider extends AbstractPackageServiceProvide
     private function registerPolicies(): self
     {
         Gate::policy(Section::class, SectionPolicy::class);
+
+        if (Gate::getPolicyFor(AssetAttachment::class) === null) {
+            Gate::policy(AssetAttachment::class, SectionAssetAttachmentPolicy::class);
+        }
 
         return $this;
     }
@@ -328,6 +337,19 @@ final class ContentSectionsServiceProvider extends AbstractPackageServiceProvide
                 $action::run($section);
             }
         });
+
+        foreach (['saved', 'deleted', 'restored'] as $event) {
+            Event::listen(sprintf('eloquent.%s: ', $event) . Media::class, static function (Media $media): void {
+                InvalidateSectionFragmentsForMediaAction::run($media);
+            });
+        }
+
+        // Alt text and the decorative flag are translations of the media.
+        foreach (['saved', 'deleted'] as $event) {
+            Event::listen(sprintf('eloquent.%s: ', $event) . Translation::class, static function (Translation $translation): void {
+                InvalidateSectionFragmentsForMediaAction::run($translation);
+            });
+        }
 
         Event::listen('eloquent.deleted: ' . Section::class, function (Section $section): void {
             $action = self::ADMIN_DELETED_MODEL_ACTION;

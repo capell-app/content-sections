@@ -16,6 +16,7 @@ use Capell\ContentSections\Filament\Components\Forms\Content\DetailsSchema;
 use Capell\ContentSections\Filament\Components\Forms\Content\SettingsSchema;
 use Capell\ContentSections\Filament\Components\Forms\Content\TranslationsRepeater;
 use Capell\ContentSections\Filament\Components\Forms\CustomColorInput;
+use Capell\ContentSections\Filament\Components\Forms\SectionMediaFields;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -322,9 +323,9 @@ abstract class RichSectionConfigurator extends DefaultSectionConfigurator
     private function logosFields(): array
     {
         return [
+            SectionMediaFields::upload(),
             $this->itemsRepeater('logos', __('capell-content-sections::form.logos'), [
-                MediaLibraryFileUpload::make('image')
-                    ->columnSpanFull(),
+                SectionMediaFields::select(),
                 TextInput::make('name')
                     ->label(__('capell-admin::form.name'))
                     ->required(),
@@ -441,9 +442,9 @@ abstract class RichSectionConfigurator extends DefaultSectionConfigurator
     private function teamFields(): array
     {
         return [
+            SectionMediaFields::upload(),
             $this->itemsRepeater('members', __('capell-content-sections::form.members'), [
-                MediaLibraryFileUpload::make('image')
-                    ->columnSpanFull(),
+                SectionMediaFields::select(),
                 TextInput::make('name')
                     ->label(__('capell-admin::form.name'))
                     ->required(),

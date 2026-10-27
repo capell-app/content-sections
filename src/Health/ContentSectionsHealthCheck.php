@@ -56,6 +56,7 @@ final class ContentSectionsHealthCheck implements ChecksExtensionHealth
             remediation: $passed
                 ? null
                 : (string) __('capell-content-sections::generic.health_storage_table_remediation'),
+            id: 'legacy.content.sections.storage.table',
         );
     }
 
@@ -72,6 +73,7 @@ final class ContentSectionsHealthCheck implements ChecksExtensionHealth
             remediation: $passed
                 ? null
                 : (string) __('capell-content-sections::generic.health_morph_alias_remediation'),
+            id: 'legacy.content.sections.morph.alias',
         );
     }
 
@@ -88,6 +90,7 @@ final class ContentSectionsHealthCheck implements ChecksExtensionHealth
             remediation: $passed
                 ? null
                 : (string) __('capell-content-sections::generic.health_admin_resource_remediation'),
+            id: 'legacy.content.sections.admin.resource',
         );
     }
 
@@ -107,6 +110,7 @@ final class ContentSectionsHealthCheck implements ChecksExtensionHealth
             remediation: $passed
                 ? null
                 : (string) __('capell-content-sections::generic.health_section_registry_remediation'),
+            id: 'legacy.content.sections.registry',
         );
     }
 
@@ -125,6 +129,7 @@ final class ContentSectionsHealthCheck implements ChecksExtensionHealth
             remediation: $passed
                 ? null
                 : (string) __('capell-content-sections::generic.health_public_payload_contributor_remediation'),
+            id: 'legacy.content.sections.public.payload.contributor',
         );
     }
 }

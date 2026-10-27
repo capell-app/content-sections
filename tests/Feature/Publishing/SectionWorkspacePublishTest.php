@@ -7,7 +7,6 @@ use Capell\ContentSections\Actions\FinalizeSectionPublishAction;
 use Capell\ContentSections\Models\Section;
 use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Models\AssetAttachment;
-use Capell\Core\Models\Media;
 use Capell\Core\Models\Translation;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
@@ -17,6 +16,8 @@ use Capell\PublishingStudio\Enums\WorkspaceStatusEnum;
 use Capell\PublishingStudio\Models\Workspace;
 use Capell\PublishingStudio\Publisher;
 use Capell\Tests\Fixtures\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 it('clones sections into workspaces through the package action', function (): void {
@@ -33,10 +34,8 @@ it('clones sections into workspaces through the package action', function (): vo
         'content' => '<p>Translated copy</p>',
     ]);
     AssetAttachment::factory()->related($live)->create();
-    Media::factory()
-        ->model($live)
-        ->collection(MediaCollectionEnum::Image)
-        ->create();
+    Storage::fake('public');
+    $live->addMedia(UploadedFile::fake()->image('hero.jpg', 40, 40))->toMediaCollection(MediaCollectionEnum::Image->value);
 
     $draft = CloneSectionIntoWorkspaceAction::run($live, $workspace);
 
@@ -49,7 +48,9 @@ it('clones sections into workspaces through the package action', function (): vo
         ->and($draft->uuid)->toBe($uuid)
         ->and($draft->translations()->count())->toBe(1)
         ->and($draft->assets()->count())->toBe(1)
-        ->and($draft->media()->where('collection_name', MediaCollectionEnum::Image->value)->count())->toBe(1);
+        ->and($draft->media()->where('collection_name', MediaCollectionEnum::Image->value)->count())->toBe(1)
+        ->and(Storage::disk('public')->exists($draft->getFirstMedia(MediaCollectionEnum::Image->value)?->getPathRelativeToRoot() ?? 'missing'))->toBeTrue()
+        ->and($draft->getFirstMedia(MediaCollectionEnum::Image->value)?->uuid)->not->toBe($live->getFirstMedia(MediaCollectionEnum::Image->value)?->uuid);
 });
 
 it('repoints layout builder section usages to the published section draft row', function (): void {
@@ -97,10 +98,8 @@ it('publishes section drafts through publisher with revisions media and site wid
         ->asset($live)
         ->create();
 
-    Media::factory()
-        ->model($live)
-        ->collection(MediaCollectionEnum::Image)
-        ->create();
+    Storage::fake('public');
+    $live->addMedia(UploadedFile::fake()->image('hero.jpg', 40, 40))->toMediaCollection(MediaCollectionEnum::Image->value);
 
     expect(ListPublishingRevisionsAction::run($live))->toBeEmpty();
 

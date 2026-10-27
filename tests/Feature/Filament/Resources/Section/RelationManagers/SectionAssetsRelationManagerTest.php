@@ -8,12 +8,19 @@ use Capell\ContentSections\Filament\Resources\Sections\RelationManagers\SectionA
 use Capell\ContentSections\Models\Section;
 use Capell\Core\Models\AssetAttachment;
 use Capell\Core\Models\Page;
+use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Filament\Actions\CreateAction;
 use Filament\Actions\Testing\TestAction;
 
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Laravel\assertDatabaseMissing;
 use function Pest\Livewire\livewire;
+
+uses(CreatesAdminUser::class);
+
+beforeEach(function (): void {
+    test()->actingAsAdmin();
+});
 
 it('can list section assets', function (): void {
     $section = Section::factory()

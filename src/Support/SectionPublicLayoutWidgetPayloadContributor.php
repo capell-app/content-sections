@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\ContentSections\Support;
 
+use Capell\ContentSections\Actions\HydrateSectionMediaSlotsAction;
 use Capell\ContentSections\Actions\ResolveSectionComponentAction;
 use Capell\ContentSections\Actions\SanitizeSectionHtmlAction;
 use Capell\ContentSections\Data\SectionPublicRenderData;
@@ -27,7 +28,7 @@ use WeakMap;
 final class SectionPublicLayoutWidgetPayloadContributor implements PublicLayoutWidgetPayloadContributor
 {
     /**
-     * @var WeakMap<Widget, Collection<int, array<string, mixed>>>
+     * @var WeakMap<Widget, array<int|string, Collection<int, array<string, mixed>>>>
      */
     private WeakMap $sectionDataByWidgetObject;
 
@@ -46,7 +47,7 @@ final class SectionPublicLayoutWidgetPayloadContributor implements PublicLayoutW
      */
     public function data(Widget $widget, Page $page, Language $language, string $containerKey, int $occurrence): array
     {
-        $sections = $this->sectionDataForWidget($widget)
+        $sections = $this->sectionDataForWidget($widget, $language)
             ->values()
             ->all();
 
@@ -59,7 +60,7 @@ final class SectionPublicLayoutWidgetPayloadContributor implements PublicLayoutW
 
     public function html(Widget $widget, Page $page, Language $language, string $containerKey, int $occurrence): ?string
     {
-        $html = $this->sectionDataForWidget($widget)
+        $html = $this->sectionDataForWidget($widget, $language)
             ->map(fn (array $section): string => is_string($section['html'] ?? null) ? $section['html'] : '')
             ->filter(fn (string $html): bool => trim($html) !== '')
             ->implode("\n");
@@ -70,17 +71,22 @@ final class SectionPublicLayoutWidgetPayloadContributor implements PublicLayoutW
     /**
      * @return Collection<int, array<string, mixed>>
      */
-    private function sectionDataForWidget(Widget $widget): Collection
+    private function sectionDataForWidget(Widget $widget, Language $language): Collection
     {
-        if (isset($this->sectionDataByWidgetObject[$widget])) {
-            return $this->sectionDataByWidgetObject[$widget];
+        $languageKey = $language->getKey();
+        $languageKey = is_int($languageKey) || is_string($languageKey) ? $languageKey : 0;
+        $cached = $this->sectionDataByWidgetObject[$widget] ?? [];
+
+        if (isset($cached[$languageKey])) {
+            return $cached[$languageKey];
         }
 
-        $this->sectionDataByWidgetObject[$widget] = $this->sectionAssets($widget)
-            ->map(fn (WidgetAsset $widgetAsset): array => $this->sectionData($widgetAsset))
+        $cached[$languageKey] = $this->sectionAssets($widget)
+            ->map(fn (WidgetAsset $widgetAsset): array => $this->sectionData($widgetAsset, $language))
             ->values();
+        $this->sectionDataByWidgetObject[$widget] = $cached;
 
-        return $this->sectionDataByWidgetObject[$widget];
+        return $cached[$languageKey];
     }
 
     /**
@@ -120,7 +126,7 @@ final class SectionPublicLayoutWidgetPayloadContributor implements PublicLayoutW
     /**
      * @return array<string, mixed>
      */
-    private function sectionData(WidgetAsset $widgetAsset): array
+    private function sectionData(WidgetAsset $widgetAsset, Language $language): array
     {
         /** @var Section $section */
         $section = $this->loadedSection($widgetAsset);
@@ -130,18 +136,18 @@ final class SectionPublicLayoutWidgetPayloadContributor implements PublicLayoutW
 
         $translation = $this->translationFor($section);
         $component = $this->componentFor($section);
+        $meta = $this->metaFor($section, $widgetAsset, $language);
 
         $data = new SectionPublicRenderData(
             key: $this->blueprintKey($section),
-            component: $component,
             title: $translation->label ?? $section->name,
             summary: $this->summaryFor($translation),
-            meta: $this->metaFor($section, $widgetAsset),
+            meta: $meta,
             linkText: $translation?->link_text,
             url: $this->linkedPageUrl($section),
             html: $this->renderSection($widgetAsset, [
                 'component' => $component,
-                'meta' => $this->metaFor($section, $widgetAsset),
+                'meta' => $meta,
                 'summary' => $this->summaryFor($translation),
                 'title' => $translation->label ?? $section->name,
                 'linkText' => $translation?->link_text,
@@ -208,7 +214,7 @@ final class SectionPublicLayoutWidgetPayloadContributor implements PublicLayoutW
     /**
      * @return array<string, mixed>
      */
-    private function metaFor(Section $section, WidgetAsset $widgetAsset): array
+    private function metaFor(Section $section, WidgetAsset $widgetAsset, Language $language): array
     {
         $meta = array_replace_recursive(
             is_array($section->meta) ? $section->meta : [],
@@ -218,7 +224,7 @@ final class SectionPublicLayoutWidgetPayloadContributor implements PublicLayoutW
         /** @var array<string, mixed> $sanitised */
         $sanitised = SanitizeSectionHtmlAction::run($meta);
 
-        return $sanitised;
+        return HydrateSectionMediaSlotsAction::run($section, $sanitised, $language);
     }
 
     private function componentFor(Section $section): string

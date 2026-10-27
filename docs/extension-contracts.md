@@ -42,3 +42,20 @@ for existing encrypted references; applications retain their old route as a thin
 adapter if previously cached shells still point to it. `cache_seconds` defaults
 to 1800. Invalid or unavailable fragments return a bare 404; crashed renders a
 bare 500, with details confined to server logs.
+
+## Install lifecycle action
+
+Normal installation invokes this action through the package lifecycle. A trusted
+host integration can pass the selected package's existing `PackageData` record:
+
+<!-- example: action install -->
+
+```php
+<?php
+declare(strict_types=1);
+
+function installSelectedPackage(\Capell\Core\Data\PackageData $package): void
+{
+    \Capell\ContentSections\Actions\InstallContentSectionsPackageAction::run($package);
+}
+```

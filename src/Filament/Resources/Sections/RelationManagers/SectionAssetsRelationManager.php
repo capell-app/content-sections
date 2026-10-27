@@ -86,7 +86,9 @@ class SectionAssetsRelationManager extends RelationManager
                 self::createResourcesAction(),
             ])
             ->toolbarActions([
-                DeleteBulkAction::make(),
+                DeleteBulkAction::make()
+                    ->modalHeading(__('capell-content-sections::section_asset.delete_modal.heading'))
+                    ->modalDescription(__('capell-content-sections::section_asset.delete_modal.description')),
             ]);
     }
 

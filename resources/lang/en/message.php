@@ -21,6 +21,6 @@ return [
     'usage_count_partial' => 'Used in at least :count place you can access.|Used in at least :count places you can access.',
     'usage_partial_notice' => 'You can only see usage on sites assigned to you. The real total may be higher.',
     'usage_destinations_more' => 'and :count more.|and :count more.',
-    'usage_delete_consequence' => 'Deleting removes it from every listed destination.',
-    'usage_force_delete_consequence' => 'Force deleting permanently removes it from every listed destination.',
+    'usage_delete_consequence' => 'This hides the section and its child sections from public rendering. References are kept. The section and children deleted with it can be restored from the deleted records filter.',
+    'usage_force_delete_consequence' => 'This permanently removes the section, its child sections and their uploaded media. References may be left without content. This cannot be undone.',
 ];

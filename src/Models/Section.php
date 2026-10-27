@@ -131,6 +131,9 @@ class Section extends Model implements Blueprintable, HasMedia, Publishable, Use
     }
     use SoftDeletes;
 
+    /** Images editors upload once on a section and then assign to individual block items such as a logo. */
+    public const string BLOCK_MEDIA_COLLECTION = 'block_media';
+
     protected $table = 'sections';
 
     /**
@@ -243,6 +246,7 @@ class Section extends Model implements Blueprintable, HasMedia, Publishable, Use
     {
         $this->addMediaCollection(MediaCollectionEnum::Image->value)->singleFile();
         $this->addMediaCollection(MediaCollectionEnum::Video->value)->singleFile();
+        $this->addMediaCollection(self::BLOCK_MEDIA_COLLECTION);
     }
 
     /** @return BelongsTo<Blueprint, $this> */

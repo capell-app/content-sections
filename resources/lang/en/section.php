@@ -71,4 +71,20 @@ return [
         'description' => 'Reusable timeline content section.',
         'label' => 'Timeline section',
     ],
+    'delete_bulk_modal' => [
+        'heading' => 'Delete these sections?',
+        'description' => 'For each selected record: This hides the section and its child sections from public rendering. References are kept. The section and children deleted with it can be restored from the deleted records filter.',
+    ],
+    'delete_modal' => [
+        'heading' => 'Delete this section?',
+        'description' => 'This hides the section and its child sections from public rendering. References are kept. The section and children deleted with it can be restored from the deleted records filter.',
+    ],
+    'force_delete_bulk_modal' => [
+        'heading' => 'Permanently delete these sections?',
+        'description' => 'For each selected record: This permanently removes the section, its child sections and their uploaded media. References may be left without content. This cannot be undone.',
+    ],
+    'force_delete_modal' => [
+        'heading' => 'Permanently delete this section?',
+        'description' => 'This permanently removes the section, its child sections and their uploaded media. References may be left without content. This cannot be undone.',
+    ],
 ];

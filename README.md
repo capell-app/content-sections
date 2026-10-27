@@ -73,6 +73,7 @@ Screenshot contract: `docs/screenshots.json`.
 - `TranslationsRepeater`
 - `ContentSelect`
 - `CustomColorInput`
+- `SectionMediaFields`
 - `ContentNameColumn`
 - `HasAssetsRelationManager`
 - `ContentBlueprintConfigurator`
@@ -130,12 +131,15 @@ Screenshot contract: `docs/screenshots.json`.
 - `BuildSectionUsageSummaryAction`
 - `CancelScheduledSectionUnpublishAction`
 - `CloneSectionIntoWorkspaceAction`
+- `CopySectionMediaAction`
 - `CreateHeroContentBlueprintAction`
 - `CreateSectionContentAction`
 - `EnsureSectionBlueprintForKeyAction`
 - `FinalizeSectionPublishAction`
+- `InvalidateSectionFragmentsForMediaAction`
 - `RenderPublicSectionFragmentAction`
 - `GetDefaultLanguageIdAction`
+- `HydrateSectionMediaSlotsAction`
 - `InstallContentSectionsPackageAction`
 - `ModifyContentSelectCreateAction`
 - `NormalizeSectionIconAction`
@@ -145,6 +149,7 @@ Screenshot contract: `docs/screenshots.json`.
 - `ReplicateContentAction`
 - `ResolveRequestedSectionBlueprintAction`
 - `ResolveSectionComponentAction`
+- `ResolveSectionMediaAction`
 - `SanitizeSectionHtmlAction`
 - `UnpublishSectionAction`
 
@@ -153,6 +158,7 @@ Screenshot contract: `docs/screenshots.json`.
 - `PublicSectionFragmentResultData`
 - `SectionAssetRenderData`
 - `SectionDefinitionData`
+- `SectionMediaData`
 - `SectionPublicRenderData`
 - `SectionUsageDestinationData`
 - `SectionUsageSummaryData`
@@ -240,6 +246,12 @@ Screenshot contract: `docs/screenshots.json`.
 
 1. Install the package: `composer require capell-app/content-sections`.
 2. Open the package admin surface at `/admin/content-sections/sections` and confirm Content Sections is available.
+
+## Upgrading
+
+No manual steps between minor versions.
+
+Read [CHANGELOG.md](CHANGELOG.md) before upgrading.
 
 ## Next Steps
 

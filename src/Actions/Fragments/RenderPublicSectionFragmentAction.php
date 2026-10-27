@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Capell\ContentSections\Actions\Fragments;
 
+use Capell\ContentSections\Actions\HydrateSectionMediaSlotsAction;
 use Capell\ContentSections\Data\PublicSectionFragmentResultData;
 use Capell\ContentSections\Enums\PublicSectionFragmentOutcome;
 use Capell\ContentSections\Fragments\ContentSectionsFragmentUrlResolver;
+use Capell\ContentSections\Fragments\SectionFragmentSurrogateKey;
 use Capell\ContentSections\Models\Section;
 use Capell\Core\Enums\PublishVisibilityStateEnum;
 use Capell\Core\Models\Layout;
@@ -93,7 +95,9 @@ final class RenderPublicSectionFragmentAction
         if (! $section instanceof Section || ! $translation instanceof Model || $section->publishVisibilityState() !== PublishVisibilityStateEnum::published || (int) $section->workspace_id !== 0 || ($section->site_id !== null && (string) $section->site_id !== (string) $this->modelKey($context->site)) || ! is_string($version) || ! hash_equals($version, ResolvePublicFragmentAssetVersionAction::run($section))) {
             return new PublicSectionFragmentResultData(PublicSectionFragmentOutcome::Unavailable);
         }
-        $meta = is_array($section->meta) ? $section->meta : [];
+        // Media references become public image data here too, so a fragment never renders a raw
+        // `image` value or exposes a media uuid.
+        $meta = HydrateSectionMediaSlotsAction::run($section, is_array($section->meta) ? $section->meta : [], $context->language);
         $kind = is_string($meta['kind'] ?? null) && $meta['kind'] !== '' ? $meta['kind'] : 'section';
         $dynamic = resolve(RenderableDynamicDataRegistry::class);
         $definition = resolve(RenderableRegistry::class)->get('section', $kind);
@@ -117,7 +121,7 @@ final class RenderPublicSectionFragmentAction
                     return $html;
                 },
                 ttlSeconds: $ttl,
-                surrogateKeys: ['site-' . $this->modelKey($context->site), 'page-' . $this->modelKey($page), $section->getMorphClass() . '-' . $this->modelKey($section), 'translation-' . $this->modelKey($translation), 'layout-' . $this->modelKey($layout)],
+                surrogateKeys: ['site-' . $this->modelKey($context->site), 'page-' . $this->modelKey($page), SectionFragmentSurrogateKey::for($section), 'translation-' . $this->modelKey($translation), 'layout-' . $this->modelKey($layout)],
             );
             if (! is_string($html) || trim($html) === '') {
                 return new PublicSectionFragmentResultData(PublicSectionFragmentOutcome::Unavailable);

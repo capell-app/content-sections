@@ -2,8 +2,11 @@
 
 declare(strict_types=1);
 
+use Capell\Api\Actions\BuildPublicPagePayloadAction;
+use Capell\Api\Data\PublicPagePayloadOptionsData;
 use Capell\ContentSections\Actions\EnsureSectionBlueprintForKeyAction;
 use Capell\ContentSections\Models\Section;
+use Capell\Core\Data\PublicPageFieldsData;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
@@ -54,13 +57,25 @@ it('contributes section assets to public layout widget payloads', function (): v
     expect($sectionPayload)
         ->toMatchArray([
             'key' => 'hero',
-            'component' => 'capell-block-library::blocks.catalog.hero',
             'title' => 'Hero Copy',
             'summary' => '<p>Hero summary</p>',
             'meta' => ['alignment' => 'start'],
         ])
         ->not->toHaveKey('id')
-        ->not->toHaveKey('widgetAsset');
+        ->not->toHaveKey('widgetAsset')
+        ->not->toHaveKey('component');
+
+    $payload = BuildPublicPagePayloadAction::run(
+        fields: new PublicPageFieldsData(url: '/hero', title: 'Hero page', content: ''),
+        options: new PublicPagePayloadOptionsData(include: ['layout'], containers: ['main']),
+        layout: $layout,
+        page: $page,
+        language: $language,
+    );
+    $json = json_encode($payload, JSON_THROW_ON_ERROR);
+    expect($json)->toContain('Hero Copy', 'Hero summary')
+        ->not->toContain('capell-block-library::', 'capell-content-sections::');
+    expect($sectionPayload['html'])->toContain('Hero Copy', 'Hero summary');
 });
 
 it('contributes section assets without public-render lazy loading', function (): void {

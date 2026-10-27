@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace Capell\ContentSections\Actions;
 
 use Capell\ContentSections\Models\Section;
-use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Models\AssetAttachment;
-use Capell\Core\Models\Media;
 use Capell\Core\Models\Translation;
 use Capell\PublishingStudio\Models\Workspace;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 use RuntimeException;
@@ -33,39 +31,31 @@ final class CloneSectionIntoWorkspaceAction
             return $clone;
         }
 
-        $clone = $source->replicate();
-        $clone->workspace_id = $workspace->id;
-        $clone->shadowed_by_workspace_id = 0;
-        $clone->uuid = $source->uuid;
-        $clone->save();
+        return DB::transaction(function () use ($source, $workspace): Section {
+            $clone = $source->replicate();
+            $clone->workspace_id = $workspace->id;
+            $clone->shadowed_by_workspace_id = 0;
+            $clone->uuid = $source->uuid;
+            $clone->save();
 
-        $source->translations()->get()->each(function (Translation $translation) use ($clone): void {
-            $translationClone = $translation->replicate();
-            $translationClone->translatable_id = $this->sectionKey($clone);
-            $translationClone->save();
-        });
-
-        $source->assets()->get()->each(function (AssetAttachment $attachment) use ($clone): void {
-            $attachmentClone = $attachment->replicate();
-            $attachmentClone->related_id = (string) $this->sectionKey($clone);
-            $attachmentClone->save();
-        });
-
-        $source->media()
-            ->where('collection_name', MediaCollectionEnum::Image->value)
-            ->get()
-            ->each(function (Model $media) use ($clone): void {
-                if (! $media instanceof Media) {
-                    return;
-                }
-
-                $mediaClone = $media->replicate();
-                $mediaClone->model_id = $this->sectionKey($clone);
-                $mediaClone->uuid = (string) Str::uuid();
-                $mediaClone->save();
+            $source->translations()->get()->each(function (Translation $translation) use ($clone): void {
+                $translationClone = $translation->replicate();
+                $translationClone->translatable_id = $this->sectionKey($clone);
+                $translationClone->save();
             });
 
-        return $clone;
+            $source->assets()->get()->each(function (AssetAttachment $attachment) use ($clone): void {
+                $attachmentClone = $attachment->replicate();
+                $attachmentClone->related_id = (string) $this->sectionKey($clone);
+                $attachmentClone->save();
+            });
+
+            // Files are copied, not just rows; media uuids are unique, so the draft's copies get new uuids
+            // and its meta references follow them.
+            CopySectionMediaAction::run($source, $clone);
+
+            return $clone;
+        });
     }
 
     private function sectionKey(Section $section): int

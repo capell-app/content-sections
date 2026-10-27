@@ -6,6 +6,7 @@ namespace Capell\ContentSections\Actions;
 
 use Capell\ContentSections\Models\Section;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -38,21 +39,26 @@ class ReplicateContentAction
 
         $model->fill($data);
 
-        $replica = $model->replicate();
+        return DB::transaction(function () use ($model, $content, $translations): Section {
+            $replica = $model->replicate();
 
-        $replica->created_at = CarbonImmutable::now();
-        $replica->updated_at = CarbonImmutable::now();
+            $replica->created_at = CarbonImmutable::now();
+            $replica->updated_at = CarbonImmutable::now();
 
-        $replica->save();
+            $replica->save();
 
-        if ($translations) {
-            foreach ($translations as $translation) {
-                $replica->translations()->create($translation);
+            if ($translations) {
+                foreach ($translations as $translation) {
+                    $replica->translations()->create($translation);
+                }
+
+                $replica->load('translations');
             }
 
-            $replica->load('translations');
-        }
+            // Last, so a failure here cannot leave copied files behind a rolled back replica.
+            CopySectionMediaAction::run($content, $replica);
 
-        return $replica;
+            return $replica;
+        });
     }
 }

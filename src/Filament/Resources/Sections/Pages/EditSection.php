@@ -114,14 +114,18 @@ class EditSection extends EditRecord
             $this->publishingRevisionsAction(),
             RestoreAction::make('restore'),
             DeleteAction::make('delete')
+                ->modalHeading(__('capell-content-sections::section.delete_modal.heading'))
                 ->modalDescription(fn (): HtmlString => SectionUsageWarnings::describe(
                     $this->usage(),
-                    'capell-content-sections::message.usage_delete_consequence',
+                    'capell-content-sections::section.delete_modal.description',
+                    alwaysDescribeConsequence: true,
                 )),
             ForceDeleteAction::make('forceDelete')
+                ->modalHeading(__('capell-content-sections::section.force_delete_modal.heading'))
                 ->modalDescription(fn (): HtmlString => SectionUsageWarnings::describe(
                     $this->usage(),
-                    'capell-content-sections::message.usage_force_delete_consequence',
+                    'capell-content-sections::section.force_delete_modal.description',
+                    alwaysDescribeConsequence: true,
                 )),
             ActionGroup::make([
                 CreateContentAction::make('create')

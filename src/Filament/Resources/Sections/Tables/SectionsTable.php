@@ -107,24 +107,27 @@ class SectionsTable implements TableConfigurator
                     ReplicateAction::make('replicate')
                         ->replicaModelAction(ReplicateContentAction::class),
                     DeleteAction::make('delete')
+                        ->modalHeading(__('capell-content-sections::section.delete_modal.heading'))
                         ->modalDescription(fn (Section $record): HtmlString => SectionUsageWarnings::modalDescription(
                             $record,
-                            'capell-content-sections::message.usage_delete_consequence',
+                            'capell-content-sections::section.delete_modal.description',
                         )),
                 ])
                     ->color('gray'),
             ])
             ->toolbarActions([
                 DeleteBulkAction::make('delete')
+                    ->modalHeading(__('capell-content-sections::section.delete_bulk_modal.heading'))
                     ->modalDescription(fn (EloquentCollection $records): HtmlString => self::bulkUsageDescription(
                         $records,
-                        'capell-content-sections::message.usage_delete_consequence',
+                        'capell-content-sections::section.delete_bulk_modal.description',
                     )),
                 RestoreBulkAction::make('restore'),
                 ForceDeleteBulkAction::make('forceDelete')
+                    ->modalHeading(__('capell-content-sections::section.force_delete_bulk_modal.heading'))
                     ->modalDescription(fn (EloquentCollection $records): HtmlString => self::bulkUsageDescription(
                         $records,
-                        'capell-content-sections::message.usage_force_delete_consequence',
+                        'capell-content-sections::section.force_delete_bulk_modal.description',
                     )),
             ])
             ->recordClasses(fn (Section $record): ?string => match (true) {
@@ -582,7 +585,7 @@ class SectionsTable implements TableConfigurator
             SectionUsageSummaryData::blank(),
         );
 
-        return SectionUsageWarnings::describe($usage, $consequenceKey);
+        return SectionUsageWarnings::describe($usage, $consequenceKey, alwaysDescribeConsequence: true);
     }
 
     private static function numeric(mixed $value): int

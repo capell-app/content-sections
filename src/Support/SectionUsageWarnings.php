@@ -21,12 +21,12 @@ final class SectionUsageWarnings
     {
         $usage = BuildSectionUsageSummaryAction::run($section);
 
-        return self::describe($usage, $consequenceKey);
+        return self::describe($usage, $consequenceKey, alwaysDescribeConsequence: true);
     }
 
-    public static function describe(SectionUsageSummaryData $usage, string $consequenceKey): HtmlString
+    public static function describe(SectionUsageSummaryData $usage, string $consequenceKey, bool $alwaysDescribeConsequence = false): HtmlString
     {
-        if (! $usage->isUsed()) {
+        if (! $usage->isUsed() && ! $alwaysDescribeConsequence) {
             return new HtmlString(e($usage->impactSummary()));
         }
 

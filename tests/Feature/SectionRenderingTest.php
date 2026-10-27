@@ -160,7 +160,7 @@ it('renders public action buttons through the public actions component when avai
     ])->render();
 
     TestResponse::fromBaseResponse(new Response('<!DOCTYPE html><html><body>' . $html . '</body></html>'))
-        ->assertContainsElement('section.section-call-to-action form', ['action' => 'http://localhost/actions/request-preview'])
+        ->assertContainsElement('section.section-call-to-action form', ['action' => url('/actions/request-preview')])
         ->assertContainsElement('section.section-call-to-action input', ['name' => 'area', 'value' => 'preview'])
         ->assertContainsElement('section.section-call-to-action button', ['text' => 'Request preview']);
 });
