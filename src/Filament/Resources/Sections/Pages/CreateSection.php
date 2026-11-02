@@ -12,6 +12,11 @@ use Override;
 
 class CreateSection extends CreateRecord
 {
+    /**
+     * Related copies are made during the save, so they must commit or roll back with the section.
+     */
+    protected ?bool $hasDatabaseTransactions = true;
+
     #[Override]
     public static function getResource(): string
     {

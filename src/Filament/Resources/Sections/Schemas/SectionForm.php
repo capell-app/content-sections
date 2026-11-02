@@ -28,7 +28,8 @@ class SectionForm implements FormConfigurator
             $blueprint = $loadedBlueprint instanceof Blueprint ? $loadedBlueprint : null;
         }
 
-        $rawState = $configurator->getRawState();
+        // A record-backed schema never needs raw state, and reading it while an option modal schema is still being built recurses.
+        $rawState = $record instanceof Model ? [] : $configurator->getRawState();
         $state = $rawState instanceof Arrayable ? $rawState->toArray() : $rawState;
         $blueprintId = $state['blueprint_id'] ?? ($record instanceof Model ? $record->getAttribute('blueprint_id') : null);
 

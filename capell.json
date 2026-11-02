@@ -20,7 +20,8 @@
             "capell-app/block-library",
             "capell-app/core",
             "capell-app/frontend",
-            "capell-app/layout-builder"
+            "capell-app/layout-builder",
+            "capell-app/theme-foundation"
         ],
         "supports": [
             "capell-app/publishing-studio",

@@ -412,11 +412,11 @@ it('denies inline content select updates for inaccessible records and submitted 
 
     expect(fn (): mixed => evaluateContentSelectCallback($select, 'updateOptionUsing', [
         'data' => ['name' => 'Updated hidden section'],
-        'configurator' => contentSectionsSchema('edit')->record($hiddenSection),
+        'schema' => contentSectionsSchema('edit')->record($hiddenSection),
     ]))->toThrow(AuthorizationException::class)
         ->and(fn (): mixed => evaluateContentSelectCallback($select, 'updateOptionUsing', [
             'data' => ['site_id' => $hiddenSite->getKey()],
-            'configurator' => contentSectionsSchema('edit')->record($assignedSection),
+            'schema' => contentSectionsSchema('edit')->record($assignedSection),
         ]))->toThrow(AuthorizationException::class)
         ->and($hiddenSection->fresh()->name)->toBe('Hidden Section')
         ->and($assignedSection->fresh()->site_id)->toBe($assignedSite->getKey());

@@ -25,11 +25,11 @@ class ReplicateContentAction
     {
         $content->load('translations');
 
-        $translations = [];
-        if (isset($data['translations'])) {
-            $translations = $data['translations'];
-            unset($data['translations']);
-        }
+        // Supplied translations replace the original's; without them the copy
+        // starts with its own independent copy of every original translation.
+        $suppliedTranslations = array_key_exists('translations', $data);
+        $translations = $suppliedTranslations && is_array($data['translations']) ? $data['translations'] : [];
+        unset($data['translations']);
 
         $className = $content::class;
 
@@ -39,7 +39,7 @@ class ReplicateContentAction
 
         $model->fill($data);
 
-        return DB::transaction(function () use ($model, $content, $translations): Section {
+        return DB::transaction(function () use ($model, $content, $translations, $suppliedTranslations): Section {
             $replica = $model->replicate();
 
             $replica->created_at = CarbonImmutable::now();
@@ -47,13 +47,17 @@ class ReplicateContentAction
 
             $replica->save();
 
-            if ($translations) {
+            if ($suppliedTranslations) {
                 foreach ($translations as $translation) {
                     $replica->translations()->create($translation);
                 }
-
-                $replica->load('translations');
+            } else {
+                foreach ($content->translations as $translation) {
+                    $replica->translations()->save($translation->replicate());
+                }
             }
+
+            $replica->load('translations');
 
             // Last, so a failure here cannot leave copied files behind a rolled back replica.
             CopySectionMediaAction::run($content, $replica);

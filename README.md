@@ -117,6 +117,7 @@ Screenshot contract: `docs/screenshots.json`.
 
 ### Policies
 
+- `SectionAssetAttachmentPolicy`
 - `SectionPolicy`
 
 ### Extension contracts
@@ -141,6 +142,7 @@ Screenshot contract: `docs/screenshots.json`.
 - `GetDefaultLanguageIdAction`
 - `HydrateSectionMediaSlotsAction`
 - `InstallContentSectionsPackageAction`
+- `MaterialisePendingRelatedCopiesAction`
 - `ModifyContentSelectCreateAction`
 - `NormalizeSectionIconAction`
 - `RegisterDefaultSectionsAction`
@@ -212,10 +214,10 @@ Screenshot contract: `docs/screenshots.json`.
 
 ## Install Impact
 
-- Required packages: `capell-app/admin`, `capell-app/block-library`, `capell-app/core`, `capell-app/frontend`, `capell-app/layout-builder`.
+- Required packages: `capell-app/admin`, `capell-app/block-library`, `capell-app/core`, `capell-app/frontend`, `capell-app/layout-builder`, `capell-app/theme-foundation`.
 - Admin navigation: declares `admin-resource: ContentSectionsPackageContribution`; each Filament page or resource controls its own navigation visibility.
 - Admin/editor extensions: `configurator: ContentSectionsPackageContribution`, `schema-extender: ContentSectionsSchemaExtendersContribution`.
-- Permissions: `ViewAny:Section`, `View:Section`, `Create:Section`, `Update:Section`, `Delete:Section`, `DeleteAny:Section`, `Restore:Section`, `RestoreAny:Section`, `ForceDelete:Section`, `ForceDeleteAny:Section`, `Replicate:Section`, `Reorder:Section`; access also governed by package policies: `SectionPolicy`.
+- Permissions: `ViewAny:Section`, `View:Section`, `Create:Section`, `Update:Section`, `Delete:Section`, `DeleteAny:Section`, `Restore:Section`, `RestoreAny:Section`, `ForceDelete:Section`, `ForceDeleteAny:Section`, `Replicate:Section`, `Reorder:Section`; access also governed by package policies: `SectionAssetAttachmentPolicy`, `SectionPolicy`.
 - Public routes: loads `routes/web.php`; registers `ContentSectionsRoutesContribution`, `PublicSectionFragmentsRoutesContribution`.
 - Database changes: package migrations are declared.
 - Config: `config/capell-content-sections.php`.
@@ -226,7 +228,7 @@ Screenshot contract: `docs/screenshots.json`.
 
 ## Common Pitfalls
 
-- Keep required Capell packages on compatible v4 releases: `capell-app/admin`, `capell-app/block-library`, `capell-app/core`, `capell-app/frontend`, `capell-app/layout-builder`.
+- Keep required Capell packages on compatible v4 releases: `capell-app/admin`, `capell-app/block-library`, `capell-app/core`, `capell-app/frontend`, `capell-app/layout-builder`, `capell-app/theme-foundation`.
 - Run migrations before opening package resources or public routes.
 - Review package configuration before production-like verification: `config/capell-content-sections.php`.
 - Review middleware, throttling, signatures, and public-output safety in `routes/web.php` before exposing routes.
@@ -266,6 +268,6 @@ Read [CHANGELOG.md](CHANGELOG.md) before upgrading.
 - [Capell content language plan](../../docs/CONTENT_LANGUAGE_PLAN.md)
 - [Capell documentation design system](../../docs/DESIGN_SYSTEM.md)
 - [Capell and package ERD notes](../../docs/erd/capell-and-package-erds.md)
-- Related packages: [Block Library](../block-library/README.md), [Layout Builder](../layout-builder/README.md), [Publishing Studio](../publishing-studio/README.md), [Public Actions](../public-actions/README.md).
+- Related packages: [Block Library](../block-library/README.md), [Layout Builder](../layout-builder/README.md), [Theme Foundation](../theme-foundation/README.md), [Publishing Studio](../publishing-studio/README.md), [Public Actions](../public-actions/README.md).
 
 <!-- prettier-ignore-end -->

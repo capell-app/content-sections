@@ -22,6 +22,7 @@ use Capell\ContentSections\Filament\Resources\Sections\Widgets\SectionAlertsWidg
 use Capell\ContentSections\Models\Section;
 use Capell\ContentSections\Support\SectionUsageWarnings;
 use Capell\PublishingStudio\Actions\SaveRecordDraftAction;
+use Capell\PublishingStudio\Data\SavedRecordDraftData;
 use Capell\PublishingStudio\Enums\WorkspaceStatusEnum;
 use Capell\PublishingStudio\Filament\Actions\PublishingRevisionsHeaderAction;
 use Capell\PublishingStudio\Models\Workspace;
@@ -36,6 +37,7 @@ use Filament\Widgets\Widget;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\User as AuthenticatedUser;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\HtmlString;
@@ -53,6 +55,11 @@ class EditSection extends EditRecord
     use HasAncestorBreadcrumbs;
     use HasBlueprintRelationManagers;
     use HasExtensibleRecordHeading;
+
+    /**
+     * Related copies are made during the save, so they must commit or roll back with the section.
+     */
+    protected ?bool $hasDatabaseTransactions = true;
 
     #[Override]
     public static function getResource(): string
@@ -358,15 +365,15 @@ class EditSection extends EditRecord
             return;
         }
 
-        $data = $this->form->getState();
-        $result = SaveRecordDraftAction::run(
+        // Related copies are made while the form state is read, so they share the draft's transaction.
+        $result = DB::transaction(fn (): SavedRecordDraftData => SaveRecordDraftAction::run(
             record: $this->record,
-            data: $data,
+            data: $this->form->getState(),
             user: $user,
             saveRelationships: function (Section $draft): void {
                 $this->form->model($draft)->saveRelationships();
             },
-        );
+        ));
 
         Notification::make()
             ->title(__('capell-content-sections::message.saved_as_draft', ['workspace' => $result->workspace->name]))

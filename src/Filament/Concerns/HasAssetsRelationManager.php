@@ -23,6 +23,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -102,14 +103,20 @@ trait HasAssetsRelationManager
                     $adminAsset = CapellAdmin::getAsset($asset->name);
 
                     return $select->createOptionForm(
-                        fn (Schema $configurator): Schema => $adminAsset->formClass::configure(
-                            $configurator->operation('createOption')->model($assetModel),
+                        fn (Schema $schema): Schema => $adminAsset->formClass::configure(
+                            $schema->operation('createOption')->model($assetModel),
                         ),
                     )
-                        ->createOptionUsing(function (Select $component, array $data) use ($asset, $adminAsset, $createOptionUsing): int|string {
-                            $page = $adminAsset->createAction !== null
-                                ? $adminAsset->createAction::run($data)
-                                : $component->evaluate($createOptionUsing);
+                        ->createOptionAction(fn (Action $action): Action => $action->databaseTransaction())
+                        ->createOptionUsing(function (Select $component, Schema $schema, array $data) use ($asset, $assetModel, $adminAsset, $createOptionUsing): int|string {
+                            Gate::authorize('create', $assetModel);
+
+                            if ($adminAsset->createAction !== null) {
+                                $page = $adminAsset->createAction::run($data);
+                                $schema->model($page)->saveRelationships();
+                            } else {
+                                $page = $component->evaluate($createOptionUsing);
+                            }
 
                             Notification::make()
                                 ->title(__('capell-content-sections::message.asset_created_successfully', ['name' => $asset->name]))

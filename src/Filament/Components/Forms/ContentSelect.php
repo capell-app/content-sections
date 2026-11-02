@@ -126,8 +126,8 @@ class ContentSelect extends Select
                 ->fillForm(fn (): array => in_array($adminAsset->defaultDataAction, [null, '', '0'], true) ? [] : $adminAsset->defaultDataAction::run()),
         )
             ->createOptionForm(
-                fn (Schema $configurator): Schema => $adminAsset->formClass::configure(
-                    $configurator->operation('createOption')->model(Section::class),
+                fn (Schema $schema): Schema => $adminAsset->formClass::configure(
+                    $schema->operation('createOption')->model(Section::class),
                 ),
             )
             ->createOptionUsing(function (Select $component, array $data) use ($asset, $adminAsset, $createOptionUsing): int|string {
@@ -155,15 +155,16 @@ class ContentSelect extends Select
     {
         $asset = CapellAdmin::getAsset('Section');
 
-        return $this->editOptionForm(function (?int $state, Schema $configurator) use ($asset): Schema {
+        return $this->editOptionForm(function (?int $state, Schema $schema, self $component) use ($asset): Schema {
             if ($state === null) {
-                return $configurator;
+                return $schema;
             }
 
-            return $asset->formClass::configure($configurator->operation('editOption'));
+            return $asset->formClass::configure($schema->livewire($component->getLivewire())->model($component->getSelectedRecord())->operation('editOption'));
         })
             ->editOptionAction(
                 fn (Action $action): Action => $action
+                    ->databaseTransaction()
                     ->modalHeading(
                         fn (self $component): string => __(
                             'capell-content-sections::heading.edit_content_record',
@@ -192,8 +193,8 @@ class ContentSelect extends Select
                 ->with(['blueprint'])
                 ->tap(fn (Builder $query): Builder => SectionSiteScope::applyForCurrentActor($query, 'sections.site_id'))
                 ->findOrFail($state))
-            ->updateOptionUsing(static function (array $data, Schema $configurator): void {
-                $record = $configurator->getRecord();
+            ->updateOptionUsing(static function (array $data, Schema $schema): void {
+                $record = $schema->getRecord();
 
                 throw_unless($record instanceof Section, RuntimeException::class, 'Content select edit action must have a section record.');
 
@@ -370,6 +371,7 @@ class ContentSelect extends Select
     private function modifyCreateAction(Action $action): Action
     {
         return $action->slideOver()
+            ->databaseTransaction()
             ->modalWidth(Width::ScreenLarge)
             ->closeModalByClickingAway(false)
             ->successNotificationTitle(

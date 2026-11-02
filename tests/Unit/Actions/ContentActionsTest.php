@@ -79,6 +79,34 @@ it('replicates section content with replacement data and replacement translation
         ->and($section->fresh()->name)->toBe('Original section');
 });
 
+it('gives a clone without replacement translations its own copy of every original translation', function (): void {
+    $english = Language::factory()->create();
+    $french = Language::factory()->create();
+    $section = Section::factory()
+        ->withTranslations($english, ['title' => 'Our services', 'content' => 'What we do'])
+        ->create(['name' => 'Services']);
+    $section->translations()->create(['language_id' => $french->getKey(), 'title' => 'Nos services', 'content' => 'Ce que nous faisons']);
+
+    $replica = ReplicateContentAction::run($section->fresh() ?? $section);
+    $copies = $replica->fresh()?->translations->keyBy('language_id');
+
+    expect($copies)->not->toBeNull()
+        ->and($copies?->keys()->sort()->values()->all())->toBe(collect([$english->getKey(), $french->getKey()])->sort()->values()->all())
+        ->and($copies?->get($french->getKey())?->title)->toBe('Nos services');
+
+    $copies?->get($french->getKey())?->update(['title' => 'Nos offres']);
+
+    expect($section->translations()->where('language_id', $french->getKey())->value('title'))->toBe('Nos services')
+        ->and($section->translations()->count())->toBe(2);
+});
+
+it('starts a clone with no translations when an empty replacement set is supplied', function (): void {
+    $language = Language::factory()->create();
+    $section = Section::factory()->withTranslations($language, ['title' => 'Kept', 'content' => 'Copy'])->create();
+
+    expect(ReplicateContentAction::run($section, ['translations' => []])->translations)->toHaveCount(0);
+});
+
 it('creates the hero section blueprint with an editor-facing description', function (): void {
     $blueprint = CreateHeroContentBlueprintAction::run();
 

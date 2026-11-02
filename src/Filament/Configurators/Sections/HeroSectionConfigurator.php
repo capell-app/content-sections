@@ -127,11 +127,10 @@ class HeroSectionConfigurator extends DefaultSectionConfigurator
     {
         return Tab::make('settings')
             ->label(__('capell-admin::generic.settings'))
-            ->statePath('meta')
             ->icon(Heroicon::OutlinedCog6Tooth)
             ->columns()
             ->schema([
-                ...$this->getMetaSchema(),
+                Group::make()->statePath('meta')->schema($this->getMetaSchema())->columnSpanFull()->columns(),
                 ...$components,
             ]);
     }
