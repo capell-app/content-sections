@@ -12,6 +12,7 @@ use Capell\ContentSections\Support\SectionSiteScope;
 use Capell\Core\Data\Database\SqlFragment;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Facades\CapellDatabase;
+use Capell\Core\Support\TableName;
 use Closure;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
@@ -81,7 +82,7 @@ class ContentSelect extends Select
             })
             ->getOptionLabelUsing(fn (self $component, ?int $value): string => (string) Section::query()
                 ->with(['blueprint'])
-                ->tap(fn (Builder $query): Builder => SectionSiteScope::applyForCurrentActor($query, 'sections.site_id'))
+                ->tap(fn (Builder $query): Builder => SectionSiteScope::applyForCurrentActor($query, TableName::resolve('sections') . '.site_id'))
                 ->find($value, ['id', 'name', 'blueprint_id'])
                 ?->name)
             ->options(fn (self $component): array => $component->getContentOptions());
@@ -191,7 +192,7 @@ class ContentSelect extends Select
             })
             ->getSelectedRecordUsing(static fn (?int $state): ?Section => $state === null ? null : Section::query()
                 ->with(['blueprint'])
-                ->tap(fn (Builder $query): Builder => SectionSiteScope::applyForCurrentActor($query, 'sections.site_id'))
+                ->tap(fn (Builder $query): Builder => SectionSiteScope::applyForCurrentActor($query, TableName::resolve('sections') . '.site_id'))
                 ->findOrFail($state))
             ->updateOptionUsing(static function (array $data, Schema $schema): void {
                 $record = $schema->getRecord();
@@ -316,10 +317,10 @@ class ContentSelect extends Select
         /** @var class-string<Section> $model */
         $model = Section::class;
 
-        return $model::query()->select('sections.*')
+        return $model::query()->select(TableName::resolve('sections') . '.*')
             ->with($relations)
-            ->join('blueprints', 'sections.blueprint_id', '=', 'blueprints.id')
-            ->tap(fn (Builder $query): Builder => SectionSiteScope::applyForCurrentActor($query, 'sections.site_id'))
+            ->join(TableName::resolve('blueprints'), TableName::resolve('sections') . '.blueprint_id', '=', TableName::resolve('blueprints') . '.id')
+            ->tap(fn (Builder $query): Builder => SectionSiteScope::applyForCurrentActor($query, TableName::resolve('sections') . '.site_id'))
             ->when(
                 $this->modifySelectOptionsQueryUsing instanceof Closure,
                 fn (Builder $query): mixed => $this->evaluate($this->modifySelectOptionsQueryUsing, [
@@ -335,13 +336,13 @@ class ContentSelect extends Select
                 $siteId !== null && $siteId > 0,
                 fn (Builder $query): Builder => $query->where(
                     fn (Builder $query): Builder => $query
-                        ->whereNull('sections.site_id')
-                        ->orWhere('sections.site_id', $siteId),
+                        ->whereNull(TableName::resolve('sections') . '.site_id')
+                        ->orWhere(TableName::resolve('sections') . '.site_id', $siteId),
                 ),
             )
             ->when(
                 $siteId === 0,
-                fn (Builder $query): Builder => $query->whereNull('sections.site_id'),
+                fn (Builder $query): Builder => $query->whereNull(TableName::resolve('sections') . '.site_id'),
             )
             ->when(
                 $parentContentType,
@@ -354,15 +355,15 @@ class ContentSelect extends Select
                 $search,
                 function (Builder $query, string $search): Builder {
                     $grammar = $query->getQuery()->getGrammar();
-                    $name = SqlFragment::raw($grammar->wrap('sections.name'));
+                    $name = SqlFragment::raw($grammar->wrap(TableName::resolve('sections') . '.name'));
                     $relevance = CapellDatabase::for($query->getModel())
                         ->queryDialect()
                         ->textRelevance($name, $search);
 
-                    $query->where('sections.name', 'like', sprintf('%%%s%%', $search));
+                    $query->where(TableName::resolve('sections') . '.name', 'like', sprintf('%%%s%%', $search));
                     $relevance->applyOrder($query->getQuery());
 
-                    return $query->orderBy('sections.name');
+                    return $query->orderBy(TableName::resolve('sections') . '.name');
                 },
                 fn (Builder $query): Builder => $query->limit(10),
             );

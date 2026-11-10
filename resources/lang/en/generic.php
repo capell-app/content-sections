@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 return [
     'action_type_label' => ':Type: :label',
-    'align_center' => 'Center',
+    'align_center' => 'Centre',
     'align_end' => 'End',
     'align_start' => 'Start',
     'comparison_values_helper' => 'Enter values in the same order as the comparison columns, separated by pipes. Example: Yes | No | Included.',

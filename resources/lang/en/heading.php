@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 return [
-    'content_blueprint' => 'Content Blueprint: :type',
+    'content_blueprint' => 'Content page type: :type',
     'edit_content_record' => 'Edit Content: :name',
     'publish_section' => 'Publish section',
     'usage_breakdown' => 'Where this section is used',

@@ -6,6 +6,7 @@ namespace Capell\ContentSections\Filament\Components\Forms\Content;
 
 use Capell\Admin\Filament\Components\Forms\BlueprintSelect as BaseBlueprintSelect;
 use Capell\ContentSections\Enums\LayoutTypeEnum;
+use Capell\Core\Support\TableName;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Override;
@@ -26,7 +27,7 @@ class BlueprintSelect extends BaseBlueprintSelect
         return $this->relationship(
             name: 'blueprint',
             titleAttribute: 'name',
-            modifyQueryUsing: fn (Builder $query): Builder => $query->select('blueprints.*')
+            modifyQueryUsing: fn (Builder $query): Builder => $query->select(TableName::resolve('blueprints') . '.*')
                 ->when(
                     $this->getBlueprint(),
                     fn (Builder $query, string $type): Builder => $query->where('type', $type),

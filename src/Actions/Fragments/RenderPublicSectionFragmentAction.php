@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\ContentSections\Actions\Fragments;
 
-use Capell\ContentSections\Actions\HydrateSectionMediaSlotsAction;
+use Capell\ContentSections\Actions\PreparePublicSectionMetaAction;
 use Capell\ContentSections\Data\PublicSectionFragmentResultData;
 use Capell\ContentSections\Enums\PublicSectionFragmentOutcome;
 use Capell\ContentSections\Fragments\ContentSectionsFragmentUrlResolver;
@@ -95,9 +95,9 @@ final class RenderPublicSectionFragmentAction
         if (! $section instanceof Section || ! $translation instanceof Model || $section->publishVisibilityState() !== PublishVisibilityStateEnum::published || (int) $section->workspace_id !== 0 || ($section->site_id !== null && (string) $section->site_id !== (string) $this->modelKey($context->site)) || ! is_string($version) || ! hash_equals($version, ResolvePublicFragmentAssetVersionAction::run($section))) {
             return new PublicSectionFragmentResultData(PublicSectionFragmentOutcome::Unavailable);
         }
-        // Media references become public image data here too, so a fragment never renders a raw
-        // `image` value or exposes a media uuid.
-        $meta = HydrateSectionMediaSlotsAction::run($section, is_array($section->meta) ? $section->meta : [], $context->language);
+        // Fragments share the inline renderer's preparation: sanitised HTML, allowlisted URL
+        // schemes, normalised icons, and hydrated media (never a raw `image` value or media uuid).
+        $meta = PreparePublicSectionMetaAction::run($section, is_array($section->meta) ? $section->meta : [], $context->language);
         $kind = is_string($meta['kind'] ?? null) && $meta['kind'] !== '' ? $meta['kind'] : 'section';
         $dynamic = resolve(RenderableDynamicDataRegistry::class);
         $definition = resolve(RenderableRegistry::class)->get('section', $kind);

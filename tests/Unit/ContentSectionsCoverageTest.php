@@ -250,7 +250,7 @@ it('declares content sections manifest surfaces accurately', function (): void {
     throw_unless(is_array($routeNames) && $routeNames !== [], RuntimeException::class);
     foreach ($routeNames as $routeName) {
         throw_unless(is_string($routeName), RuntimeException::class);
-        expect(Illuminate\Support\Facades\Route::getRoutes()->getByName($routeName))->toBeInstanceOf(Route::class);
+        expect(Illuminate\Support\Facades\Route::getRoutes()->getByName((string) preg_replace('/^[A-Z|]+ \S+ \((.+)\)$/', '$1', $routeName)))->toBeInstanceOf(Route::class);
     }
 
     expect($database['requiredTables'] ?? [])->toContain('sections')
@@ -300,7 +300,11 @@ it('declares content sections manifest surfaces accurately', function (): void {
             'capell-content-sections.screenshot-fixtures.section-selector-modal',
             'capell-content-sections.screenshot-fixtures.section-widget-gallery',
         ])
-        ->and($security['publicSurface']['routeNames'])->toBe(['capell-content-sections.fragments.show'])
+        ->and($security['publicSurface']['routeNames'])->toBe([
+            'GET /_capell/content-sections/fragments/{reference} (capell-content-sections.fragments.show)',
+            'GET /screenshot-fixtures/content-sections/section-selector-modal (capell-content-sections.screenshot-fixtures.section-selector-modal)',
+            'GET /screenshot-fixtures/content-sections/section-widget-gallery (capell-content-sections.screenshot-fixtures.section-widget-gallery)',
+        ])
         ->and(Illuminate\Support\Facades\Route::getRoutes()->getByName('capell-content-sections.fragments.show'))->toBeInstanceOf(Route::class)
         ->and(class_implements(ContentSectionsRoutesContribution::class))->toContain(RegistersExtensionRoute::class)
         ->and($cacheSafety['cacheable'] ?? false)->toBeTrue()

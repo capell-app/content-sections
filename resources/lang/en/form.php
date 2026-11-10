@@ -11,7 +11,7 @@ return [
     'bio' => 'Bio',
     'block_media' => 'Images',
     'block_media_helper' => 'Upload images here, save the section, then choose one for each item below. Images must be on a public disk to appear on the site. Set alt text or mark an image decorative in the media library.',
-    'blueprint' => 'Blueprint',
+    'blueprint' => 'Page type',
     'caption' => 'Caption',
     'cells' => 'Cells',
     'columns' => 'Columns',

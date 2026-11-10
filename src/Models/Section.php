@@ -12,6 +12,7 @@ use Capell\ContentSections\Models\Concerns\ComposhipsJsonRelationshipsTrait;
 use Capell\ContentSections\Models\Concerns\SectionNestedSet;
 use Capell\ContentSections\Observers\SectionObserver;
 use Capell\Core\Concerns\HasCapellMedia;
+use Capell\Core\Concerns\HasCapellTable;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Enums\PublishStatusEnum;
@@ -115,6 +116,7 @@ class Section extends Model implements Blueprintable, HasMedia, Publishable, Use
     use ComposhipsJsonRelationshipsTrait;
     use HasAssets;
     use HasCapellMedia;
+    use HasCapellTable;
 
     /** @use HasFactory<Factory<static>> */
     use HasFactory;
@@ -242,6 +244,7 @@ class Section extends Model implements Blueprintable, HasMedia, Publishable, Use
         ]);
     }
 
+    #[Override]
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection(MediaCollectionEnum::Image->value)->singleFile();
@@ -250,11 +253,13 @@ class Section extends Model implements Blueprintable, HasMedia, Publishable, Use
     }
 
     /** @return BelongsTo<Blueprint, $this> */
+    #[Override]
     public function blueprint(): BelongsTo
     {
         return $this->belongsTo(Blueprint::class, 'blueprint_id');
     }
 
+    #[Override]
     public function getBlueprint(): Blueprint
     {
         /** @var Blueprint $blueprint */

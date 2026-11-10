@@ -8,6 +8,7 @@ use Capell\ContentSections\Actions\MaterialisePendingRelatedCopiesAction;
 use Capell\ContentSections\Filament\Components\Forms\ContentSelect;
 use Capell\ContentSections\Models\Section;
 use Capell\ContentSections\Support\SectionSiteScope;
+use Capell\Core\Support\TableName;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Repeater;
@@ -45,7 +46,7 @@ class RelatedRepeater
                         $sourceId = self::itemContentId($items, $arguments['item'] ?? null);
 
                         $existingContent = $sourceId === null ? null : Section::query()
-                            ->tap(fn (Builder $query): Builder => SectionSiteScope::applyForCurrentActor($query, 'sections.site_id'))
+                            ->tap(fn (Builder $query): Builder => SectionSiteScope::applyForCurrentActor($query, TableName::resolve('sections') . '.site_id'))
                             ->find($sourceId);
 
                         throw_unless($existingContent instanceof Section, Exception::class, 'Content not found with ID: ' . $sourceId);

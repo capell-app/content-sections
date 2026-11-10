@@ -32,6 +32,7 @@ use Capell\Core\Models\AssetAttachment;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
+use Capell\Core\Support\TableName;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -68,7 +69,7 @@ class SectionsTable implements TableConfigurator
         return $table
             ->modifyQueryUsing(
                 fn (Builder $query): Builder => $query
-                    ->tap(fn (Builder $query): Builder => SectionSiteScope::applyForCurrentActor($query, 'sections.site_id'))
+                    ->tap(fn (Builder $query): Builder => SectionSiteScope::applyForCurrentActor($query, TableName::resolve('sections') . '.site_id'))
                     ->with([
                         'ancestors',
                         'blueprint',
@@ -339,7 +340,7 @@ class SectionsTable implements TableConfigurator
                         $indicators['parent_id'] = __(
                             'capell-admin::filter.parent',
                             [
-                                'search' => SectionSiteScope::applyForCurrentActor($model::query()->select('sections.name'), 'sections.site_id')
+                                'search' => SectionSiteScope::applyForCurrentActor($model::query()->select(TableName::resolve('sections') . '.name'), TableName::resolve('sections') . '.site_id')
                                     ->firstWhere('id', (int) $data['parent_id'])
                                     ?->name,
                             ],
@@ -411,7 +412,7 @@ class SectionsTable implements TableConfigurator
     {
         return $query->whereHas(
             'sites',
-            fn (BuilderContract $query): BuilderContract => $query->where('sites.id', $siteId),
+            fn (BuilderContract $query): BuilderContract => $query->where(TableName::resolve('sites') . '.id', $siteId),
         );
     }
 
@@ -434,11 +435,11 @@ class SectionsTable implements TableConfigurator
                 'ancestors',
                 'blueprint',
             ])
-            ->tap(fn (Builder $query): Builder => SectionSiteScope::applyForCurrentActor($query, 'sections.site_id'))
+            ->tap(fn (Builder $query): Builder => SectionSiteScope::applyForCurrentActor($query, TableName::resolve('sections') . '.site_id'))
             ->whereHas('children')
             ->whereHas('blueprint', self::applyEnabledBlueprintFilter(...))
-            ->when($siteId, fn (Builder $query): Builder => $query->where('sections.site_id', (int) $siteId))
-            ->when($siteId === 0 || $siteId === '0', fn (Builder $query): Builder => $query->whereNull('sections.site_id'))
+            ->when($siteId, fn (Builder $query): Builder => $query->where(TableName::resolve('sections') . '.site_id', (int) $siteId))
+            ->when($siteId === 0 || $siteId === '0', fn (Builder $query): Builder => $query->whereNull(TableName::resolve('sections') . '.site_id'))
             ->when(
                 $languageId !== null,
                 fn (Builder $query): Builder => self::applyParentLanguageFilter($query, (int) $languageId),
@@ -473,7 +474,7 @@ class SectionsTable implements TableConfigurator
     {
         return $query->whereHas(
             'translations',
-            fn (BuilderContract $query): BuilderContract => $query->where('translations.language_id', $languageId),
+            fn (BuilderContract $query): BuilderContract => $query->where(TableName::resolve('translations') . '.language_id', $languageId),
         );
     }
 

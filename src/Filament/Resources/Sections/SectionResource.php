@@ -21,6 +21,7 @@ use Capell\ContentSections\Models\Section;
 use Capell\ContentSections\Providers\ContentSectionsServiceProvider;
 use Capell\ContentSections\Support\SectionSiteScope;
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Support\TableName;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
@@ -80,7 +81,7 @@ class SectionResource extends Resource
             parent::getEloquentQuery()->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]),
-            'sections.site_id',
+            TableName::resolve('sections') . '.site_id',
         );
     }
 
@@ -93,7 +94,7 @@ class SectionResource extends Resource
     #[Override]
     public static function getGlobalSearchEloquentQuery(): Builder
     {
-        return SectionSiteScope::applyForCurrentActor(parent::getGlobalSearchEloquentQuery(), 'sections.site_id')
+        return SectionSiteScope::applyForCurrentActor(parent::getGlobalSearchEloquentQuery(), TableName::resolve('sections') . '.site_id')
             ->with([
                 'site:id,name,default',
                 'blueprint:id,name',

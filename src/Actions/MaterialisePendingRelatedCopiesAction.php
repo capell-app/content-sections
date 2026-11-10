@@ -6,6 +6,7 @@ namespace Capell\ContentSections\Actions;
 
 use Capell\ContentSections\Models\Section;
 use Capell\ContentSections\Support\SectionSiteScope;
+use Capell\Core\Support\TableName;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -58,7 +59,7 @@ final class MaterialisePendingRelatedCopiesAction
         foreach ($pending as $key => $sourceId) {
             $source = Section::query()
                 ->with(['blueprint'])
-                ->tap(fn (Builder $query): Builder => SectionSiteScope::applyForCurrentActor($query, 'sections.site_id'))
+                ->tap(fn (Builder $query): Builder => SectionSiteScope::applyForCurrentActor($query, TableName::resolve('sections') . '.site_id'))
                 ->find($sourceId);
 
             if (! $source instanceof Section) {

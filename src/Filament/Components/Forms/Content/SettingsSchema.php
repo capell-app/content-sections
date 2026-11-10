@@ -7,6 +7,7 @@ namespace Capell\ContentSections\Filament\Components\Forms\Content;
 use Capell\Admin\Filament\Components\Forms\SiteSelect;
 use Capell\ContentSections\Filament\Components\Forms\ContentSelect;
 use Capell\ContentSections\Models\Section;
+use Capell\Core\Support\TableName;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\Select;
@@ -28,7 +29,7 @@ class SettingsSchema
                 ->lazy()
                 ->modifySelectOptionsQueryUsing(function (Builder $query, ?Section $record): void {
                     if ($record instanceof Section) {
-                        $query->where('sections.id', '!=', $record->id);
+                        $query->where(TableName::resolve('sections') . '.id', '!=', $record->id);
                     }
                 })
                 ->when(

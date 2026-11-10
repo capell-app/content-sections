@@ -10,6 +10,7 @@ use Capell\ContentSections\Support\SectionPublicLayoutWidgetPayloadContributor;
 use Capell\ContentSections\Support\SectionRegistry;
 use Capell\Core\Contracts\Extensions\ChecksExtensionHealth;
 use Capell\Core\Data\Diagnostics\DoctorCheckResultData;
+use Capell\Core\Support\TableName;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
@@ -45,7 +46,7 @@ final class ContentSectionsHealthCheck implements ChecksExtensionHealth
 
     public function storageTableCheck(): DoctorCheckResultData
     {
-        $passed = Schema::hasTable('sections');
+        $passed = Schema::hasTable(TableName::resolve('sections'));
 
         return new DoctorCheckResultData(
             label: (string) __('capell-content-sections::generic.health_storage_table_label'),

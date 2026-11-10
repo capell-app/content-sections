@@ -13,6 +13,7 @@ use Capell\ContentSections\Filament\Components\Tables\Columns\Content\ContentNam
 use Capell\ContentSections\Models\Section;
 use Capell\ContentSections\Support\SectionSiteScope;
 use Capell\Core\Models\Site;
+use Capell\Core\Support\TableName;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -30,7 +31,7 @@ class SectionSelectionTable implements TableConfigurator
                 $model = Section::class;
 
                 return $model::query()
-                    ->tap(fn (Builder $query): Builder => SectionSiteScope::applyForCurrentActor($query, 'sections.site_id'))
+                    ->tap(fn (Builder $query): Builder => SectionSiteScope::applyForCurrentActor($query, TableName::resolve('sections') . '.site_id'))
                     ->with([
                         'blueprint',
                         'site',

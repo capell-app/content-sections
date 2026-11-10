@@ -8,7 +8,7 @@
     "version": "1.0.0",
     "description": "Seventeen ready-to-use, themeable page sections (hero, FAQ, pricing, stats, testimonials, team, comparison, timeline and more) that editors reuse across pages and developers render through safe, package-owned Blade. Bundled free with Capell Foundation.",
     "product": {
-        "group": "Capell Foundation",
+        "group": "Capell Essentials",
         "tier": "free",
         "bundle": "foundation"
     },
@@ -30,7 +30,9 @@
         "conflicts": []
     },
     "providers": {
-        "metadata": [],
+        "metadata": [
+            "Capell\\ContentSections\\Providers\\MigrationMetadataServiceProvider"
+        ],
         "install": [],
         "runtime": [
             "Capell\\ContentSections\\Providers\\ContentSectionsServiceProvider"
@@ -138,7 +140,11 @@
     "security": {
         "riskTier": "standard",
         "publicSurface": {
-            "routeNames": ["capell-content-sections.fragments.show"],
+            "routeNames": [
+                "GET /_capell/content-sections/fragments/{reference} (capell-content-sections.fragments.show)",
+                "GET /screenshot-fixtures/content-sections/section-selector-modal (capell-content-sections.screenshot-fixtures.section-selector-modal)",
+                "GET /screenshot-fixtures/content-sections/section-widget-gallery (capell-content-sections.screenshot-fixtures.section-widget-gallery)"
+            ],
             "auth": "public",
             "csrfExemptRoutes": [],
             "signedRoutes": [],
@@ -221,6 +227,22 @@
     },
     "marketplace": {
         "summary": "Seventeen ready-to-use, themeable page sections (hero, FAQ, pricing, stats, testimonials, team, comparison, timeline and more) that editors reuse across pages and developers render through safe, package-owned Blade. Bundled free with Capell Foundation.",
+        "problem": "Editors who repeat the same section across pages must maintain separate copies.",
+        "outcome": "A site has published sections that editors can reuse across content surfaces.",
+        "faq": [
+            {
+                "question": "Can a section be reused?",
+                "answer": "Editors can select published shared sections from other content surfaces."
+            },
+            {
+                "question": "What reaches the public page?",
+                "answer": "The rendered section is presented without admin metadata."
+            },
+            {
+                "question": "How are sections structured?",
+                "answer": "Section records are backed by registered blueprints and package-owned rendering components."
+            }
+        ],
         "screenshots": [
             {
                 "path": "docs/assets/marketplace/extension-card.jpg",

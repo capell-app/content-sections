@@ -6,7 +6,6 @@ namespace Capell\ContentSections\Tests\Feature\Filament\Resources\Section;
 
 use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Facades\CapellAdmin;
-use Capell\Admin\Filament\Components\Forms\PageSelect;
 use Capell\Admin\Filament\Configurators\Pages\DefaultPageConfigurator;
 use Capell\ContentSections\Actions\CreateHeroContentBlueprintAction;
 use Capell\ContentSections\Actions\EnsureSectionBlueprintForKeyAction;
@@ -15,6 +14,8 @@ use Capell\ContentSections\Filament\Resources\Sections\Pages\CreateSection;
 use Capell\ContentSections\Filament\Resources\Sections\Pages\EditSection;
 use Capell\ContentSections\Filament\Resources\Sections\RelationManagers\SectionAssetsRelationManager;
 use Capell\ContentSections\Models\Section;
+use Capell\ContentSections\Tests\Support\ContentAssetOptionSchemaHarness;
+use Capell\ContentSections\Tests\Support\EmbeddedPageEditHarness;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
@@ -27,8 +28,6 @@ use Capell\Core\Models\Translation;
 use Capell\Tests\Fixtures\Models\User;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Filament\Actions\Action;
-use Filament\Actions\Concerns\InteractsWithActions;
-use Filament\Actions\Contracts\HasActions;
 use Filament\Actions\CreateAction;
 use Filament\Actions\Testing\TestAction;
 use Filament\Forms\Components\Hidden;
@@ -36,20 +35,14 @@ use Filament\Forms\Components\MorphToSelect\Type;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
-use Filament\Schemas\Concerns\InteractsWithSchemas;
-use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\ComponentAttributeBag;
-use Livewire\Component;
 
 use function Pest\Livewire\livewire;
 
@@ -368,17 +361,6 @@ it('binds asset option forms to action state and uses a transaction', function (
         ->and($select->getCreateOptionAction()?->hasDatabaseTransactions())->toBeTrue();
 });
 
-final class ContentAssetOptionSchemaHarness extends Component implements HasSchemas
-{
-    use InteractsWithSchemas;
-
-    /** @var array<string, mixed> */
-    public array $data = [];
-
-    /** @var array<int, array<string, mixed>> */
-    public array $mountedActions = [];
-}
-
 it('rolls back an asset when its option relationship save fails', function (): void {
     $language = Language::factory()->create();
     $component = new ContentAssetOptionSchemaHarness;
@@ -650,46 +632,6 @@ it('validates an embedded page edit against the selected page identity', functio
     }
     expect($page->fresh()->translations()->where('language_id', $language->getKey())->firstOrFail()->meta['slug'])->toBe('own-slug');
 })->with(['own slug' => false, 'sibling slug' => true]);
-
-final class EmbeddedPageEditHarness extends Component implements HasActions, HasForms
-{
-    use InteractsWithActions;
-    use InteractsWithForms;
-
-    /** @var array<string, mixed> */
-    public array $data = [];
-
-    public int $sectionId;
-
-    public function mount(int $pageId, int $sectionId): void
-    {
-        $this->sectionId = $sectionId;
-        $schema = $this->getSchema('form');
-        if ($schema === null) {
-            throw new RuntimeException('Expected page form.');
-        }
-        $schema->fill(['page_id' => $pageId]);
-    }
-
-    public function form(Schema $schema): Schema
-    {
-        return $schema->model(Section::query()->findOrFail($this->sectionId))->statePath('data')->components([
-            PageSelect::make('page_id')->withEditForm()
-                ->updateOptionUsing(static function (array $data, Schema $schema): void {
-                    $record = $schema->getRecord();
-                    if (! $record instanceof Model) {
-                        throw new RuntimeException('Expected page record.');
-                    }
-                    $record->update($data);
-                }),
-        ]);
-    }
-
-    public function render(): string
-    {
-        return '<div>{{ $this->form }} <x-filament-actions::modals /></div>';
-    }
-}
 
 it('rejects asset option creation when the actor cannot create that asset', function (): void {
     $component = new ContentAssetOptionSchemaHarness;

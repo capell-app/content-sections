@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\ContentSections\Support;
 
-use Capell\ContentSections\Actions\HydrateSectionMediaSlotsAction;
+use Capell\ContentSections\Actions\PreparePublicSectionMetaAction;
 use Capell\ContentSections\Actions\ResolveSectionComponentAction;
 use Capell\ContentSections\Actions\SanitizeSectionHtmlAction;
 use Capell\ContentSections\Data\SectionPublicRenderData;
@@ -221,10 +221,7 @@ final class SectionPublicLayoutWidgetPayloadContributor implements PublicLayoutW
             is_array($widgetAsset->meta) ? $widgetAsset->meta : [],
         );
 
-        /** @var array<string, mixed> $sanitised */
-        $sanitised = SanitizeSectionHtmlAction::run($meta);
-
-        return HydrateSectionMediaSlotsAction::run($section, $sanitised, $language);
+        return PreparePublicSectionMetaAction::run($section, $meta, $language);
     }
 
     private function componentFor(Section $section): string

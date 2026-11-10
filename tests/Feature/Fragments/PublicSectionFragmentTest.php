@@ -115,6 +115,23 @@ it('renders block media in a shared fragment from hydrated data, never from raw 
         ->and($html->html)->not->toContain((string) $uuid);
 });
 
+it('sanitises section meta in a shared fragment exactly as the inline renderer does', function (): void {
+    $fixture = sharedSectionFragmentFixture(function (Section $section): void {
+        $section->update(['meta' => ['kind' => 'logos-media', 'columns' => '4', 'logos' => [
+            ['name' => 'Acme', 'url' => 'javascript:alert(document.cookie)'],
+            ['name' => 'Globex', 'url' => ' JaVaScRiPt:alert(1)'],
+            ['name' => 'Initech', 'url' => 'https://initech.example'],
+        ]]]);
+    }, 'logos-media');
+
+    $result = RenderPublicSectionFragmentAction::make()->result($fixture['token']);
+
+    expect($result->outcome)->toBe(PublicSectionFragmentOutcome::Rendered)
+        ->and($result->html)->toContain('Acme')
+        ->and($result->html)->toContain('https://initech.example')
+        ->and(strtolower((string) $result->html))->not->toContain('javascript:');
+});
+
 /** @return array{language: Language, site: Site, widget: Widget, layout: Layout, page: Page, section: Section, attachment: WidgetAsset, reference: PublicFragmentReferenceData, token: string, state: PublicSectionFragmentState} */
 function sharedSectionFragmentFixture(?Closure $prepare = null, string $kind = 'shared-test'): array
 {
