@@ -10,9 +10,11 @@ use Capell\Admin\Filament\Concerns\HasAncestorBreadcrumbs;
 use Capell\Admin\Filament\Concerns\HasBlueprintRelationManagers;
 use Capell\Admin\Filament\Concerns\HasExtensibleRecordHeading;
 use Capell\Admin\Support\AdminSurfaceLookup;
+use Capell\ContentSections\Actions\BuildSectionRevisionSnapshotAction;
 use Capell\ContentSections\Actions\BuildSectionUsageSummaryAction;
 use Capell\ContentSections\Actions\CancelScheduledSectionUnpublishAction;
 use Capell\ContentSections\Actions\ReplicateContentAction;
+use Capell\ContentSections\Actions\RestoreSectionRevisionAction;
 use Capell\ContentSections\Actions\UnpublishSectionAction;
 use Capell\ContentSections\Data\SectionUsageSummaryData;
 use Capell\ContentSections\Enums\LivewireComponentsEnum;
@@ -20,6 +22,7 @@ use Capell\ContentSections\Enums\ResourceEnum;
 use Capell\ContentSections\Filament\Actions\CreateContentAction;
 use Capell\ContentSections\Filament\Resources\Sections\Widgets\SectionAlertsWidget;
 use Capell\ContentSections\Models\Section;
+use Capell\ContentSections\Support\SectionRevisions;
 use Capell\ContentSections\Support\SectionUsageWarnings;
 use Capell\PublishingStudio\Actions\SaveRecordDraftAction;
 use Capell\PublishingStudio\Data\SavedRecordDraftData;
@@ -27,12 +30,15 @@ use Capell\PublishingStudio\Enums\WorkspaceStatusEnum;
 use Capell\PublishingStudio\Filament\Actions\PublishingRevisionsHeaderAction;
 use Capell\PublishingStudio\Models\Workspace;
 use Capell\PublishingStudio\Publisher;
+use Carbon\CarbonImmutable;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
+use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Support\Facades\FilamentTimezone;
 use Filament\Widgets\Widget;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\View\View;
@@ -60,6 +66,9 @@ class EditSection extends EditRecord
      * Related copies are made during the save, so they must commit or roll back with the section.
      */
     protected ?bool $hasDatabaseTransactions = true;
+
+    /** @var array<string, mixed>|null The section as it was before this save, kept to record a revision afterwards. */
+    private ?array $revisionBefore = null;
 
     #[Override]
     public static function getResource(): string
@@ -119,6 +128,7 @@ class EditSection extends EditRecord
             $this->cancelScheduledUnpublishAction(),
             $this->publishAction(),
             $this->publishingRevisionsAction(),
+            $this->restoreRevisionAction(),
             RestoreAction::make('restore'),
             DeleteAction::make('delete')
                 ->modalHeading(__('capell-content-sections::section.delete_modal.heading'))
@@ -155,8 +165,20 @@ class EditSection extends EditRecord
         ];
     }
 
+    protected function beforeSave(): void
+    {
+        $this->revisionBefore = SectionRevisions::available() ? BuildSectionRevisionSnapshotAction::run($this->record) : null;
+    }
+
     protected function afterSave(): void
     {
+        if ($this->revisionBefore !== null) {
+            $this->record->unsetRelation('translations');
+
+            SectionRevisions::recordSaved($this->record, $this->revisionBefore, BuildSectionRevisionSnapshotAction::run($this->record), auth()->user());
+            $this->revisionBefore = null;
+        }
+
         $this->dispatch('refresh-alerts')->to(LivewireComponentsEnum::ContentAssetsTable->value);
 
         $this->notifyEditRecordHeadingSaved();
@@ -209,6 +231,64 @@ class EditSection extends EditRecord
         }
 
         return $actionClass::make();
+    }
+
+    private function restoreRevisionAction(): ?Action
+    {
+        if (! SectionRevisions::available()) {
+            return null;
+        }
+
+        return Action::make('restoreRevision')
+            ->label(__('capell-content-sections::button.restore_revision'))
+            ->icon('heroicon-o-arrow-uturn-left')
+            ->color('gray')
+            ->authorize('update')
+            ->visible(fn (): bool => SectionRevisions::history($this->record) !== [])
+            ->modalDescription(__('capell-content-sections::message.revision_restore_help'))
+            ->modalSubmitActionLabel(__('capell-content-sections::button.restore_revision_confirm'))
+            ->schema([
+                Select::make('revision')
+                    ->label(__('capell-content-sections::message.revision'))
+                    ->options(fn (): array => $this->revisionOptions())
+                    ->required(),
+            ])
+            ->action(function (array $data): void {
+                $revision = $data['revision'] ?? null;
+
+                if (! is_numeric($revision)) {
+                    return;
+                }
+
+                $this->record = RestoreSectionRevisionAction::run($this->record, (int) $revision);
+                $this->fillForm();
+
+                Notification::make()
+                    ->success()
+                    ->title(__('capell-content-sections::message.revision_restored'))
+                    ->send();
+            });
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function revisionOptions(): array
+    {
+        $options = [];
+
+        foreach (SectionRevisions::history($this->record) as $revision) {
+            $time = $revision['created_at'] === null
+                ? ''
+                : CarbonImmutable::parse($revision['created_at'])->setTimezone(FilamentTimezone::get())->format('j M Y H:i T');
+            $replacements = ['version' => $revision['version'], 'event' => $revision['event'], 'time' => $time];
+
+            $options[$revision['id']] = $revision['changed'] === []
+                ? __('capell-content-sections::message.revision_option', $replacements)
+                : __('capell-content-sections::message.revision_option_changes', [...$replacements, 'fields' => implode(', ', $revision['changed'])]);
+        }
+
+        return $options;
     }
 
     private function saveAsDraftAction(): ?Action

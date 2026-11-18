@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Capell\ContentSections\Filament\Resources\Sections\Pages\CreateSection;
 use Capell\ContentSections\Filament\Resources\Sections\Pages\EditSection;
 use Capell\ContentSections\Models\Section;
+use Capell\ContentSections\Support\SectionRevisions;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
@@ -59,6 +60,26 @@ it('can save', function (): void {
         ->blueprint_id->toBe($blueprint->getKey())
         ->parent_id->toBe($newData->parent->id)
         ->site_id->toBe($newData->site->getKey());
+});
+
+it('records a revision when a section is saved and can restore the previous one', function (): void {
+    $section = Section::factory()->create(['name' => 'Before edit']);
+
+    livewire(EditSection::class, ['record' => $section->getRouteKey()])
+        ->fillForm(['name' => 'After edit'])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    $history = SectionRevisions::history($section->refresh());
+
+    expect($history)->toHaveCount(2)
+        ->and($history[0]['changed'])->toContain('name');
+
+    livewire(EditSection::class, ['record' => $section->getRouteKey()])
+        ->callAction('restoreRevision', ['revision' => $history[1]['id']])
+        ->assertHasNoActionErrors();
+
+    expect($section->refresh()->name)->toBe('Before edit');
 });
 
 test('validates edit content', function (): void {

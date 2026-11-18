@@ -31,6 +31,7 @@ use Capell\Frontend\Support\Cache\FragmentCache;
 use Capell\Frontend\Support\Renderables\RenderableDynamicDataRegistry;
 use Capell\Frontend\Support\State\FrontendState;
 use Capell\LayoutBuilder\Contracts\PublicLayoutAssetMembership;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -97,7 +98,11 @@ final class RenderPublicSectionFragmentAction
         }
         // Fragments share the inline renderer's preparation: sanitised HTML, allowlisted URL
         // schemes, normalised icons, and hydrated media (never a raw `image` value or media uuid).
-        $meta = PreparePublicSectionMetaAction::run($section, is_array($section->meta) ? $section->meta : [], $context->language);
+        $placement = $this->placementMeta($reference, $section, $page);
+        if ($placement === false) {
+            return new PublicSectionFragmentResultData(PublicSectionFragmentOutcome::Unavailable);
+        }
+        $meta = PreparePublicSectionMetaAction::run($section, array_replace_recursive(is_array($section->meta) ? $section->meta : [], $placement), $context->language);
         $kind = is_string($meta['kind'] ?? null) && $meta['kind'] !== '' ? $meta['kind'] : 'section';
         $dynamic = resolve(RenderableDynamicDataRegistry::class);
         $definition = resolve(RenderableRegistry::class)->get('section', $kind);
@@ -137,6 +142,39 @@ final class RenderPublicSectionFragmentAction
                 app()->forgetInstance(FrontendContextReader::class);
             }
         }
+    }
+
+    /**
+     * The per-page overrides the inline renderer merges over the section's own meta. A reference that names
+     * a placement must still match a live placement of this section on this page, with unchanged overrides.
+     *
+     * @return array<string, mixed>|false false when the reference's placement is gone or has changed
+     */
+    private function placementMeta(PublicFragmentReferenceData $reference, Section $section, Page $page): array|false
+    {
+        $id = $reference->ownerContext['widgetAssetId'] ?? null;
+        if ($id === null) {
+            return [];
+        }
+        $version = $reference->ownerContext['placementVersion'] ?? null;
+        if ((! is_int($id) && ! is_string($id)) || ! is_string($version)) {
+            return false;
+        }
+        $placement = WidgetAsset::query()->whereKey($id)
+            ->where('asset_type', $section->getMorphClass())
+            ->where('asset_id', $section->getKey())
+            ->where('pageable_type', $page->getMorphClass())
+            ->where('pageable_id', $page->getKey())
+            ->where('workspace_id', 0)
+            ->first();
+        $meta = $placement instanceof WidgetAsset && is_array($placement->meta) ? $placement->meta : [];
+        // Must match the token layout-builder issues byte for byte (see LayoutBuilderPublicWidgetAssetsRenderer): it
+        // sits in cached public HTML and the two packages release independently.
+        if ($meta === [] || ! hash_equals($version, hash('sha256', json_encode($meta, JSON_THROW_ON_ERROR)))) {
+            return false;
+        }
+
+        return $meta;
     }
 
     private function modelKey(Model $model): int|string

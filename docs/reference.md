@@ -6,7 +6,7 @@ Developer reference for `capell-app/content-sections`. Start with the [README](.
 
 ## Package Details
 
-Content Sections is an **Available**, **Schema-owning** Capell package in the **Capell Essentials** product group. It ships as `capell-app/content-sections` and extends these surfaces: admin, frontend.
+Content Sections is an **Available** Capell package in the **Capell Essentials** product group. It ships as `capell-app/content-sections` and extends these surfaces: admin, frontend.
 
 - Status: Available
 - Tier: free
@@ -105,6 +105,7 @@ Content Sections is an **Available**, **Schema-owning** Capell package in the **
 - `BuildSectionAssetRenderDataAction`
 - `BuildSectionCreateFormDataAction`
 - `BuildSectionDemoDataAction`
+- `BuildSectionRevisionSnapshotAction`
 - `BuildSectionUsageSummaryAction`
 - `CancelScheduledSectionUnpublishAction`
 - `CloneSectionIntoWorkspaceAction`
@@ -118,6 +119,7 @@ Content Sections is an **Available**, **Schema-owning** Capell package in the **
 - `GetDefaultLanguageIdAction`
 - `HydrateSectionMediaSlotsAction`
 - `InstallContentSectionsPackageAction`
+- `InvalidateDueScheduledSectionCachesAction`
 - `MaterialisePendingRelatedCopiesAction`
 - `ModifyContentSelectCreateAction`
 - `NormalizeSectionIconAction`
@@ -129,6 +131,7 @@ Content Sections is an **Available**, **Schema-owning** Capell package in the **
 - `ResolveRequestedSectionBlueprintAction`
 - `ResolveSectionComponentAction`
 - `ResolveSectionMediaAction`
+- `RestoreSectionRevisionAction`
 - `SanitizeSectionHtmlAction`
 - `UnpublishSectionAction`
 
@@ -143,20 +146,34 @@ Content Sections is an **Available**, **Schema-owning** Capell package in the **
 - `SectionUsageSummaryData`
 - `SectionVisibilityActionResultData`
 
+### Command signatures
+
+- `content-sections:invalidate-due-caches`
+
 ### Manifest action API
 
 - `install: Capell\ContentSections\Actions\InstallContentSectionsPackageAction`
+
+### Scheduled commands
+
+- `content-sections:invalidate-due-caches (everyMinute; package registered)`
+
+### Console command classes
+
+- `InvalidateDueScheduledSectionCachesCommand`
 
 ### Manifest contributions
 
 - `admin-resource: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`
 - `asset: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`
 - `configurator: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`
+- `console-command: Capell\ContentSections\Manifest\ContentSectionsConsoleCommandsContribution`
 - `frontend-component: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`
 - `model: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`
 - `page-type: Capell\ContentSections\Manifest\ContentSectionsPackageContribution`
 - `route: Capell\ContentSections\Manifest\ContentSectionsRoutesContribution`
 - `route: Capell\ContentSections\Manifest\PublicSectionFragmentsRoutesContribution`
+- `scheduled-job: Capell\ContentSections\Manifest\ContentSectionsScheduledVisibilityContribution`
 - `schema-extender: Capell\ContentSections\Manifest\ContentSectionsSchemaExtendersContribution`
 
 ### Health checks

@@ -1,0 +1,59 @@
+[
+    {
+        "claim": "Edit once, every copy updates",
+        "evidence": [
+            "src/Actions/BuildSectionUsageSummaryAction.php",
+            "src/Filament/Resources/Sections/SectionResource.php"
+        ]
+    },
+    {
+        "claim": "17 ready-made types incl. pricing, team, timeline, testimonial",
+        "evidence": [
+            "src/Enums/SectionConfiguratorEnum.php",
+            "resources/lang/en/section.php"
+        ]
+    },
+    {
+        "claim": "Fill in words and pictures; design follows site",
+        "evidence": [
+            "src/Filament/Configurators/Sections/RichSectionConfigurator.php",
+            "src/Support/DefaultSectionDefinitionProvider.php"
+        ]
+    },
+    {
+        "claim": "Pricing buttons are links; no payment",
+        "evidence": [
+            "src/Filament/Configurators/Sections/RichSectionConfigurator.php"
+        ]
+    },
+    {
+        "claim": "Placed with Layout Builder, which is required",
+        "evidence": ["capell.json", "composer.json"]
+    },
+    {
+        "claim": "Admin shows how many places use it",
+        "evidence": [
+            "resources/lang/en/message.php",
+            "src/Filament/Resources/Sections/Pages/EditSection.php",
+            "src/Support/SectionUsageWarnings.php"
+        ]
+    },
+    {
+        "claim": "Deleted section can be restored",
+        "evidence": [
+            "resources/lang/en/message.php",
+            "src/Filament/Resources/Sections/Pages/EditSection.php"
+        ]
+    },
+    {
+        "claim": "Start and end dates",
+        "evidence": [
+            "database/migrations/2026_08_28_000003_change_section_visibility_to_datetime.php",
+            "src/Actions/InvalidateDueScheduledSectionCachesAction.php"
+        ]
+    },
+    {
+        "claim": "Content that appears on only one page is better added to that page as an ordinary block",
+        "evidence": ["docs/admin-guide.md"]
+    }
+]

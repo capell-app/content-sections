@@ -6,7 +6,7 @@
     "kind": "package",
     "capellApiVersion": "^1.0",
     "version": "1.0.0",
-    "description": "Seventeen ready-to-use, themeable page sections (hero, FAQ, pricing, stats, testimonials, team, comparison, timeline and more) that editors reuse across pages and developers render through safe, package-owned Blade. Bundled free with Capell Foundation.",
+    "description": "Build reusable page sections such as FAQs, pricing tables and team grids once, then use them on many pages.",
     "product": {
         "group": "Capell Essentials",
         "tier": "free",
@@ -92,11 +92,25 @@
             "middleware": ["web"]
         },
         {
+            "type": "scheduled-job",
+            "class": "Capell\\ContentSections\\Manifest\\ContentSectionsScheduledVisibilityContribution",
+            "command": "content-sections:invalidate-due-caches",
+            "frequency": "everyMinute"
+        },
+        {
+            "type": "console-command",
+            "class": "Capell\\ContentSections\\Manifest\\ContentSectionsConsoleCommandsContribution",
+            "commands": ["content-sections:invalidate-due-caches"],
+            "commandClasses": [
+                "Capell\\ContentSections\\Console\\Commands\\InvalidateDueScheduledSectionCachesCommand"
+            ]
+        },
+        {
             "type": "route",
             "class": "Capell\\ContentSections\\Manifest\\PublicSectionFragmentsRoutesContribution",
             "routes": ["capell-content-sections.fragments.show"],
             "prefix": "_capell/content-sections/fragments",
-            "middleware": []
+            "middleware": ["throttle:capell-content-sections-fragment"]
         }
     ],
     "database": {
@@ -108,7 +122,8 @@
         "install": null,
         "setup": null,
         "demo": null,
-        "doctor": null
+        "doctor": null,
+        "invalidateDueCaches": "content-sections:invalidate-due-caches"
     },
     "actions": {
         "install": "Capell\\ContentSections\\Actions\\InstallContentSectionsPackageAction"
@@ -150,7 +165,22 @@
             "signedRoutes": [],
             "tokenizedRoutes": [],
             "webhookRoutes": [],
-            "throttledRoutes": []
+            "throttledRoutes": [
+                "GET /_capell/content-sections/fragments/{reference} (capell-content-sections.fragments.show)",
+                "GET /screenshot-fixtures/content-sections/section-selector-modal (capell-content-sections.screenshot-fixtures.section-selector-modal)",
+                "GET /screenshot-fixtures/content-sections/section-widget-gallery (capell-content-sections.screenshot-fixtures.section-widget-gallery)"
+            ]
+        },
+        "throttles": {
+            "capell-content-sections-fragment": {
+                "maxAttempts": 120,
+                "decaySeconds": 60,
+                "routes": [
+                    "GET /_capell/content-sections/fragments/{reference} (capell-content-sections.fragments.show)",
+                    "GET /screenshot-fixtures/content-sections/section-selector-modal (capell-content-sections.screenshot-fixtures.section-selector-modal)",
+                    "GET /screenshot-fixtures/content-sections/section-widget-gallery (capell-content-sections.screenshot-fixtures.section-widget-gallery)"
+                ]
+            }
         },
         "sensitiveData": {
             "encryptedFields": [],
@@ -226,48 +256,65 @@
         "privateDocsRequested": false
     },
     "marketplace": {
-        "summary": "Seventeen ready-to-use, themeable page sections (hero, FAQ, pricing, stats, testimonials, team, comparison, timeline and more) that editors reuse across pages and developers render through safe, package-owned Blade. Bundled free with Capell Foundation.",
-        "problem": "Editors who repeat the same section across pages must maintain separate copies.",
-        "outcome": "A site has published sections that editors can reuse across content surfaces.",
+        "summary": "Seventeen ready-made section types you edit once and reuse across your pages, with usage counts and start and end dates.",
+        "description": "A FAQ, a logo strip or a pricing table often appears on many pages. Here you make it once as a section and drop it in wherever it belongs, and an edit shows on every page at once. You choose from 17 ready-made types, including team grids and testimonials, add your words and pictures, and the result matches your site's design. Pricing buttons link to other pages, and no payment is taken in a section. The admin says how many places use a section before you change or remove it, and a deleted one can be brought back. Dates let a seasonal banner turn up and disappear on its own.",
+        "problem": "We raised a price and now I have to find every page that carries a copy of the pricing table.",
+        "outcome": "You change a section once and every page that uses it shows the new content.",
         "faq": [
             {
-                "question": "Can a section be reused?",
-                "answer": "Editors can select published shared sections from other content surfaces."
+                "question": "What happens on my pages when I change a shared section?",
+                "answer": "Every page that uses the section shows the change. Before you change or delete one, the admin tells you how many places use it, in words like Used in 3 places."
             },
             {
-                "question": "What reaches the public page?",
-                "answer": "The rendered section is presented without admin metadata."
+                "question": "Can I bring back a section I deleted by mistake?",
+                "answer": "Yes. Deleting hides the section, and any child sections deleted with it, from your pages. Restore it from the deleted records filter and it shows again where it was placed, because pages keep their link to it."
             },
             {
-                "question": "How are sections structured?",
-                "answer": "Section records are backed by registered blueprints and package-owned rendering components."
+                "question": "Can I go back to an earlier version of a section?",
+                "answer": "Yes. Each save is kept as a revision, and restoring one puts back the name, settings, dates and text on every page that uses the section. Pictures and attached assets are not part of a revision."
+            },
+            {
+                "question": "Do I need anything else to place sections on pages?",
+                "answer": "Yes. Sections are placed on pages in Layout Builder, the page builder, which has to be installed as well."
             }
         ],
         "screenshots": [
             {
                 "path": "docs/assets/marketplace/extension-card.jpg",
-                "alt": "Content Sections extension preview image",
-                "caption": "Content Sections extension preview"
+                "alt": "Content Sections card with a Sections list and a Create Section form above steps labelled Choose, Configure and Reuse.",
+                "caption": "The card pairs the list of reusable sections with the form for making a new one."
             },
             {
                 "path": "docs/screenshots/sections-index.png",
-                "alt": "Content Sections admin index with reusable section records",
-                "caption": "Editors can review reusable hero, FAQ, and pricing sections from a dedicated Capell admin resource."
+                "alt": "Sections list with six published sections, their type, a Used in column and how many sections each one contains.",
+                "caption": "See which sections are already on pages before you change or delete one."
             },
             {
                 "path": "docs/screenshots/sections-create.png",
-                "alt": "Create Section form with blueprint selector and content editor",
-                "caption": "The create form starts from a section blueprint and gives editors translated content fields without storing layout markup."
+                "alt": "Create Section form with a name, a Content section type, a title, a text editor and a Publish from date.",
+                "caption": "Pick a type, add the words and, if you like, set the date the section becomes available."
             },
             {
                 "path": "docs/screenshots/sections-edit-with-assets.png",
-                "alt": "Edit Section form with publishing controls and assets panel",
-                "caption": "A reusable section edit screen combines content, publishing actions, site context, and the assets panel."
+                "alt": "Edit form for a workshop introduction section with a title, text, a Save and Publish button and an Assets panel below.",
+                "caption": "An existing section is edited the same way, with a panel below listing what belongs to it."
             }
         ],
         "categories": ["admin", "foundation", "frontend"]
     },
     "contributionTraceability": {
-        "deferredContributions": []
+        "deferredContributions": [],
+        "contributions": [
+            {
+                "type": "blueprint-subject",
+                "key": "section",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "page-type",
+                "key": "section",
+                "providerBucket": "runtime"
+            }
+        ]
     }
 }

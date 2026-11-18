@@ -16,4 +16,6 @@ return [
     'unpublish' => 'Unpublish',
     'review_uses' => 'Review uses',
     'close' => 'Close',
+    'restore_revision' => 'Restore a revision',
+    'restore_revision_confirm' => 'Restore revision',
 ];

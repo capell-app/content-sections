@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+use Capell\BlockLibrary\Support\DefaultBlockCatalog;
 use Capell\ContentSections\Actions\EnsureSectionBlueprintForKeyAction;
 use Capell\ContentSections\Models\Section;
+use Capell\ContentSections\Support\DefaultSectionDefinitionProvider;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
@@ -211,6 +213,30 @@ it('removes unsafe section meta urls before public section rendering', function 
         ->and($safeUrl)->toBe('/safe-feature')
         ->and($widgetData->html)->toContain('/safe-feature')
         ->not->toContain('javascript:alert');
+});
+
+it('applies the block catalogue link policy to section meta urls', function (string $unsafe): void {
+    $widgetData = placeSectionAndBuildPublicGraph(
+        'features',
+        '<p>Feature intro</p>',
+        ['features' => [['heading' => 'Link feature', 'description' => 'Copy.', 'url' => $unsafe]]],
+    );
+
+    $url = publicSectionMetaItems($widgetData, 'features')[0]['url'] ?? null;
+
+    expect($url)->toBeNull();
+})->with([
+    'protocol relative host' => '//evil.example/path',
+    'backslash host' => '/\\evil.example',
+    'admin path' => '/admin/users',
+    'editor path' => '/_capell/preview',
+    'credentials in the address' => 'https://user:pass@example.com/',
+]);
+
+it('shares the block catalogue icon for every section definition', function (): void {
+    foreach ((new DefaultSectionDefinitionProvider)->definitions() as $definition) {
+        expect($definition->icon)->toBe(DefaultBlockCatalog::icon($definition->key));
+    }
 });
 
 it('preserves legitimate rich-text markup in section summary', function (): void {

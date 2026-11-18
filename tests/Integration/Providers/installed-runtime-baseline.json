@@ -4,10 +4,10 @@
     "scenarios": {
         "default": {
             "source": {
-                "ref": "c92ce184be4d91c372f35ca125ea25f6c1308599",
-                "commit": "c92ce184be4d91c372f35ca125ea25f6c1308599",
+                "ref": "HEAD",
+                "commit": "131434b6cee6f973712d0dafc89d352247d0f082",
                 "providers": {
-                    "Providers/ContentSectionsServiceProvider.php": "06928ca54283721bbe1aeee3ea3f7d23f2fa16580ac4f130b57a94e22524bd1c",
+                    "Providers/ContentSectionsServiceProvider.php": "1f6160b5f8f1bfda752320f17016ad353c54ba037c8fbd875eb234f43e6e9fb6",
                     "Providers/MigrationMetadataServiceProvider.php": "b8d51e399137587851538a5914f9668d05899819b9e06bbd6284d0b6a48a443b"
                 },
                 "configure": null
@@ -260,6 +260,9 @@
                 "blade-namespaces": {
                     "capell-content-sections": "Capell\\ContentSections\\View\\Components"
                 },
+                "commands": {
+                    "content-sections:invalidate-due-caches": "Capell\\ContentSections\\Console\\Commands\\InvalidateDueScheduledSectionCachesCommand"
+                },
                 "config-defaults": {
                     "capell-content-sections.php": {
                         "assets.section.color": "info",
@@ -267,6 +270,7 @@
                         "assets.section.model": "Capell\\ContentSections\\Models\\Section",
                         "fragments.cache_seconds": 1800,
                         "fragments.owner_aliases": [],
+                        "fragments.rate_limit_per_minute": 120,
                         "screenshot_fixtures_enabled": false
                     }
                 },
@@ -280,6 +284,7 @@
                     "capell-content-sections.fragments",
                     "capell-content-sections.fragments.cache_seconds",
                     "capell-content-sections.fragments.owner_aliases",
+                    "capell-content-sections.fragments.rate_limit_per_minute",
                     "capell-content-sections.screenshot_fixtures_enabled"
                 ],
                 "config-values": {
@@ -441,7 +446,7 @@
                     "eloquent.deleted: Capell\\Core\\Models\\Media": [
                         {
                             "after": null,
-                            "before": "Spatie\\MediaLibrary\\MediaCollections\\Models\\Observers\\MediaObserver@deleted",
+                            "before": "Capell\\Core\\Observers\\MediaPropertyReferenceObserver@deleted",
                             "entry": [
                                 "<package>/src/Providers/ContentSectionsServiceProvider.php",
                                 "static Capell\\ContentSections\\Providers\\ContentSectionsServiceProvider(Capell\\Core\\Models\\Media $media):void source=e95fa194fb34f9cec4d15a0ac1c3cdda",
@@ -2631,7 +2636,7 @@
                                     "defaults": [],
                                     "description": "Reusable accordion content section.",
                                     "group": "main",
-                                    "icon": "o-queue-list",
+                                    "icon": "o-bars-3-bottom-left",
                                     "key": "accordion",
                                     "label": "Accordion section"
                                 }
@@ -2645,7 +2650,7 @@
                                     "defaults": [],
                                     "description": "Reusable call-to-action content section.",
                                     "group": "main",
-                                    "icon": "o-cursor-arrow-rays",
+                                    "icon": "o-megaphone",
                                     "key": "call_to_action",
                                     "label": "Call-to-action section"
                                 }
@@ -2659,7 +2664,7 @@
                                     "defaults": [],
                                     "description": "Reusable comparison content section.",
                                     "group": "main",
-                                    "icon": "o-arrows-right-left",
+                                    "icon": "o-scale",
                                     "key": "comparison",
                                     "label": "Comparison section"
                                 }
@@ -2771,7 +2776,7 @@
                                     "defaults": [],
                                     "description": "Reusable pricing content section.",
                                     "group": "main",
-                                    "icon": "o-credit-card",
+                                    "icon": "o-banknotes",
                                     "key": "pricing",
                                     "label": "Pricing section"
                                 }
@@ -2841,7 +2846,7 @@
                                     "defaults": [],
                                     "description": "Reusable testimonial content section.",
                                     "group": "main",
-                                    "icon": "o-chat-bubble-bottom-center-text",
+                                    "icon": "o-chat-bubble-left-right",
                                     "key": "testimonial",
                                     "label": "Testimonial section"
                                 }
@@ -2932,7 +2937,7 @@
                         "capell-content-sections.fragments.show",
                         "_capell/content-sections/fragments/{reference}",
                         ["GET", "HEAD"],
-                        [],
+                        ["throttle:capell-content-sections-fragment"],
                         "Capell\\ContentSections\\Http\\Controllers\\PublicSectionFragmentController",
                         {
                             "as": "capell-content-sections.fragments.show",
@@ -2947,7 +2952,7 @@
                         "capell-content-sections.screenshot-fixtures.section-selector-modal",
                         "screenshot-fixtures/content-sections/section-selector-modal",
                         ["GET", "HEAD"],
-                        [],
+                        ["throttle:capell-content-sections-fragment"],
                         "Closure",
                         {
                             "as": "capell-content-sections.screenshot-fixtures.section-selector-modal",
@@ -2960,7 +2965,7 @@
                         "capell-content-sections.screenshot-fixtures.section-widget-gallery",
                         "screenshot-fixtures/content-sections/section-widget-gallery",
                         ["GET", "HEAD"],
-                        [],
+                        ["throttle:capell-content-sections-fragment"],
                         "Closure",
                         {
                             "as": "capell-content-sections.screenshot-fixtures.section-widget-gallery",
@@ -2968,6 +2973,15 @@
                             "prefix": "screenshot-fixtures/content-sections",
                             "where": []
                         }
+                    ]
+                ],
+                "schedule": [
+                    [
+                        "'<php>' 'artisan' content-sections:invalidate-due-caches",
+                        "* * * * *",
+                        null,
+                        true,
+                        null
                     ]
                 ],
                 "tagged-consumers": {
@@ -3004,6 +3018,7 @@
                         "assets.section.model": "Capell\\ContentSections\\Models\\Section",
                         "fragments.cache_seconds": 1800,
                         "fragments.owner_aliases": [],
+                        "fragments.rate_limit_per_minute": 120,
                         "screenshot_fixtures_enabled": false
                     }
                 },
@@ -3017,6 +3032,7 @@
                     "capell-content-sections.fragments",
                     "capell-content-sections.fragments.cache_seconds",
                     "capell-content-sections.fragments.owner_aliases",
+                    "capell-content-sections.fragments.rate_limit_per_minute",
                     "capell-content-sections.screenshot_fixtures_enabled"
                 ],
                 "config-values": {
@@ -3052,7 +3068,7 @@
                         "capell-content-sections.fragments.show",
                         "_capell/content-sections/fragments/{reference}",
                         ["GET", "HEAD"],
-                        [],
+                        ["throttle:capell-content-sections-fragment"],
                         "Capell\\ContentSections\\Http\\Controllers\\PublicSectionFragmentController",
                         {
                             "as": "capell-content-sections.fragments.show",
@@ -3067,7 +3083,7 @@
                         "capell-content-sections.screenshot-fixtures.section-selector-modal",
                         "screenshot-fixtures/content-sections/section-selector-modal",
                         ["GET", "HEAD"],
-                        [],
+                        ["throttle:capell-content-sections-fragment"],
                         "Closure",
                         {
                             "as": "capell-content-sections.screenshot-fixtures.section-selector-modal",
@@ -3080,7 +3096,7 @@
                         "capell-content-sections.screenshot-fixtures.section-widget-gallery",
                         "screenshot-fixtures/content-sections/section-widget-gallery",
                         ["GET", "HEAD"],
-                        [],
+                        ["throttle:capell-content-sections-fragment"],
                         "Closure",
                         {
                             "as": "capell-content-sections.screenshot-fixtures.section-widget-gallery",

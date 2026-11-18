@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Capell\ContentSections\Actions\Fragments\RenderPublicSectionFragmentAction;
+use Capell\ContentSections\Actions\InvalidateDueScheduledSectionCachesAction;
 use Capell\ContentSections\Enums\PublicSectionFragmentOutcome;
 use Capell\ContentSections\Fragments\ContentSectionsFragmentUrlResolver;
 use Capell\ContentSections\Models\Section;
@@ -133,6 +134,48 @@ it('sanitises section meta in a shared fragment exactly as the inline renderer d
 });
 
 /** @return array{language: Language, site: Site, widget: Widget, layout: Layout, page: Page, section: Section, attachment: WidgetAsset, reference: PublicFragmentReferenceData, token: string, state: PublicSectionFragmentState} */
+it('renders a placement\'s per-page overrides in the fragment exactly as the inline renderer does', function (): void {
+    $fixture = sharedSectionFragmentFixture(fn (Section $section) => $section->update(['meta' => ['kind' => 'logos-media', 'logos' => [['name' => 'Section Co']]]]), 'logos-media');
+    $fixture['attachment']->update(['meta' => ['logos' => [['name' => 'Placement Co']]]]);
+    $base = $fixture['reference'];
+    $widgetAssetId = $fixture['attachment']->id;
+    $ownerContext = [...$base->ownerContext, 'widgetAssetId' => (int) $widgetAssetId, 'placementVersion' => hash('sha256', json_encode(['logos' => [['name' => 'Placement Co']]], JSON_THROW_ON_ERROR))];
+    $reference = new PublicFragmentReferenceData(owner: $base->owner, formatVersion: 1, pageableType: $base->pageableType, pageableId: $base->pageableId, siteId: $base->siteId, languageId: $base->languageId, contentVersion: ResolvePublicFragmentContentVersionAction::run($fixture['page'], $fixture['site'], $fixture['language'], $fixture['layout'], $ownerContext), ownerContext: $ownerContext);
+    $token = resolve(PublicFragmentReferenceCodec::class)->encode($reference);
+
+    $result = RenderPublicSectionFragmentAction::make()->result($token);
+
+    expect($result->outcome)->toBe(PublicSectionFragmentOutcome::Rendered)
+        ->and($result->html)->toContain('Placement Co')
+        ->and($result->html)->not->toContain('Section Co');
+
+    $fixture['attachment']->update(['meta' => ['logos' => [['name' => 'Edited Co']]]]);
+    expect(RenderPublicSectionFragmentAction::make()->result($token)->outcome)->toBe(PublicSectionFragmentOutcome::Unavailable);
+});
+
+it('throttles the anonymous fragment endpoint per client', function (): void {
+    config()->set('capell-content-sections.fragments.rate_limit_per_minute', 2);
+    $url = route('capell-content-sections.fragments.show', ['reference' => 'invalid'], false);
+
+    $this->get($url)->assertNotFound();
+    $this->get($url)->assertNotFound();
+    $this->get($url)->assertStatus(429);
+});
+
+it('evicts a cached fragment when its section visibility window closes', function (): void {
+    $fixture = sharedSectionFragmentFixture(fn (Section $section) => $section->update(['visible_until' => now()->addHour()]));
+    $fixture['state']->html = '<section>Promo</section>';
+    expect(RenderPublicSectionFragmentAction::run($fixture['token']))->toBe('<section>Promo</section>');
+    $identity = ResolvePublicFragmentCacheIdentityAction::run($fixture['reference']);
+    expect(resolve(FragmentCache::class)->remember($identity, fn () => 'miss'))->toBe('<section>Promo</section>');
+
+    Section::query()->whereKey($fixture['section']->getKey())->toBase()->update(['visible_until' => now()->subSeconds(30)]);
+    InvalidateDueScheduledSectionCachesAction::run();
+
+    expect(resolve(FragmentCache::class)->remember($identity, fn () => 'miss'))->toBe('miss');
+});
+
+/** @return array{language: Language, site: Site, widget: Widget, layout: Layout, page: Page, section: Section, attachment: WidgetAsset, reference: PublicFragmentReferenceData, token: string, state: PublicSectionFragmentState} */
 function sharedSectionFragmentFixture(?Closure $prepare = null, string $kind = 'shared-test'): array
 {
     $state = new PublicSectionFragmentState;
@@ -192,8 +235,15 @@ it('refreshes a cached fragment when media attached to its section changes', fun
 
     match ($change) {
         'alt' => expect($html)->toContain('alt="New alt"'),
-        'decorative' => expect($html)->toContain('alt=""'),
+        // The logo has no link, so a decorative image carries the logo's name: nothing else on it names the company.
+        'decorative' => expect($html)->toContain('alt="Acme"')->not->toContain('Old alt'),
         'deleted' => expect($html)->not->toContain('<img'),
         default => expect($html)->toContain('<img'),
     };
 })->with(['alt', 'decorative', 'deleted', 'restored']);
+
+it('derives the placement version token as a SHA-256 digest of the placement metadata', function (): void {
+    // Pinned literal: the issuer ships in layout-builder and this verifier must agree with it.
+    expect(hash('sha256', json_encode(['logos' => [['name' => 'Placement Co']]], JSON_THROW_ON_ERROR)))
+        ->toBe('f2c577383e915214a5b7f687e73ec6bfbe9e331dff17684fd3e87641c382b109');
+});

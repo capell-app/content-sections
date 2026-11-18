@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Admin\Contracts\ConfiguratorInterface;
+use Capell\Admin\Enums\NavigationGroupEnum;
 use Capell\ContentSections\Actions\BuildSectionAssetRenderDataAction;
 use Capell\ContentSections\Actions\ModifyContentSelectCreateAction;
 use Capell\ContentSections\Actions\NormalizeSectionIconAction;
@@ -511,7 +512,7 @@ it('declares section resource metadata', function (): void {
         ->and(SectionResource::getResourceType())->toBe(ConfiguratorTypeEnum::Section)
         ->and(SectionResource::shouldRegisterNavigation())->toBeTrue()
         ->and(SectionResource::getGloballySearchableAttributes())->toBe(['name', 'translations.title'])
-        ->and(SectionResource::getNavigationGroup())->toBe((string) __('capell-admin::navigation.group_content'))
+        ->and(SectionResource::getNavigationGroup())->toBe(NavigationGroupEnum::Website)
         ->and(SectionResource::getNavigationParentItem())->toBeNull()
         ->and(SectionResource::getNavigationLabel())->toBeString()
         ->and(SectionResource::getModelLabel())->toBeString()

@@ -17,6 +17,7 @@ use Capell\ContentSections\Actions\Fragments\InvalidateSectionFragmentsForMediaA
 use Capell\ContentSections\Actions\RegisterDefaultSectionsAction;
 use Capell\ContentSections\Actions\RegisterSectionBlueprintSubjectsAction;
 use Capell\ContentSections\Actions\RegisterSectionDefinitionProviderAction;
+use Capell\ContentSections\Console\Commands\InvalidateDueScheduledSectionCachesCommand;
 use Capell\ContentSections\Contracts\SectionDefinitionProvider;
 use Capell\ContentSections\Enums\AssetEnum;
 use Capell\ContentSections\Enums\FrontendComponentKeyEnum;
@@ -29,6 +30,7 @@ use Capell\ContentSections\Policies\SectionAssetAttachmentPolicy;
 use Capell\ContentSections\Policies\SectionPolicy;
 use Capell\ContentSections\Support\ContentSectionsBlockDefinitionProvider;
 use Capell\ContentSections\Support\ContentSectionsModelRegistrar;
+use Capell\ContentSections\Support\SectionFragmentThrottle;
 use Capell\ContentSections\Support\SectionPublicLayoutWidgetPayloadContributor;
 use Capell\ContentSections\Support\SectionRegistry;
 use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
@@ -48,6 +50,7 @@ use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadContributor;
 use Capell\PublishingStudio\Models\Workspace;
 use Capell\PublishingStudio\WorkspaceRegistry;
 use Composer\InstalledVersions;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Blade;
@@ -109,6 +112,8 @@ final class ContentSectionsServiceProvider extends AbstractPackageServiceProvide
     protected function bootInstalledRuntime(): void
     {
         $this->loadTranslationsFrom(__DIR__ . '/../../resources/lang', self::$name);
+        SectionFragmentThrottle::register();
+        $this->registerScheduledVisibilityInvalidation();
         $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
 
         $this
@@ -128,6 +133,20 @@ final class ContentSectionsServiceProvider extends AbstractPackageServiceProvide
             ->registerBlazeComponents()
             ->registerPublishingStudio();
 
+    }
+
+    private function registerScheduledVisibilityInvalidation(): void
+    {
+        if ($this->app->runningInConsole()) {
+            $this->commands([InvalidateDueScheduledSectionCachesCommand::class]);
+        }
+
+        $this->registerSchedule(static function (Schedule $schedule): void {
+            $schedule->command('content-sections:invalidate-due-caches')
+                ->everyMinute()
+                ->withoutOverlapping()
+                ->onOneServer();
+        });
     }
 
     private function registerModels(): self

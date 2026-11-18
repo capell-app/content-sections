@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Capell\ContentSections\Actions;
 
+use Capell\BlockLibrary\Actions\BuildBuilderBlockRenderDataAction;
+use Capell\Core\Contracts\Security\SanitizesPublicHtml;
+use Capell\Core\Enums\HtmlSanitizerProfile;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
-use Symfony\Component\HtmlSanitizer\HtmlSanitizer;
-use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
 
 /**
  * Sanitises editor-authored HTML before it is rendered as raw markup on the
@@ -23,8 +24,6 @@ class SanitizeSectionHtmlAction
     use AsFake;
     use AsObject;
 
-    private static ?HtmlSanitizer $sanitizer = null;
-
     /**
      * Recursively sanitise a string or array of editor-authored values.
      *
@@ -36,7 +35,7 @@ class SanitizeSectionHtmlAction
     public function handle(mixed $value): mixed
     {
         if (is_string($value)) {
-            return $this->sanitizer()->sanitize($value);
+            return $this->sanitizer()->sanitize($value, HtmlSanitizerProfile::RichText);
         }
 
         if (! is_array($value)) {
@@ -77,34 +76,15 @@ class SanitizeSectionHtmlAction
             return null;
         }
 
-        $url = trim($value);
+        // Sections render the block catalogue's views, so they share its link policy: web, mail and phone
+        // links only, no protocol-relative or backslash hosts, and no admin or editor paths.
+        $url = BuildBuilderBlockRenderDataAction::make()->url($value);
 
-        if ($url === '' || preg_match('/[\x00-\x1F\x7F]/', $url) === 1) {
-            return null;
-        }
-
-        if (preg_match('/^\s*([a-z][a-z0-9+.\-]*)\s*:/i', $url, $matches) !== 1) {
-            return $url;
-        }
-
-        $scheme = strtolower($matches[1]);
-
-        return in_array($scheme, ['http', 'https', 'mailto', 'tel'], true) ? $url : null;
+        return $url === '' ? null : $url;
     }
 
-    private function sanitizer(): HtmlSanitizer
+    private function sanitizer(): SanitizesPublicHtml
     {
-        if (self::$sanitizer instanceof HtmlSanitizer) {
-            return self::$sanitizer;
-        }
-
-        $config = (new HtmlSanitizerConfig)
-            ->allowSafeElements()
-            ->allowRelativeLinks()
-            ->allowRelativeMedias()
-            ->allowAttribute('class', '*')
-            ->withMaxInputLength(-1);
-
-        return self::$sanitizer = new HtmlSanitizer($config);
+        return resolve(SanitizesPublicHtml::class);
     }
 }

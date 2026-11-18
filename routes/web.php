@@ -3,17 +3,21 @@
 declare(strict_types=1);
 
 use Capell\ContentSections\Http\Controllers\PublicSectionFragmentController;
+use Capell\ContentSections\Support\SectionFragmentThrottle;
 use Illuminate\Support\Facades\Route;
 use Illuminate\View\View;
 
 Route::get('/_capell/content-sections/fragments/{reference}', PublicSectionFragmentController::class)
-    ->where('reference', '.*')->name('capell-content-sections.fragments.show');
+    ->where('reference', '.*')
+    ->middleware('throttle:' . SectionFragmentThrottle::PURPOSE)
+    ->name('capell-content-sections.fragments.show');
 
 if (! app()->environment('testing') && config('capell-content-sections.screenshot_fixtures_enabled', false) !== true) {
     return;
 }
 
 Route::prefix('screenshot-fixtures/content-sections')
+    ->middleware('throttle:' . SectionFragmentThrottle::PURPOSE)
     ->name('capell-content-sections.screenshot-fixtures.')
     ->group(function (): void {
         Route::get('/section-selector-modal', static function (): View {

@@ -2,6 +2,12 @@
 
 <!-- prettier-ignore-start -->
 
+Most sites repeat a few blocks on page after page, such as a FAQ or a row of client logos. Build each one once as a section and place it on every page that needs it. When an answer or a price changes, you edit it in one spot and every copy updates. Content that appears on only one page is better added to that page as an ordinary block.
+
+There are 17 ready-made types to start from, among them a pricing table, a team grid, a timeline and customer testimonials. You fill in the words and pictures, and the design follows your site's look. A pricing table is for showing prices, with buttons that link to another page, and nothing is paid for in the table itself. Sections are placed on pages in Layout Builder, the page builder, which has to be installed as well.
+
+Before you change or delete a section, the admin tells you how many places use it, in words like "Used in 3 places". A section deleted by mistake can be restored. Give a spring offer banner a start and end date, and it appears in March and goes away by itself.
+
 ## What it does for you
 
 Content Sections lets you design reusable, publishable content once and select it from other content surfaces. Edit the current published section in one place and pages that resolve it receive that content, helping repeated calls to action or feature lists stay consistent.
