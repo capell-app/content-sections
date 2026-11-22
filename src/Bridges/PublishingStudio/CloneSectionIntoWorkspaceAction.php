@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Capell\ContentSections\Actions;
+namespace Capell\ContentSections\Bridges\PublishingStudio;
 
+use Capell\ContentSections\Actions\CopySectionMediaAction;
 use Capell\ContentSections\Models\Section;
 use Capell\Core\Models\AssetAttachment;
 use Capell\Core\Models\Translation;

@@ -5,9 +5,9 @@
         "default": {
             "source": {
                 "ref": "HEAD",
-                "commit": "131434b6cee6f973712d0dafc89d352247d0f082",
+                "commit": "441f2208301346ab8e90b8e06ecb9533195853b1",
                 "providers": {
-                    "Providers/ContentSectionsServiceProvider.php": "1f6160b5f8f1bfda752320f17016ad353c54ba037c8fbd875eb234f43e6e9fb6",
+                    "Providers/ContentSectionsServiceProvider.php": "6df0dbec207fd7dce3e9bf45f4d7f67d2f4ece2ff0a74c5ee2b4cf9191e79462",
                     "Providers/MigrationMetadataServiceProvider.php": "b8d51e399137587851538a5914f9668d05899819b9e06bbd6284d0b6a48a443b"
                 },
                 "configure": null

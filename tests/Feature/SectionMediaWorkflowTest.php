@@ -3,11 +3,11 @@
 declare(strict_types=1);
 
 use Capell\Admin\Contracts\Media\AdminMediaFieldFactory;
-use Capell\ContentSections\Actions\CloneSectionIntoWorkspaceAction;
 use Capell\ContentSections\Actions\EnsureSectionBlueprintForKeyAction;
 use Capell\ContentSections\Actions\HydrateSectionMediaSlotsAction;
 use Capell\ContentSections\Actions\ReplicateContentAction;
 use Capell\ContentSections\Actions\ResolveSectionMediaAction;
+use Capell\ContentSections\Bridges\PublishingStudio\CloneSectionIntoWorkspaceAction;
 use Capell\ContentSections\Data\SectionMediaData;
 use Capell\ContentSections\Filament\Resources\Sections\Pages\EditSection;
 use Capell\ContentSections\Filament\Resources\Sections\SectionResource;

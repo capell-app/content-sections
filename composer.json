@@ -19,9 +19,9 @@
     ],
     "require": {
         "php": "^8.4",
-        "capell-app/admin": "^1.0.66",
+        "capell-app/admin": "^1.0.78",
         "capell-app/block-library": "^1.0",
-        "capell-app/core": "^1.0.75",
+        "capell-app/core": "^1.0.79",
         "capell-app/frontend": "^1.0.70",
         "capell-app/layout-builder": "^1.0.50",
         "capell-app/theme-foundation": "^1.0"

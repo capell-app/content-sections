@@ -8,9 +8,9 @@ There are 17 ready-made types to start from, among them a pricing table, a team 
 
 Before you change or delete a section, the admin tells you how many places use it, in words like "Used in 3 places". A section deleted by mistake can be restored. Give a spring offer banner a start and end date, and it appears in March and goes away by itself.
 
-- **Price and availability:** Check current availability and price on the [Capell Marketplace listing](https://capell.app/extensions/content-sections).
-- **Licence:** Check the licence terms on the [Capell Marketplace listing](https://capell.app/extensions/content-sections).
-- **Requires:** `PHP ^8.4`, `capell-app/admin ^1.0.66`, `capell-app/block-library ^1.0`, `capell-app/core ^1.0.75`, `capell-app/frontend ^1.0.70`, `capell-app/layout-builder ^1.0.50`, `capell-app/theme-foundation ^1.0`.
+- **Price and availability:** Check current availability and price on the [Capell Marketplace listing](https://capell.app/marketplace/extensions/content-sections).
+- **Licence:** Check the licence terms on the [Capell Marketplace listing](https://capell.app/marketplace/extensions/content-sections).
+- **Requires:** `PHP ^8.4`, `capell-app/admin ^1.0.78`, `capell-app/block-library ^1.0`, `capell-app/core ^1.0.79`, `capell-app/frontend ^1.0.70`, `capell-app/layout-builder ^1.0.50`, `capell-app/theme-foundation ^1.0`.
 - **Install:** `composer require capell-app/content-sections`.
 
 ## Quick Start
@@ -29,7 +29,7 @@ Section definitions are registered through a provider contract and resolved by A
 
 ## Limits And Pitfalls
 
-- Install the required Capell packages at the versions in `composer.json`: `capell-app/admin ^1.0.66`, `capell-app/block-library ^1.0`, `capell-app/core ^1.0.75`, `capell-app/frontend ^1.0.70`, `capell-app/layout-builder ^1.0.50`, `capell-app/theme-foundation ^1.0`.
+- Install the required Capell packages at the versions in `composer.json`: `capell-app/admin ^1.0.78`, `capell-app/block-library ^1.0`, `capell-app/core ^1.0.79`, `capell-app/frontend ^1.0.70`, `capell-app/layout-builder ^1.0.50`, `capell-app/theme-foundation ^1.0`.
 - Run migrations before opening package resources or public routes.
 - Review middleware, throttling, signatures, and public-output safety in `routes/web.php` before exposing routes.
 - Keep the host Laravel scheduler running so package-registered schedules can execute: `content-sections:invalidate-due-caches (everyMinute; package registered)`.

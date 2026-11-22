@@ -1,7 +1,8 @@
 {
     "package": "content-sections",
     "composerName": "capell-app/content-sections",
-    "generatedFor": "deployment-screenshot-runner",
+    "generatedFor": "shared-capell-screenshot-runner",
+    "provenancePolicy": "runner-only-v1",
     "requiresInstalledPackage": true,
     "auditStatus": "authentic-installed-app-captured",
     "auditReason": "Required Marketplace evidence is captured from the real installed Content Sections Filament resource after runner-owned deterministic setup.",

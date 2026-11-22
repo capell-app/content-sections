@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Capell\ContentSections\Actions\CloneSectionIntoWorkspaceAction;
 use Capell\ContentSections\Actions\FinalizeSectionPublishAction;
+use Capell\ContentSections\Bridges\PublishingStudio\CloneSectionIntoWorkspaceAction;
 use Capell\ContentSections\Models\Section;
 use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Models\AssetAttachment;

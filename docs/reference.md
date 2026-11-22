@@ -108,7 +108,6 @@ Content Sections is an **Available** Capell package in the **Capell Essentials**
 - `BuildSectionRevisionSnapshotAction`
 - `BuildSectionUsageSummaryAction`
 - `CancelScheduledSectionUnpublishAction`
-- `CloneSectionIntoWorkspaceAction`
 - `CopySectionMediaAction`
 - `CreateHeroContentBlueprintAction`
 - `CreateSectionContentAction`

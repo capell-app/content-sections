@@ -186,14 +186,10 @@ class ActionsRepeater extends Repeater
      */
     private function publicActionOptions(): array
     {
-        $actionClass = ListPublicActionOptionsAction::class;
-
-        if (! class_exists($actionClass) || ! CapellCore::isPackageInstalled('capell-app/public-actions')) {
+        if (! (CapellCore::isPackageAvailable('capell-app/public-actions') && CapellCore::isPackageInstalled('capell-app/public-actions'))) {
             return [];
         }
 
-        $options = resolve($actionClass)->handle();
-
-        return is_array($options) ? $options : [];
+        return ListPublicActionOptionsAction::run();
     }
 }

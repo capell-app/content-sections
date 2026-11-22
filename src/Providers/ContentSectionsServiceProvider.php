@@ -11,12 +11,12 @@ use Capell\Admin\Enums\ConfiguratorTypeEnum as AdminConfiguratorTypeEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\BlockLibrary\Contracts\BlockDefinitionProvider;
 use Capell\BlockLibrary\Support\BlockRegistry;
-use Capell\ContentSections\Actions\CloneSectionIntoWorkspaceAction;
 use Capell\ContentSections\Actions\FinalizeSectionPublishAction;
 use Capell\ContentSections\Actions\Fragments\InvalidateSectionFragmentsForMediaAction;
 use Capell\ContentSections\Actions\RegisterDefaultSectionsAction;
 use Capell\ContentSections\Actions\RegisterSectionBlueprintSubjectsAction;
 use Capell\ContentSections\Actions\RegisterSectionDefinitionProviderAction;
+use Capell\ContentSections\Bridges\PublishingStudio\CloneSectionIntoWorkspaceAction;
 use Capell\ContentSections\Console\Commands\InvalidateDueScheduledSectionCachesCommand;
 use Capell\ContentSections\Contracts\SectionDefinitionProvider;
 use Capell\ContentSections\Enums\AssetEnum;
@@ -422,7 +422,7 @@ final class ContentSectionsServiceProvider extends AbstractPackageServiceProvide
 
     private function registerPublishingStudio(): self
     {
-        if (! class_exists(WorkspaceRegistry::class)) {
+        if (! CapellCore::isPackageAvailable('capell-app/publishing-studio')) {
             return $this;
         }
 

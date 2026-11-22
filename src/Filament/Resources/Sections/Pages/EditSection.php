@@ -24,6 +24,7 @@ use Capell\ContentSections\Filament\Resources\Sections\Widgets\SectionAlertsWidg
 use Capell\ContentSections\Models\Section;
 use Capell\ContentSections\Support\SectionRevisions;
 use Capell\ContentSections\Support\SectionUsageWarnings;
+use Capell\Core\Facades\CapellCore;
 use Capell\PublishingStudio\Actions\SaveRecordDraftAction;
 use Capell\PublishingStudio\Data\SavedRecordDraftData;
 use Capell\PublishingStudio\Enums\WorkspaceStatusEnum;
@@ -42,6 +43,7 @@ use Filament\Support\Facades\FilamentTimezone;
 use Filament\Widgets\Widget;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as AuthenticatedUser;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -224,13 +226,11 @@ class EditSection extends EditRecord
 
     private function publishingRevisionsAction(): ?object
     {
-        $actionClass = PublishingRevisionsHeaderAction::class;
-
-        if (! class_exists($actionClass)) {
+        if (! CapellCore::isPackageAvailable('capell-app/publishing-studio')) {
             return null;
         }
 
-        return $actionClass::make();
+        return PublishingRevisionsHeaderAction::make();
     }
 
     private function restoreRevisionAction(): ?Action
@@ -280,7 +280,7 @@ class EditSection extends EditRecord
         foreach (SectionRevisions::history($this->record) as $revision) {
             $time = $revision['created_at'] === null
                 ? ''
-                : CarbonImmutable::parse($revision['created_at'])->setTimezone(FilamentTimezone::get())->format('j M Y H:i T');
+                : CarbonImmutable::parse($revision['created_at'])->setTimezone(FilamentTimezone::get())->settings(['locale' => app()->getLocale()])->translatedFormat('j M Y H:i T');
             $replacements = ['version' => $revision['version'], 'event' => $revision['event'], 'time' => $time];
 
             $options[$revision['id']] = $revision['changed'] === []
@@ -293,7 +293,7 @@ class EditSection extends EditRecord
 
     private function saveAsDraftAction(): ?Action
     {
-        if (! class_exists(SaveRecordDraftAction::class)) {
+        if (! CapellCore::isPackageAvailable('capell-app/publishing-studio')) {
             return null;
         }
 
@@ -309,7 +309,7 @@ class EditSection extends EditRecord
 
     private function publishAction(): ?Action
     {
-        if (! class_exists(Publisher::class)) {
+        if (! CapellCore::isPackageAvailable('capell-app/publishing-studio')) {
             return null;
         }
 
@@ -437,6 +437,10 @@ class EditSection extends EditRecord
 
     private function saveSectionDraft(): void
     {
+        if (! CapellCore::isPackageAvailable('capell-app/publishing-studio')) {
+            return;
+        }
+
         $this->authorize('update', $this->record);
 
         $user = auth()->user();
@@ -468,8 +472,12 @@ class EditSection extends EditRecord
         );
     }
 
-    private function workspace(): ?Workspace
+    private function workspace(): ?Model
     {
+        if (! CapellCore::isPackageAvailable('capell-app/publishing-studio')) {
+            return null;
+        }
+
         if (! Schema::hasTable((new Workspace)->getTable())) {
             return null;
         }
