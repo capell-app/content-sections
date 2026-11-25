@@ -16,6 +16,7 @@ use Capell\ContentSections\Actions\CancelScheduledSectionUnpublishAction;
 use Capell\ContentSections\Actions\ReplicateContentAction;
 use Capell\ContentSections\Actions\RestoreSectionRevisionAction;
 use Capell\ContentSections\Actions\UnpublishSectionAction;
+use Capell\ContentSections\Bridges\PublishingStudio\SectionWorkspaceBridge;
 use Capell\ContentSections\Data\SectionUsageSummaryData;
 use Capell\ContentSections\Enums\LivewireComponentsEnum;
 use Capell\ContentSections\Enums\ResourceEnum;
@@ -25,12 +26,6 @@ use Capell\ContentSections\Models\Section;
 use Capell\ContentSections\Support\SectionRevisions;
 use Capell\ContentSections\Support\SectionUsageWarnings;
 use Capell\Core\Facades\CapellCore;
-use Capell\PublishingStudio\Actions\SaveRecordDraftAction;
-use Capell\PublishingStudio\Data\SavedRecordDraftData;
-use Capell\PublishingStudio\Enums\WorkspaceStatusEnum;
-use Capell\PublishingStudio\Filament\Actions\PublishingRevisionsHeaderAction;
-use Capell\PublishingStudio\Models\Workspace;
-use Capell\PublishingStudio\Publisher;
 use Carbon\CarbonImmutable;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -45,9 +40,7 @@ use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as AuthenticatedUser;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
@@ -226,11 +219,7 @@ class EditSection extends EditRecord
 
     private function publishingRevisionsAction(): ?object
     {
-        if (! CapellCore::isPackageAvailable('capell-app/publishing-studio')) {
-            return null;
-        }
-
-        return PublishingRevisionsHeaderAction::make();
+        return SectionWorkspaceBridge::revisionsHeaderAction();
     }
 
     private function restoreRevisionAction(): ?Action
@@ -318,25 +307,15 @@ class EditSection extends EditRecord
             ->icon('heroicon-o-rocket-launch')
             ->color('primary')
             ->visible(fn (): bool => (int) $this->record->getAttribute('workspace_id') > 0)
-            ->authorize(fn (): bool => ($workspace = $this->workspace()) instanceof Workspace
-                && Gate::allows('publish', $workspace))
-            ->disabled(fn (): bool => ! in_array($this->workspace()?->status, [
-                WorkspaceStatusEnum::Approved,
-                WorkspaceStatusEnum::Scheduled,
-            ], true))
+            ->authorize(fn (): bool => SectionWorkspaceBridge::mayPublish($this->workspace()))
+            ->disabled(fn (): bool => ! SectionWorkspaceBridge::isReadyToPublish($this->workspace()))
             ->requiresConfirmation()
             ->modalHeading(__('capell-content-sections::heading.publish_section'))
             ->action(function (): void {
-                $workspace = $this->workspace();
-
-                if (! $workspace instanceof Workspace) {
-                    return;
-                }
-
-                Gate::authorize('publish', $workspace);
-
                 try {
-                    resolve(Publisher::class)->publish($workspace, auth()->user());
+                    if (! SectionWorkspaceBridge::publish(app(), $this->workspace(), auth()->user())) {
+                        return;
+                    }
                 } catch (Throwable $throwable) {
                     Notification::make()
                         ->title(__('capell-content-sections::message.publish_failed'))
@@ -449,41 +428,34 @@ class EditSection extends EditRecord
             return;
         }
 
-        // Related copies are made while the form state is read, so they share the draft's transaction.
-        $result = DB::transaction(fn (): SavedRecordDraftData => SaveRecordDraftAction::run(
+        $result = SectionWorkspaceBridge::saveDraft(
             record: $this->record,
             data: $this->form->getState(),
             user: $user,
             saveRelationships: function (Section $draft): void {
                 $this->form->model($draft)->saveRelationships();
             },
-        ));
+        );
+
+        if ($result === null) {
+            return;
+        }
 
         Notification::make()
-            ->title(__('capell-content-sections::message.saved_as_draft', ['workspace' => $result->workspace->name]))
+            ->title(__('capell-content-sections::message.saved_as_draft', ['workspace' => $result['workspaceName']]))
             ->success()
             ->send();
 
-        $this->dispatch('workspace-changed', workspaceId: $result->workspace->id);
+        $this->dispatch('workspace-changed', workspaceId: $result['workspaceId']);
 
         $this->redirect(
-            static::getResource()::getUrl('edit', ['record' => $result->record->getKey()]),
+            static::getResource()::getUrl('edit', ['record' => $result['recordKey']]),
             navigate: false,
         );
     }
 
     private function workspace(): ?Model
     {
-        if (! CapellCore::isPackageAvailable('capell-app/publishing-studio')) {
-            return null;
-        }
-
-        if (! Schema::hasTable((new Workspace)->getTable())) {
-            return null;
-        }
-
-        $workspaceId = $this->record->getAttribute('workspace_id');
-
-        return $workspaceId === null ? null : Workspace::query()->find((int) $workspaceId);
+        return SectionWorkspaceBridge::workspaceFor($this->record);
     }
 }

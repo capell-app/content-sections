@@ -7,11 +7,10 @@ namespace Capell\ContentSections\Filament\Components\Forms;
 use Capell\Admin\Filament\Components\Forms\IconPicker;
 use Capell\Admin\Filament\Components\Forms\PageSelect;
 use Capell\Admin\Filament\Components\Forms\SiteSelect;
+use Capell\ContentSections\Bridges\PublicActions\SectionPublicActionsBridge;
 use Capell\ContentSections\Enums\ActionColor;
 use Capell\ContentSections\Enums\ActionLinkEnum;
 use Capell\ContentSections\Enums\ActionTarget;
-use Capell\Core\Facades\CapellCore;
-use Capell\PublicActions\Actions\ListPublicActionOptionsAction;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -186,10 +185,6 @@ class ActionsRepeater extends Repeater
      */
     private function publicActionOptions(): array
     {
-        if (! (CapellCore::isPackageAvailable('capell-app/public-actions') && CapellCore::isPackageInstalled('capell-app/public-actions'))) {
-            return [];
-        }
-
-        return ListPublicActionOptionsAction::run();
+        return SectionPublicActionsBridge::options();
     }
 }

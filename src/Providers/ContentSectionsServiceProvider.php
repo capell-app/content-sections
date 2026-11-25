@@ -11,12 +11,11 @@ use Capell\Admin\Enums\ConfiguratorTypeEnum as AdminConfiguratorTypeEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\BlockLibrary\Contracts\BlockDefinitionProvider;
 use Capell\BlockLibrary\Support\BlockRegistry;
-use Capell\ContentSections\Actions\FinalizeSectionPublishAction;
 use Capell\ContentSections\Actions\Fragments\InvalidateSectionFragmentsForMediaAction;
 use Capell\ContentSections\Actions\RegisterDefaultSectionsAction;
 use Capell\ContentSections\Actions\RegisterSectionBlueprintSubjectsAction;
 use Capell\ContentSections\Actions\RegisterSectionDefinitionProviderAction;
-use Capell\ContentSections\Bridges\PublishingStudio\CloneSectionIntoWorkspaceAction;
+use Capell\ContentSections\Bridges\PublishingStudio\SectionWorkspaceBridge;
 use Capell\ContentSections\Console\Commands\InvalidateDueScheduledSectionCachesCommand;
 use Capell\ContentSections\Contracts\SectionDefinitionProvider;
 use Capell\ContentSections\Enums\AssetEnum;
@@ -47,11 +46,8 @@ use Capell\Frontend\Contracts\Fragments\PublicFragmentUrlResolver;
 use Capell\Frontend\Contracts\FrontendComponentRegistryInterface;
 use Capell\Frontend\Data\FrontendAssetData;
 use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadContributor;
-use Capell\PublishingStudio\Models\Workspace;
-use Capell\PublishingStudio\WorkspaceRegistry;
 use Composer\InstalledVersions;
 use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
@@ -422,15 +418,7 @@ final class ContentSectionsServiceProvider extends AbstractPackageServiceProvide
 
     private function registerPublishingStudio(): self
     {
-        if (! CapellCore::isPackageAvailable('capell-app/publishing-studio')) {
-            return $this;
-        }
-
-        WorkspaceRegistry::register(
-            Section::class,
-            cloneUsing: fn (Model $source, Workspace $workspace): Model => CloneSectionIntoWorkspaceAction::run($source, $workspace),
-            finalizeOnPublish: fn (Model $record): Model => FinalizeSectionPublishAction::run($record),
-        );
+        SectionWorkspaceBridge::registerWorkspace();
 
         return $this;
     }
