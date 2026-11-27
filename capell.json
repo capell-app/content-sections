@@ -6,6 +6,7 @@
     "kind": "package",
     "capellApiVersion": "^1.0",
     "version": "1.0.0",
+    "launchStatus": "preview",
     "description": "Build reusable page sections such as FAQs, pricing tables and team grids once, then use them on many pages.",
     "product": {
         "group": "Capell Essentials",
